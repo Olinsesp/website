@@ -21,7 +21,7 @@ export default function Home() {
       title: 'Inscrições Abertas',
       description:
         'Cadastre-se agora e participe do maior evento esportivo regional!',
-      link: '/inscricoes',
+      link: '/Inscricoes',
       variant: 'default' as const,
     },
     {
@@ -54,7 +54,7 @@ export default function Home() {
     { icon: Clock, title: '3 Dias', description: 'de competições intensas' },
     { icon: Trophy, title: '15+', description: 'modalidades esportivas' },
     { icon: Users, title: '500+', description: 'atletas participantes' },
-    { icon: MapPin, title: 'Centro', description: 'Esportivo Municipal' },
+    { icon: MapPin, title: 'Centro', description: 'Esportivo' },
   ];
 
   return (
@@ -114,9 +114,9 @@ export default function Home() {
               return (
                 <Card
                   key={index}
-                  className="text-center p-6 bg-gradient-card shadow-card hover:shadow-primary transition-smooth"
+                  className="text-center border border-zinc-300 p-6 bg-gradient-card shadow-card hover:shadow-primary transition-smooth"
                 >
-                  <Icon className="h-12 w-12 text-primary mx-auto mb-4" />
+                  <Icon className="h-12 w-12 mx-auto mb-4 text-blue-500" />
                   <h3 className="text-2xl font-bold text-primary mb-2">
                     {highlight.title}
                   </h3>

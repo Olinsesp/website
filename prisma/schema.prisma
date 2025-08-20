@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Inscricao {
+  id             String   @id @default(uuid())
+  nome           String
+  email          String   @unique
+  cpf            String   @unique
+  dataNascimento DateTime
+  telefone       String
+  camiseta       String // P, M, G, GG, XG etc.
+  afiliacao      String
+  modalidades    String[]
+  createdAt      DateTime @default(now())
+}
+
+model Jogo {
+  id         String   @id @default(uuid())
+  modalidade String
+  data       DateTime
+  horario    String
+  resultado  String?
+  createdAt  DateTime @default(now())
+}
+
+model Midia {
+  id        String   @id @default(uuid())
+  tipo      String // imagem, vídeo, release
+  url       String
+  titulo    String?
+  destaque  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Cronograma {
+  id        String   @id @default(uuid())
+  atividade String // inscrições, competições, cerimônias, congresso técnico
+  inicio    DateTime
+  fim       DateTime
+  detalhes  String?
+  createdAt DateTime @default(now())
+}
+
+model Servico {
+  id          String   @id @default(uuid())
+  nome        String
+  descricao   String
+  localizacao String
+  horario     String
+  createdAt   DateTime @default(now())
+}

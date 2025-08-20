@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   Card,
   CardContent,
@@ -12,184 +13,99 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, Clock, MapPin, Trophy, Users } from 'lucide-react';
 
+// Definindo a interface para os eventos do cronograma
+interface Evento {
+  id: string;
+  atividade: string;
+  inicio: string;
+  fim: string;
+  detalhes?: string | null;
+  horario?: string;
+  tipo?: string;
+  local?: string;
+  status?: 'agendado' | 'em_andamento' | 'finalizado';
+  participantes?: string;
+  modalidade?: string;
+  resultado?: string;
+}
+
+interface DiaCronograma {
+  id: string;
+  data: string;
+  titulo: string;
+  descricao: string;
+  eventos: Evento[];
+}
+
+// Função para buscar os dados do cronograma
+const fetchCronograma = async (): Promise<Evento[]> => {
+  const res = await fetch('/api/cronograma');
+  if (!res.ok) {
+    throw new Error('Falha ao buscar dados do cronograma');
+  }
+  return res.json();
+};
+
 const Cronograma = () => {
+  const {
+    data: eventos,
+    isLoading,
+    isError,
+    error,
+  } = useQuery<Evento[]>({
+    queryKey: ['cronograma'],
+    queryFn: fetchCronograma,
+  });
+
+  const cronogramaDias = useMemo(() => {
+    if (!eventos) return [];
+
+    const groupedByDay = eventos.reduce((acc, evento) => {
+      const data = new Date(evento.inicio).toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+      if (!acc[data]) {
+        acc[data] = {
+          id: `dia-${Object.keys(acc).length + 1}`,
+          data,
+          titulo: `Dia ${Object.keys(acc).length + 1}`,
+          descricao: `Eventos do dia ${data}`,
+          eventos: [],
+        };
+      }
+      // Adicionando dados mockados para manter a UI, já que o model não os possui
+      acc[data].eventos.push({
+        ...evento,
+        horario: new Date(evento.inicio).toLocaleTimeString('pt-BR', {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+        tipo: evento.atividade.includes('Cerimônia') ? 'cerimonia' : 'jogo',
+        local: evento.detalhes || 'A definir',
+        status: 'agendado',
+        participantes: 'Consulte detalhes',
+      });
+      return acc;
+    }, {} as Record<string, DiaCronograma>);
+
+    return Object.values(groupedByDay);
+  }, [eventos]);
+
   const [selectedDay, setSelectedDay] = useState('dia1');
 
-  const cronogramaDias = [
-    {
-      id: 'dia1',
-      data: '15/12/2026',
-      titulo: 'Primeiro Dia',
-      descricao: 'Cerimônia de Abertura e Eliminatórias',
-      eventos: [
-        {
-          horario: '08:00',
-          modalidade: 'Cerimônia de Abertura',
-          tipo: 'cerimonia',
-          local: 'Arena Principal',
-          status: 'agendado',
-          participantes: 'Todos os atletas',
-        },
-        {
-          horario: '09:30',
-          modalidade: 'Futebol - Fase de Grupos',
-          tipo: 'jogo',
-          local: 'Campo 1',
-          status: 'agendado',
-          participantes: 'Grupo A vs Grupo B',
-        },
-        {
-          horario: '11:00',
-          modalidade: 'Basquete - Eliminatórias',
-          tipo: 'jogo',
-          local: 'Quadra 1',
-          status: 'agendado',
-          participantes: 'Equipes 1-4',
-        },
-        {
-          horario: '14:00',
-          modalidade: 'Vôlei - Fase de Grupos',
-          tipo: 'jogo',
-          local: 'Quadra 2',
-          status: 'agendado',
-          participantes: 'Chaves A e B',
-        },
-        {
-          horario: '16:00',
-          modalidade: 'Atletismo - 100m',
-          tipo: 'prova',
-          local: 'Pista de Atletismo',
-          status: 'agendado',
-          participantes: 'Classificatórias',
-        },
-        {
-          horario: '18:00',
-          modalidade: 'Congresso Técnico',
-          tipo: 'congresso',
-          local: 'Auditório',
-          status: 'agendado',
-          participantes: 'Técnicos e Dirigentes',
-        },
-      ],
-    },
-    {
-      id: 'dia2',
-      data: '16/12/2026',
-      titulo: 'Segundo Dia',
-      descricao: 'Semifinais e Provas Técnicas',
-      eventos: [
-        {
-          horario: '08:30',
-          modalidade: 'Natação - 50m Livre',
-          tipo: 'prova',
-          local: 'Piscina Olímpica',
-          status: 'agendado',
-          participantes: 'Finais',
-        },
-        {
-          horario: '10:00',
-          modalidade: 'Tênis - Semifinais',
-          tipo: 'jogo',
-          local: 'Quadras de Tênis',
-          status: 'agendado',
-          participantes: '4 melhores',
-        },
-        {
-          horario: '11:30',
-          modalidade: 'Futsal - Semifinais',
-          tipo: 'jogo',
-          local: 'Ginásio',
-          status: 'em_andamento',
-          participantes: 'Semi A vs Semi B',
-        },
-        {
-          horario: '14:00',
-          modalidade: 'Judô - Finais',
-          tipo: 'luta',
-          local: 'Tatame',
-          status: 'finalizado',
-          participantes: 'Finalistas por categoria',
-          resultado: 'Ouro: João Silva, Prata: Maria Santos',
-        },
-        {
-          horario: '16:00',
-          modalidade: 'Ciclismo - 20km',
-          tipo: 'prova',
-          local: 'Circuito Urbano',
-          status: 'agendado',
-          participantes: 'Pelotão geral',
-        },
-        {
-          horario: '19:00',
-          modalidade: 'Handebol - Final Feminina',
-          tipo: 'jogo',
-          local: 'Arena Principal',
-          status: 'agendado',
-          participantes: 'Equipe A vs Equipe B',
-        },
-      ],
-    },
-    {
-      id: 'dia3',
-      data: '17/12/2026',
-      titulo: 'Terceiro Dia',
-      descricao: 'Grandes Finais e Encerramento',
-      eventos: [
-        {
-          horario: '09:00',
-          modalidade: 'Corrida 10km',
-          tipo: 'prova',
-          local: 'Circuito da Cidade',
-          status: 'agendado',
-          participantes: 'Categorias masculina e feminina',
-        },
-        {
-          horario: '11:00',
-          modalidade: 'Futebol - Final',
-          tipo: 'final',
-          local: 'Estádio Principal',
-          status: 'agendado',
-          participantes: 'Finalistas',
-        },
-        {
-          horario: '14:00',
-          modalidade: 'Basquete - Final',
-          tipo: 'final',
-          local: 'Arena Principal',
-          status: 'agendado',
-          participantes: 'Finalistas',
-        },
-        {
-          horario: '16:00',
-          modalidade: 'Vôlei - Final',
-          tipo: 'final',
-          local: 'Quadra Central',
-          status: 'agendado',
-          participantes: 'Finalistas',
-        },
-        {
-          horario: '18:00',
-          modalidade: 'Cerimônia de Encerramento',
-          tipo: 'cerimonia',
-          local: 'Arena Principal',
-          status: 'agendado',
-          participantes: 'Premiação geral',
-        },
-      ],
-    },
-  ];
-
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string | undefined) => {
     switch (status) {
       case 'finalizado':
         return (
-          <Badge variant="secondary" className="bg-success">
+          <Badge variant="secondary" className="bg-green-500">
             Finalizado
           </Badge>
         );
       case 'em_andamento':
         return (
-          <Badge variant="secondary" className="bg-accent animate-pulse">
+          <Badge variant="secondary" className="bg-yellow-500 animate-pulse">
             Em Andamento
           </Badge>
         );
@@ -200,18 +116,31 @@ const Cronograma = () => {
     }
   };
 
-  const getTipoIcon = (tipo: string) => {
+  const getTipoIcon = (tipo: string | undefined) => {
     switch (tipo) {
       case 'cerimonia':
         return <Trophy className="h-4 w-4" />;
       case 'final':
-        return <Trophy className="h-4 w-4 text-accent" />;
+        return <Trophy className="h-4 w-4 text-yellow-500" />;
       case 'congresso':
         return <Users className="h-4 w-4" />;
       default:
         return <Calendar className="h-4 w-4" />;
     }
   };
+
+  if (isLoading)
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        Carregando cronograma...
+      </div>
+    );
+  if (isError)
+    return (
+      <div className="container mx-auto px-4 py-8 text-center text-red-500">
+        Erro ao carregar cronograma: {error.message}
+      </div>
+    );
 
   return (
     <div className="min-h-screen py-8">
@@ -229,9 +158,9 @@ const Cronograma = () => {
 
         {/* Informações Gerais */}
         <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <Card className="text-center bg-gradient-card shadow-card">
+          <Card className="text-center bg-gradient-card shadow-card border border-zinc-300">
             <CardContent className="p-6">
-              <Calendar className="h-8 w-8 text-primary mx-auto mb-2" />
+              <Calendar className="h-8 w-8 text-blue-500 mx-auto mb-2" />
               <h3 className="font-semibold">15-17 Dezembro</h3>
               <p className="text-sm text-muted-foreground">
                 3 dias de competições
@@ -239,9 +168,9 @@ const Cronograma = () => {
             </CardContent>
           </Card>
 
-          <Card className="text-center bg-gradient-card shadow-card">
+          <Card className="text-center bg-gradient-card shadow-card border border-zinc-300">
             <CardContent className="p-6">
-              <Clock className="h-8 w-8 text-primary mx-auto mb-2" />
+              <Clock className="h-8 w-8 text-blue-500 mx-auto mb-2" />
               <h3 className="font-semibold">8h às 20h</h3>
               <p className="text-sm text-muted-foreground">
                 Horário de funcionamento
@@ -249,9 +178,9 @@ const Cronograma = () => {
             </CardContent>
           </Card>
 
-          <Card className="text-center bg-gradient-card shadow-card">
+          <Card className="text-center bg-gradient-card shadow-card border border-zinc-300">
             <CardContent className="p-6">
-              <MapPin className="h-8 w-8 text-primary mx-auto mb-2" />
+              <MapPin className="h-8 w-8 text-blue-500 mx-auto mb-2" />
               <h3 className="font-semibold">Centro Esportivo</h3>
               <p className="text-sm text-muted-foreground">Local principal</p>
             </CardContent>
@@ -259,7 +188,7 @@ const Cronograma = () => {
         </div>
 
         {/* Cronograma por Dias */}
-        <Card className="bg-gradient-card shadow-card">
+        <Card className="bg-gradient-card shadow-card border border-zinc-300">
           <CardHeader>
             <CardTitle className="text-2xl">Programação Detalhada</CardTitle>
             <CardDescription>
@@ -294,7 +223,7 @@ const Cronograma = () => {
                     {dia.eventos.map((evento, index) => (
                       <Card
                         key={index}
-                        className="hover:shadow-primary transition-smooth"
+                        className="hover:shadow-primary transition-smooth border border-zinc-300"
                       >
                         <CardContent className="p-4">
                           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -322,7 +251,7 @@ const Cronograma = () => {
                                     {evento.participantes}
                                   </div>
                                   {evento.resultado && (
-                                    <div className="text-success font-medium">
+                                    <div className="text-green-500 font-medium">
                                       🏆 {evento.resultado}
                                     </div>
                                   )}
@@ -346,53 +275,6 @@ const Cronograma = () => {
                 </TabsContent>
               ))}
             </Tabs>
-          </CardContent>
-        </Card>
-
-        {/* Congressos Técnicos */}
-        <Card className="mt-8 bg-gradient-card shadow-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              Congressos Técnicos
-            </CardTitle>
-            <CardDescription>
-              Reuniões importantes para técnicos e dirigentes
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="border-l-4 border-primary pl-4">
-                <h4 className="font-semibold">Congresso Técnico - Dia 1</h4>
-                <p className="text-sm text-muted-foreground mb-2">
-                  15/12/2026 às 18:00 - Auditório Principal
-                </p>
-                <div className="text-sm">
-                  <strong>Pauta:</strong>
-                  <ul className="list-disc list-inside mt-1 space-y-1">
-                    <li>Apresentação das regras gerais</li>
-                    <li>Sorteio das chaves e grupos</li>
-                    <li>Orientações sobre cronograma</li>
-                    <li>Esclarecimentos sobre arbitragem</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="border-l-4 border-accent pl-4">
-                <h4 className="font-semibold">Reunião de Resultados - Dia 2</h4>
-                <p className="text-sm text-muted-foreground mb-2">
-                  16/12/2026 às 20:30 - Sala de Imprensa
-                </p>
-                <div className="text-sm">
-                  <strong>Pauta:</strong>
-                  <ul className="list-disc list-inside mt-1 space-y-1">
-                    <li>Divulgação dos resultados do dia</li>
-                    <li>Definição das finais</li>
-                    <li>Ajustes no cronograma final</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>

@@ -1,5 +1,7 @@
 'use client';
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -18,31 +20,48 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Textarea } from '@/components/ui/textarea';
-import { Calendar, Clock, Users, Trophy } from 'lucide-react';
+import { Calendar, Users, Trophy } from 'lucide-react';
 import { toast } from 'sonner';
 import CountdownTimer from '@/components/ui/CountdownTimer';
 
+const inscricaoSchema = z.object({
+  nome: z
+    .string()
+    .min(3, { message: 'O nome deve ter pelo menos 3 caracteres.' }),
+  email: z.email({ message: 'Email inválido.' }),
+  telefone: z.string().min(10, { message: 'Telefone inválido.' }),
+  cpf: z.string().min(11, { message: 'CPF deve ter 11 caracteres.' }),
+  dataNascimento: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: 'Data de nascimento inválida',
+  }),
+  camiseta: z.string().nonempty('Selecione um tamanho de camiseta.'),
+  afiliacao: z.string().optional(),
+  modalidades: z
+    .array(z.string())
+    .min(1, { message: 'Selecione ao menos uma modalidade.' }),
+});
+
+type InscricaoFormData = z.infer<typeof inscricaoSchema>;
+
 const Inscricoes = () => {
-  const [formData, setFormData] = useState({
-    nome: '',
-    email: '',
-    telefone: '',
-    cpf: '',
-    idade: '',
-    sexo: '',
-    camiseta: '',
-    afiliacao: '',
-    modalidadesPrimarias: [] as string[],
-    interesseOutrasModalidades: false,
-    outrasModalidades: '',
-    observacoes: '',
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    setValue,
+    watch,
+  } = useForm<InscricaoFormData>({
+    resolver: zodResolver(inscricaoSchema),
+    defaultValues: {
+      modalidades: [],
+    },
   });
 
   const inscricoesEndDate = new Date();
   inscricoesEndDate.setDate(inscricoesEndDate.getDate() + 30);
 
-  const modalidades = [
+  const modalidadesOptions = [
     'Futebol',
     'Basquete',
     'Vôlei',
@@ -60,36 +79,52 @@ const Inscricoes = () => {
     'Xadrez',
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast.success('Inscrição Realizada!', {
-      description:
-        'Sua inscrição foi processada com sucesso. Você receberá um email de confirmação em breve.',
-    });
+  const onSubmit = async (data: InscricaoFormData) => {
+    try {
+      const response = await fetch('/api/inscricoes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...data,
+          dataNascimento: new Date(data.dataNascimento),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Falha ao realizar inscrição.');
+      }
+
+      toast.success('Inscrição Realizada!', {
+        description:
+          'Sua inscrição foi processada com sucesso. Você receberá um email de confirmação em breve.',
+      });
+      reset();
+    } catch (error: unknown) {
+      let message = 'Ocorreu um erro. Tente novamente.';
+      if (error instanceof Error) {
+        message = error.message;
+      }
+      toast.error('Erro na Inscrição', {
+        description: message,
+      });
+    }
   };
 
-  const handleModalidadeChange = (modalidade: string, checked: boolean) => {
-    setFormData((prev) => ({
-      ...prev,
-      modalidadesPrimarias: checked
-        ? [...prev.modalidadesPrimarias, modalidade]
-        : prev.modalidadesPrimarias.filter((m) => m !== modalidade),
-    }));
-  };
+  const watchedModalidades = watch('modalidades');
 
   return (
     <div className="min-h-screen py-8">
       <div className="container mx-auto px-4 max-w-4xl">
-        {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text">
+          <h1 className="text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
             Inscrições Olinsesp 2026
           </h1>
           <p className="text-lg text-muted-foreground mb-6">
             Faça parte do maior evento esportivo da região!
           </p>
-
-          {/* Countdown */}
           <Card className="max-w-md mx-auto mb-8 bg-gradient-accent text-white">
             <CardContent className="p-6">
               <CountdownTimer
@@ -100,9 +135,8 @@ const Inscricoes = () => {
           </Card>
         </div>
 
-        {/* Info Cards */}
         <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <Card className="text-center bg-gradient-card shadow-card">
+          <Card className="text-center bg-gradient-card shadow-card border border-zinc-300">
             <CardContent className="p-6">
               <Calendar className="h-8 w-8 text-primary mx-auto mb-2" />
               <h3 className="font-semibold">Período de Inscrições</h3>
@@ -111,8 +145,7 @@ const Inscricoes = () => {
               </p>
             </CardContent>
           </Card>
-
-          <Card className="text-center bg-gradient-card shadow-card">
+          <Card className="text-center bg-gradient-card shadow-card border border-zinc-300">
             <CardContent className="p-6">
               <Trophy className="h-8 w-8 text-primary mx-auto mb-2" />
               <h3 className="font-semibold">15+ Modalidades</h3>
@@ -121,8 +154,7 @@ const Inscricoes = () => {
               </p>
             </CardContent>
           </Card>
-
-          <Card className="text-center bg-gradient-card shadow-card">
+          <Card className="text-center bg-gradient-card shadow-card border border-zinc-300">
             <CardContent className="p-6">
               <Users className="h-8 w-8 text-primary mx-auto mb-2" />
               <h3 className="font-semibold">Inscrição Gratuita</h3>
@@ -133,8 +165,7 @@ const Inscricoes = () => {
           </Card>
         </div>
 
-        {/* Formulário */}
-        <Card className="bg-gradient-card shadow-card border border-blue-500">
+        <Card className="bg-gradient-card shadow-card border border-zinc-300">
           <CardHeader>
             <CardTitle className="text-2xl">Formulário de Inscrição</CardTitle>
             <CardDescription>
@@ -143,130 +174,91 @@ const Inscricoes = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Dados Pessoais */}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-blue-600">
                   Dados Pessoais
                 </h3>
-
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="nome">Nome Completo *</Label>
                     <Input
                       id="nome"
-                      value={formData.nome}
-                      className="border border-blue-500"
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          nome: e.target.value,
-                        }))
-                      }
-                      required
+                      {...register('nome')}
+                      className="border border-zinc-300"
                     />
+                    {errors.nome && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.nome.message}
+                      </p>
+                    )}
                   </div>
-
                   <div>
                     <Label htmlFor="email">Email *</Label>
                     <Input
                       id="email"
                       type="email"
-                      value={formData.email}
-                      className="border border-blue-500"
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          email: e.target.value,
-                        }))
-                      }
-                      required
+                      {...register('email')}
+                      className="border border-zinc-300"
                     />
+                    {errors.email && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.email.message}
+                      </p>
+                    )}
                   </div>
                 </div>
-
                 <div className="grid md:grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="telefone">Telefone *</Label>
                     <Input
                       id="telefone"
-                      value={formData.telefone}
-                      className="border border-blue-500"
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          telefone: e.target.value,
-                        }))
-                      }
+                      {...register('telefone')}
                       placeholder="(11) 99999-9999"
-                      required
+                      className="border border-zinc-300"
                     />
+                    {errors.telefone && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.telefone.message}
+                      </p>
+                    )}
                   </div>
-
                   <div>
                     <Label htmlFor="cpf">CPF *</Label>
                     <Input
                       id="cpf"
-                      value={formData.cpf}
-                      className="border border-blue-500"
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          cpf: e.target.value,
-                        }))
-                      }
+                      {...register('cpf')}
                       placeholder="000.000.000-00"
-                      required
+                      className="border border-zinc-300"
                     />
+                    {errors.cpf && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.cpf.message}
+                      </p>
+                    )}
                   </div>
-
                   <div>
-                    <Label htmlFor="idade">Idade *</Label>
+                    <Label htmlFor="dataNascimento">Data de Nascimento *</Label>
                     <Input
-                      id="idade"
-                      type="number"
-                      value={formData.idade}
-                      className="border border-blue-500"
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          idade: e.target.value,
-                        }))
-                      }
-                      min="16"
-                      max="80"
-                      required
+                      id="dataNascimento"
+                      type="date"
+                      {...register('dataNascimento')}
+                      className="border border-zinc-300"
                     />
+                    {errors.dataNascimento && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.dataNascimento.message}
+                      </p>
+                    )}
                   </div>
                 </div>
-
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="sexo">Sexo *</Label>
-                    <Select
-                      onValueChange={(value) =>
-                        setFormData((prev) => ({ ...prev, sexo: value }))
-                      }
-                    >
-                      <SelectTrigger className="border border-blue-500">
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="masculino">Masculino</SelectItem>
-                        <SelectItem value="feminino">Feminino</SelectItem>
-                        <SelectItem value="outro">Outro</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
+                <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="camiseta">Tamanho da Camiseta *</Label>
                     <Select
-                      onValueChange={(value) =>
-                        setFormData((prev) => ({ ...prev, camiseta: value }))
-                      }
+                      onValueChange={(value) => setValue('camiseta', value)}
                     >
-                      <SelectTrigger className="border border-blue-500">
+                      <SelectTrigger className="border border-zinc-300">
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
                       <SelectContent>
@@ -279,27 +271,24 @@ const Inscricoes = () => {
                         <SelectItem value="xxg">XXG</SelectItem>
                       </SelectContent>
                     </Select>
+                    {errors.camiseta && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.camiseta.message}
+                      </p>
+                    )}
                   </div>
-
                   <div>
                     <Label htmlFor="afiliacao">Afiliação/Força</Label>
                     <Input
                       id="afiliacao"
-                      value={formData.afiliacao}
-                      className="border border-blue-500"
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          afiliacao: e.target.value,
-                        }))
-                      }
+                      {...register('afiliacao')}
                       placeholder="Ex: SSP-DF, PMDF, CBMDF, etc."
+                      className="border border-zinc-300"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Modalidades */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-primary">
                   Modalidades de Interesse
@@ -307,22 +296,24 @@ const Inscricoes = () => {
                 <p className="text-sm text-muted-foreground">
                   Selecione as modalidades que deseja participar:
                 </p>
-
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {modalidades.map((modalidade) => (
+                  {modalidadesOptions.map((modalidade) => (
                     <div
                       key={modalidade}
                       className="flex items-center space-x-2"
                     >
                       <Checkbox
                         id={modalidade}
-                        className="border border-blue-500"
-                        checked={formData.modalidadesPrimarias.includes(
-                          modalidade
-                        )}
-                        onCheckedChange={(checked) =>
-                          handleModalidadeChange(modalidade, checked as boolean)
-                        }
+                        className="border border-zinc-300"
+                        onCheckedChange={(checked) => {
+                          const currentModalidades = watchedModalidades || [];
+                          const newModalidades = checked
+                            ? [...currentModalidades, modalidade]
+                            : currentModalidades.filter(
+                                (m) => m !== modalidade
+                              );
+                          setValue('modalidades', newModalidades);
+                        }}
                       />
                       <Label htmlFor={modalidade} className="text-sm">
                         {modalidade}
@@ -330,26 +321,13 @@ const Inscricoes = () => {
                     </div>
                   ))}
                 </div>
+                {errors.modalidades && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.modalidades.message}
+                  </p>
+                )}
               </div>
 
-              {/* Observações */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-primary">
-                  Observações
-                </h3>
-                <Textarea
-                  placeholder="Informações adicionais, necessidades especiais, ou comentários..."
-                  value={formData.observacoes}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      observacoes: e.target.value,
-                    }))
-                  }
-                />
-              </div>
-
-              {/* Submit */}
               <div className="text-center pt-6">
                 <Button
                   type="submit"
