@@ -63,7 +63,7 @@ export default function Home() {
       <section className="relative h-screen flex items-center justify-center text-white bg-[linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.3)),url('/sports-hero.jpg')] bg-cover bg-center bg-fixed">
         <div className="text-center z-10 max-w-4xl mx-auto px-4">
           <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-pulse-glow">
-            Olinsesp 2025
+            Olinsesp 2026
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-white/90">
             O maior evento esportivo de integração das forças de segurança está
@@ -174,7 +174,7 @@ export default function Home() {
             <div>
               <Calendar className="h-8 w-8 mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">Período do Evento</h3>
-              <p>15 a 17 de Dezembro de 2024</p>
+              <p>15 a 17 de Fevereiro de 2026</p>
             </div>
             <div>
               <MapPin className="h-8 w-8 mx-auto mb-4" />

@@ -83,7 +83,7 @@ const Inscricoes = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text">
-            Inscrições SportEvent 2024
+            Inscrições Olinsesp 2026
           </h1>
           <p className="text-lg text-muted-foreground mb-6">
             Faça parte do maior evento esportivo da região!
@@ -107,7 +107,7 @@ const Inscricoes = () => {
               <Calendar className="h-8 w-8 text-primary mx-auto mb-2" />
               <h3 className="font-semibold">Período de Inscrições</h3>
               <p className="text-sm text-muted-foreground">
-                01/11/2024 - 30/11/2024
+                01/11/2026 - 30/11/2026
               </p>
             </CardContent>
           </Card>
@@ -134,7 +134,7 @@ const Inscricoes = () => {
         </div>
 
         {/* Formulário */}
-        <Card className="bg-gradient-card shadow-card">
+        <Card className="bg-gradient-card shadow-card border border-blue-500">
           <CardHeader>
             <CardTitle className="text-2xl">Formulário de Inscrição</CardTitle>
             <CardDescription>
@@ -146,7 +146,7 @@ const Inscricoes = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Dados Pessoais */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-primary">
+                <h3 className="text-lg font-semibold text-blue-600">
                   Dados Pessoais
                 </h3>
 
@@ -156,6 +156,7 @@ const Inscricoes = () => {
                     <Input
                       id="nome"
                       value={formData.nome}
+                      className="border border-blue-500"
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -172,6 +173,7 @@ const Inscricoes = () => {
                       id="email"
                       type="email"
                       value={formData.email}
+                      className="border border-blue-500"
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -189,6 +191,7 @@ const Inscricoes = () => {
                     <Input
                       id="telefone"
                       value={formData.telefone}
+                      className="border border-blue-500"
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -205,6 +208,7 @@ const Inscricoes = () => {
                     <Input
                       id="cpf"
                       value={formData.cpf}
+                      className="border border-blue-500"
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -222,6 +226,7 @@ const Inscricoes = () => {
                       id="idade"
                       type="number"
                       value={formData.idade}
+                      className="border border-blue-500"
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -243,7 +248,7 @@ const Inscricoes = () => {
                         setFormData((prev) => ({ ...prev, sexo: value }))
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="border border-blue-500">
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
                       <SelectContent>
@@ -261,7 +266,7 @@ const Inscricoes = () => {
                         setFormData((prev) => ({ ...prev, camiseta: value }))
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="border border-blue-500">
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
                       <SelectContent>
@@ -281,13 +286,14 @@ const Inscricoes = () => {
                     <Input
                       id="afiliacao"
                       value={formData.afiliacao}
+                      className="border border-blue-500"
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
                           afiliacao: e.target.value,
                         }))
                       }
-                      placeholder="Ex: Clube, Academia, Independente"
+                      placeholder="Ex: SSP-DF, PMDF, CBMDF, etc."
                     />
                   </div>
                 </div>
@@ -299,7 +305,7 @@ const Inscricoes = () => {
                   Modalidades de Interesse
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Selecione as modalidades que deseja participar (máximo 3):
+                  Selecione as modalidades que deseja participar:
                 </p>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -310,15 +316,12 @@ const Inscricoes = () => {
                     >
                       <Checkbox
                         id={modalidade}
+                        className="border border-blue-500"
                         checked={formData.modalidadesPrimarias.includes(
                           modalidade
                         )}
                         onCheckedChange={(checked) =>
                           handleModalidadeChange(modalidade, checked as boolean)
-                        }
-                        disabled={
-                          formData.modalidadesPrimarias.length >= 3 &&
-                          !formData.modalidadesPrimarias.includes(modalidade)
                         }
                       />
                       <Label htmlFor={modalidade} className="text-sm">
@@ -327,35 +330,6 @@ const Inscricoes = () => {
                     </div>
                   ))}
                 </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="outrasModalidades"
-                    checked={formData.interesseOutrasModalidades}
-                    onCheckedChange={(checked) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        interesseOutrasModalidades: checked as boolean,
-                      }))
-                    }
-                  />
-                  <Label htmlFor="outrasModalidades">
-                    Tenho interesse em outras modalidades
-                  </Label>
-                </div>
-
-                {formData.interesseOutrasModalidades && (
-                  <Textarea
-                    placeholder="Descreva quais outras modalidades você gostaria que fossem incluídas no evento..."
-                    value={formData.outrasModalidades}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        outrasModalidades: e.target.value,
-                      }))
-                    }
-                  />
-                )}
               </div>
 
               {/* Observações */}

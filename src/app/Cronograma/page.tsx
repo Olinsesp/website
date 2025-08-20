@@ -18,7 +18,7 @@ const Cronograma = () => {
   const cronogramaDias = [
     {
       id: 'dia1',
-      data: '15/12/2024',
+      data: '15/12/2026',
       titulo: 'Primeiro Dia',
       descricao: 'Cerimônia de Abertura e Eliminatórias',
       eventos: [
@@ -74,7 +74,7 @@ const Cronograma = () => {
     },
     {
       id: 'dia2',
-      data: '16/12/2024',
+      data: '16/12/2026',
       titulo: 'Segundo Dia',
       descricao: 'Semifinais e Provas Técnicas',
       eventos: [
@@ -131,7 +131,7 @@ const Cronograma = () => {
     },
     {
       id: 'dia3',
-      data: '17/12/2024',
+      data: '17/12/2026',
       titulo: 'Terceiro Dia',
       descricao: 'Grandes Finais e Encerramento',
       eventos: [
@@ -365,7 +365,7 @@ const Cronograma = () => {
               <div className="border-l-4 border-primary pl-4">
                 <h4 className="font-semibold">Congresso Técnico - Dia 1</h4>
                 <p className="text-sm text-muted-foreground mb-2">
-                  15/12/2024 às 18:00 - Auditório Principal
+                  15/12/2026 às 18:00 - Auditório Principal
                 </p>
                 <div className="text-sm">
                   <strong>Pauta:</strong>
@@ -381,7 +381,7 @@ const Cronograma = () => {
               <div className="border-l-4 border-accent pl-4">
                 <h4 className="font-semibold">Reunião de Resultados - Dia 2</h4>
                 <p className="text-sm text-muted-foreground mb-2">
-                  16/12/2024 às 20:30 - Sala de Imprensa
+                  16/12/2026 às 20:30 - Sala de Imprensa
                 </p>
                 <div className="text-sm">
                   <strong>Pauta:</strong>

@@ -125,7 +125,7 @@ const Servicos = () => {
       categoria: 'Tecnologia',
       localizacao: 'Toda área do evento',
       horarios: '24h durante o evento',
-      contato: 'Rede: SportEvent2024',
+      contato: 'Rede: Olinsesp2026',
       detalhes: [
         'Cobertura completa',
         'Alta velocidade',

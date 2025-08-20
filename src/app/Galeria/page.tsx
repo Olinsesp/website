@@ -24,7 +24,7 @@ const Galeria = () => {
       titulo: 'Final de Futebol',
       descricao: 'Momento emocionante da final de futebol com gol da vitória',
       categoria: 'Futebol',
-      data: '16/12/2024',
+      data: '16/12/2026',
     },
     {
       id: 2,
@@ -32,7 +32,7 @@ const Galeria = () => {
       titulo: 'Basquete em Ação',
       descricao: 'Lance espetacular durante a semifinal de basquete',
       categoria: 'Basquete',
-      data: '16/12/2024',
+      data: '16/12/2026',
     },
     {
       id: 3,
@@ -40,7 +40,7 @@ const Galeria = () => {
       titulo: 'Cerimônia de Abertura',
       descricao: 'Desfile dos atletas na cerimônia de abertura',
       categoria: 'Cerimônias',
-      data: '15/12/2024',
+      data: '15/12/2026',
     },
     {
       id: 4,
@@ -48,7 +48,7 @@ const Galeria = () => {
       titulo: 'Vôlei Feminino',
       descricao: 'Jogada decisiva no vôlei feminino',
       categoria: 'Vôlei',
-      data: '15/12/2024',
+      data: '15/12/2026',
     },
     {
       id: 5,
@@ -56,7 +56,7 @@ const Galeria = () => {
       titulo: 'Atletismo 100m',
       descricao: 'Chegada emocionante dos 100m rasos',
       categoria: 'Atletismo',
-      data: '15/12/2024',
+      data: '15/12/2026',
     },
     {
       id: 6,
@@ -64,7 +64,7 @@ const Galeria = () => {
       titulo: 'Natação',
       descricao: 'Competição de natação 50m livre',
       categoria: 'Natação',
-      data: '16/12/2024',
+      data: '16/12/2026',
     },
   ];
 
@@ -98,8 +98,8 @@ const Galeria = () => {
   const releases = [
     {
       id: 1,
-      titulo: 'SportEvent 2024 Bate Recorde de Participação',
-      data: '17/12/2024',
+      titulo: 'Olinsesp 2026 Bate Recorde de Participação',
+      data: '17/12/2026',
       categoria: 'Notícia',
       resumo:
         'Evento registra mais de 500 atletas inscritos, superando todas as edições anteriores.',
@@ -108,16 +108,16 @@ const Galeria = () => {
     {
       id: 2,
       titulo: 'Atleta Local Conquista Ouro no Judô',
-      data: '16/12/2024',
+      data: '16/12/2026',
       categoria: 'Destaque',
       resumo:
         'João Silva, de apenas 19 anos, vence final do judô categoria até 70kg.',
-      autor: 'Redação SportEvent',
+      autor: 'Redação Olinsesp',
     },
     {
       id: 3,
       titulo: 'Programação do Último Dia Confirma Grandes Finais',
-      data: '16/12/2024',
+      data: '16/12/2026',
       categoria: 'Programação',
       resumo:
         'Domingo promete ser emocionante com as finais das principais modalidades.',
@@ -126,7 +126,7 @@ const Galeria = () => {
     {
       id: 4,
       titulo: 'Resultados Completos do Segundo Dia',
-      data: '16/12/2024',
+      data: '16/12/2026',
       categoria: 'Resultados',
       resumo:
         'Confira todos os resultados e classificados para as finais de domingo.',
