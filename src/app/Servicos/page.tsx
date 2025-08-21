@@ -64,16 +64,16 @@ export default function Servicos() {
       <div className='container mx-auto px-4'>
         {/* Header */}
         <div className='text-center mb-8'>
-          <h1 className='text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent'>
+          <h1 className='text-3xl md:text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent'>
             Serviços Disponíveis
           </h1>
-          <p className='text-lg text-muted-foreground'>
+          <p className='text-base md:text-lg text-muted-foreground'>
             Conte com uma estrutura completa para sua comodidade e segurança
           </p>
         </div>
 
         {/* Resumo dos Serviços */}
-        <div className='grid md:grid-cols-4 gap-6 mb-8'>
+        <div className='grid grid-cols-2 md:grid-cols-4 gap-6 mb-8'>
           <Card className='text-center bg-gradient-card shadow-card'>
             <CardContent className='p-6'>
               <Shield className='h-8 w-8 text-primary mx-auto mb-2' />
@@ -113,7 +113,7 @@ export default function Servicos() {
 
         {/* Lista de Serviços */}
         <div className='space-y-6'>
-          <div className='grid md:grid-cols-2 gap-6 mb-8'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8'>
             {servicos?.map((servico) => {
               return (
                 <Card

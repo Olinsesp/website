@@ -70,17 +70,17 @@ export default function Galeria() {
       <div className='container mx-auto px-4'>
         {/* Header */}
         <div className='text-center mb-8'>
-          <h1 className='text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent'>
+          <h1 className='text-3xl md:text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent'>
             Galeria de Mídias
           </h1>
-          <p className='text-lg text-muted-foreground'>
+          <p className='text-base md:text-lg text-muted-foreground'>
             Reviva os melhores momentos através de fotos, vídeos e notícias
             exclusivas
           </p>
         </div>
 
         {/* Stats */}
-        <div className='grid md:grid-cols-3 gap-6 mb-8'>
+        <div className='grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8'>
           <Card className='text-center bg-gradient-card shadow-card border border-zinc-300'>
             <CardContent className='p-6'>
               <Camera className='h-8 w-8 text-blue-500 mx-auto mb-2' />
@@ -122,7 +122,7 @@ export default function Galeria() {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue='fotos' className='w-full'>
-              <TabsList className='grid w-full grid-cols-3'>
+              <TabsList className='grid w-full grid-cols-1 sm:grid-cols-3'>
                 <TabsTrigger value='fotos' className='flex items-center gap-2'>
                   <Camera className='h-4 w-4' />
                   Fotos

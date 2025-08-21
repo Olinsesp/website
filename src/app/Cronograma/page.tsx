@@ -146,16 +146,16 @@ export default function Cronograma() {
     <div className='min-h-screen py-8'>
       <div className='container mx-auto px-4'>
         <div className='text-center mb-8'>
-          <h1 className='text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent'>
+          <h1 className='text-3xl md:text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent'>
             Cronograma do Evento
           </h1>
-          <p className='text-lg text-muted-foreground'>
+          <p className='text-base md:text-lg text-muted-foreground'>
             Confira os horários de todas as modalidades e não perca nenhum
             momento!
           </p>
         </div>
 
-        <div className='grid md:grid-cols-3 gap-6 mb-8'>
+        <div className='grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8'>
           <Card className='text-center bg-gradient-card shadow-card border border-zinc-300'>
             <CardContent className='p-6'>
               <Calendar className='h-8 w-8 text-blue-500 mx-auto mb-2' />
@@ -194,7 +194,7 @@ export default function Cronograma() {
           </CardHeader>
           <CardContent>
             <Tabs value={selectedDay} onValueChange={setSelectedDay}>
-              <TabsList className='grid w-full grid-cols-3 mb-6'>
+              <TabsList className='grid w-full grid-cols-1 sm:grid-cols-3 mb-6'>
                 {cronogramaDias.map((dia) => (
                   <TabsTrigger
                     key={dia.id}

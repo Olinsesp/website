@@ -59,10 +59,10 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center text-white bg-[linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.3)),url('/sports-hero.jpg')] bg-cover bg-center bg-fixed">
         <div className='text-center z-10 max-w-4xl mx-auto px-4'>
-          <h1 className='text-5xl md:text-7xl font-bold mb-6 animate-pulse-glow'>
+          <h1 className='text-4xl sm:text-5xl md:text-7xl font-bold mb-6 animate-pulse-glow'>
             Olinsesp 2026
           </h1>
-          <p className='text-xl md:text-2xl mb-8 text-white/90'>
+          <p className='text-lg sm:text-xl md:text-2xl mb-8 text-white/90'>
             O maior evento esportivo de integração das forças de segurança está
             chegando! Garanta sua vaga e faça parte deste grande momento.
           </p>
@@ -130,7 +130,7 @@ export default function Home() {
           <h2 className='text-3xl font-bold text-center mb-12'>
             Explore o Evento
           </h2>
-          <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-6'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
@@ -164,7 +164,7 @@ export default function Home() {
       <section className='py-16 text-white bg-gradient-to-r from-blue-600 via-blue-400 to-orange-400'>
         <div className='container mx-auto px-4 text-center'>
           <h2 className='text-3xl font-bold mb-8'>Informações Importantes</h2>
-          <div className='grid md:grid-cols-3 gap-8'>
+          <div className='grid grid-cols-1 sm:grid-cols-3 gap-8'>
             <div>
               <Calendar className='h-8 w-8 mx-auto mb-4' />
               <h3 className='text-xl font-semibold mb-2'>Período do Evento</h3>
