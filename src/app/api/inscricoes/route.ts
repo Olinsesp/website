@@ -4,7 +4,6 @@ import { z } from 'zod';
 import nodemailer from 'nodemailer';
 import { Prisma } from '@prisma/client';
 
-// Esquema de validação com Zod
 const inscricaoSchema = z.object({
   nome: z
     .string()
@@ -22,7 +21,6 @@ const inscricaoSchema = z.object({
     .min(1, { message: 'Selecione ao menos uma modalidade.' }),
 });
 
-// GET: retorna todas as inscrições
 export async function GET() {
   try {
     const inscricoes = await prisma.inscricao.findMany();
@@ -36,7 +34,6 @@ export async function GET() {
   }
 }
 
-// POST: cria uma nova inscrição
 export async function POST(req: Request) {
   try {
     const data = await req.json();
@@ -46,12 +43,10 @@ export async function POST(req: Request) {
       data: validatedData,
     });
 
-    // Dispara o envio do email sem travar a resposta
     sendEmail(inscricao).catch((err) => {
       console.error('Erro ao enviar email:', err);
     });
 
-    // Retorna a inscrição criada
     return NextResponse.json(inscricao, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -61,7 +56,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Tratamento de email/cpf duplicados
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === 'P2002'
@@ -82,7 +76,6 @@ export async function POST(req: Request) {
   }
 }
 
-// Tipo da inscrição
 type Inscricao = {
   nome: string;
   email: string;
@@ -94,7 +87,6 @@ type Inscricao = {
   modalidades: string[];
 };
 
-// Função de envio de email
 async function sendEmail(inscricao: Inscricao) {
   const transporter = nodemailer.createTransport({
     service: 'gmail',

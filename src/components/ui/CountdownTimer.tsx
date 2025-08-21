@@ -3,8 +3,6 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 
 export default function CountdownTimer() {
-  // Defina aqui a data final fixa
-
   const [timeLeft, setTimeLeft] = useState<{
     days: number;
     hours: number;

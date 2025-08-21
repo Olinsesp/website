@@ -15,7 +15,7 @@ import Image, { StaticImageData } from 'next/image';
 
 interface Midia {
   id: string;
-  tipo: string; // "imagem", "video", "release"
+  tipo: string;
   url: string;
   titulo?: string | null;
   destaque: boolean;
@@ -197,7 +197,7 @@ export default function Galeria() {
                         <Image
                           width={500}
                           height={300}
-                          src={video.url} // Assuming url is a thumbnail
+                          src={video.url}
                           alt={video.titulo || 'Vídeo do evento'}
                           className='w-full h-40 object-cover'
                         />

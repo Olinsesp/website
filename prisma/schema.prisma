@@ -14,7 +14,7 @@ model Inscricao {
   cpf            String   @unique
   dataNascimento DateTime
   telefone       String
-  camiseta       String // P, M, G, GG, XG etc.
+  camiseta       String
   afiliacao      String
   modalidades    String[]
   createdAt      DateTime @default(now())
@@ -31,7 +31,7 @@ model Jogo {
 
 model Midia {
   id        String   @id @default(uuid())
-  tipo      String // imagem, vídeo, release
+  tipo      String
   url       String
   titulo    String?
   destaque  Boolean  @default(false)
@@ -40,7 +40,7 @@ model Midia {
 
 model Cronograma {
   id        String   @id @default(uuid())
-  atividade String // inscrições, competições, cerimônias, congresso técnico
+  atividade String
   inicio    DateTime
   fim       DateTime
   detalhes  String?

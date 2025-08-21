@@ -11,17 +11,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Calendar,
-  Clock,
-  Loader,
-  Loader2,
-  MapPin,
-  Trophy,
-  Users,
-} from 'lucide-react';
+import { Calendar, Clock, Loader2, MapPin, Trophy, Users } from 'lucide-react';
 
-// Definindo a interface para os eventos do cronograma
 interface Evento {
   id: string;
   atividade: string;
@@ -45,7 +36,6 @@ interface DiaCronograma {
   eventos: Evento[];
 }
 
-// Função para buscar os dados do cronograma
 const fetchCronograma = async (): Promise<Evento[]> => {
   const res = await fetch('/api/cronograma');
   if (!res.ok) {
@@ -84,7 +74,6 @@ export default function Cronograma() {
             eventos: [],
           };
         }
-        // Adicionando dados mockados para manter a UI, já que o model não os possui
         acc[data].eventos.push({
           ...evento,
           horario: new Date(evento.inicio).toLocaleTimeString('pt-BR', {
@@ -156,7 +145,6 @@ export default function Cronograma() {
   return (
     <div className='min-h-screen py-8'>
       <div className='container mx-auto px-4'>
-        {/* Header */}
         <div className='text-center mb-8'>
           <h1 className='text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent'>
             Cronograma do Evento
@@ -167,7 +155,6 @@ export default function Cronograma() {
           </p>
         </div>
 
-        {/* Informações Gerais */}
         <div className='grid md:grid-cols-3 gap-6 mb-8'>
           <Card className='text-center bg-gradient-card shadow-card border border-zinc-300'>
             <CardContent className='p-6'>
@@ -198,7 +185,6 @@ export default function Cronograma() {
           </Card>
         </div>
 
-        {/* Cronograma por Dias */}
         <Card className='bg-gradient-card shadow-card border border-zinc-300'>
           <CardHeader>
             <CardTitle className='text-2xl'>Programação Detalhada</CardTitle>

@@ -98,7 +98,6 @@ export default function Inscricoes() {
       const result = await response.json();
 
       if (!response.ok) {
-        // usa a mensagem que vem do backend
         throw new Error(result.error || 'Falha ao realizar inscrição.');
       }
 
@@ -115,7 +114,7 @@ export default function Inscricoes() {
     } catch (error: unknown) {
       let message = 'Ocorreu um erro. Tente novamente.';
       if (error instanceof Error) {
-        message = error.message; // aqui já vai pegar o error do backend
+        message = error.message;
       }
       toast.error('Erro na Inscrição', {
         description: <p className='text-black'>{message}</p>,
@@ -342,7 +341,7 @@ export default function Inscricoes() {
                   type='submit'
                   variant='default'
                   size='lg'
-                  disabled={loading} // 👈 modificado
+                  disabled={loading}
                   className='px-12 cursor-pointer hover:bg-orange-500 hover:text-white transition-colors'
                 >
                   {loading ? (
