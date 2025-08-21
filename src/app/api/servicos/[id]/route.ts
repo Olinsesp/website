@@ -11,7 +11,7 @@ const servicoUpdateSchema = z.object({
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const id = params.id;
@@ -22,7 +22,7 @@ export async function GET(
     if (!servico) {
       return NextResponse.json(
         { error: 'Serviço não encontrado.' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -31,14 +31,14 @@ export async function GET(
     console.error('Erro ao buscar serviço:', error);
     return NextResponse.json(
       { error: 'Ocorreu um erro no servidor ao buscar o serviço.' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const id = params.id;
@@ -58,20 +58,20 @@ export async function PUT(
           error: 'Dados de entrada inválidos.',
           details: z.treeifyError(error),
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
     console.error('Erro ao atualizar serviço:', error);
     return NextResponse.json(
       { error: 'Ocorreu um erro no servidor ao atualizar o serviço.' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const id = params.id;
@@ -84,7 +84,7 @@ export async function DELETE(
     console.error('Erro ao deletar serviço:', error);
     return NextResponse.json(
       { error: 'Ocorreu um erro no servidor ao deletar o serviço.' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

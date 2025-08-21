@@ -19,7 +19,7 @@ const inscricaoUpdateSchema = z.object({
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const id = params.id;
@@ -30,7 +30,7 @@ export async function GET(
     if (!inscricao) {
       return NextResponse.json(
         { error: 'Inscrição não encontrada.' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -39,14 +39,14 @@ export async function GET(
     console.error('Erro ao buscar inscrição:', error);
     return NextResponse.json(
       { error: 'Ocorreu um erro no servidor ao buscar a inscrição.' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const id = params.id;
@@ -66,20 +66,20 @@ export async function PUT(
           error: 'Dados de entrada inválidos.',
           details: z.treeifyError(error),
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
     console.error('Erro ao atualizar inscrição:', error);
     return NextResponse.json(
       { error: 'Ocorreu um erro no servidor ao atualizar a inscrição.' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const id = params.id;
@@ -92,7 +92,7 @@ export async function DELETE(
     console.error('Erro ao deletar inscrição:', error);
     return NextResponse.json(
       { error: 'Ocorreu um erro no servidor ao deletar a inscrição.' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

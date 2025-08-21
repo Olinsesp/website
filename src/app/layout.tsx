@@ -21,12 +21,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR">
+    <html lang='pt-BR'>
       <body className={`${inter.className}`}>
         <Provider>
           <Tooltip>
             <Toaster />
-            <div className="min-h-screen">
+            <div className='min-h-screen'>
               <Navbar />
               {children}
             </div>

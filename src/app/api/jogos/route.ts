@@ -17,7 +17,7 @@ export async function GET() {
     console.error('Erro ao buscar jogos:', error);
     return NextResponse.json(
       { error: 'Ocorreu um erro no servidor ao buscar os jogos.' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -39,14 +39,14 @@ export async function POST(req: Request) {
           error: 'Dados de entrada inválidos.',
           details: z.treeifyError(error),
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.error('Erro ao criar jogo:', error);
     return NextResponse.json(
       { error: 'Ocorreu um erro no servidor ao processar a solicitação.' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

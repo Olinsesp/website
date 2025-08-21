@@ -19,7 +19,7 @@ export async function GET() {
     console.error('Erro ao buscar cronograma:', error);
     return NextResponse.json(
       { error: 'Ocorreu um erro no servidor ao buscar o cronograma.' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -41,14 +41,14 @@ export async function POST(req: Request) {
           error: 'Dados de entrada inválidos.',
           details: z.treeifyError(error),
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.error('Erro ao criar atividade no cronograma:', error);
     return NextResponse.json(
       { error: 'Ocorreu um erro no servidor ao processar a solicitação.' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

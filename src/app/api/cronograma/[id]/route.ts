@@ -11,7 +11,7 @@ const cronogramaUpdateSchema = z.object({
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const id = params.id;
@@ -22,7 +22,7 @@ export async function GET(
     if (!cronograma) {
       return NextResponse.json(
         { error: 'Atividade do cronograma não encontrada.' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -34,14 +34,14 @@ export async function GET(
         error:
           'Ocorreu um erro no servidor ao buscar a atividade do cronograma.',
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const id = params.id;
@@ -61,7 +61,7 @@ export async function PUT(
           error: 'Dados de entrada inválidos.',
           details: z.treeifyError(error),
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
     console.error('Erro ao atualizar atividade do cronograma:', error);
@@ -70,14 +70,14 @@ export async function PUT(
         error:
           'Ocorreu um erro no servidor ao atualizar a atividade do cronograma.',
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const id = params.id;
@@ -93,7 +93,7 @@ export async function DELETE(
         error:
           'Ocorreu um erro no servidor ao deletar a atividade do cronograma.',
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
