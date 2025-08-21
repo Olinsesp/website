@@ -12,9 +12,6 @@ import CountdownTimer from '@/components/ui/CountdownTimer';
 import Link from 'next/link';
 
 export default function Home() {
-  // Data de fim das inscrições (exemplo: 30 dias a partir de hoje)
-  const inscricoesEndDate = new Date();
-  inscricoesEndDate.setDate(inscricoesEndDate.getDate() + 30);
   const features = [
     {
       icon: Users,
@@ -94,10 +91,7 @@ export default function Home() {
 
           {/* Countdown Timer */}
           <div className='bg-black/30 backdrop-blur-sm rounded-lg p-6 max-w-md mx-auto'>
-            <CountdownTimer
-              targetDate={inscricoesEndDate}
-              title='Inscrições Encerram Em:'
-            />
+            <CountdownTimer />
           </div>
         </div>
       </section>

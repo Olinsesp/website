@@ -11,7 +11,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, Clock, MapPin, Trophy, Users } from 'lucide-react';
+import {
+  Calendar,
+  Clock,
+  Loader,
+  Loader2,
+  MapPin,
+  Trophy,
+  Users,
+} from 'lucide-react';
 
 // Definindo a interface para os eventos do cronograma
 interface Evento {
@@ -134,8 +142,8 @@ export default function Cronograma() {
 
   if (isLoading)
     return (
-      <div className='container mx-auto px-4 py-8 text-center'>
-        Carregando cronograma...
+      <div className='flex items-center justify-center h-screen'>
+        <Loader2 className='inline-block h-6 w-6 animate-spin' />{' '}
       </div>
     );
   if (isError)

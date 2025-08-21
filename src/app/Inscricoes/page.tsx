@@ -20,9 +20,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Calendar, Users, Trophy } from 'lucide-react';
+import { Calendar, Users, Trophy, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import CountdownTimer from '@/components/ui/CountdownTimer';
+import { useState } from 'react';
 
 const inscricaoSchema = z.object({
   nome: z
@@ -30,7 +31,11 @@ const inscricaoSchema = z.object({
     .min(3, { message: 'O nome deve ter pelo menos 3 caracteres.' }),
   email: z.email({ message: 'Email inválido.' }),
   telefone: z.string().min(10, { message: 'Telefone inválido.' }),
-  cpf: z.string().min(11, { message: 'CPF deve ter 11 caracteres.' }),
+  cpf: z
+    .string()
+    .min(11, { message: 'CPF deve ter 11 caracteres.' })
+    .max(11, { message: 'CPF deve ter 11 caracteres.' })
+    .regex(/^\d+$/, { message: 'CPF deve conter apenas números.' }),
   dataNascimento: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: 'Data de nascimento inválida',
   }),
@@ -44,6 +49,7 @@ const inscricaoSchema = z.object({
 type InscricaoFormData = z.infer<typeof inscricaoSchema>;
 
 export default function Inscricoes() {
+  const [loading, setLoading] = useState(false);
   const {
     register,
     handleSubmit,
@@ -57,10 +63,6 @@ export default function Inscricoes() {
       modalidades: [],
     },
   });
-
-  const inscricoesEndDate = new Date();
-  inscricoesEndDate.setDate(inscricoesEndDate.getDate() + 30);
-
   const modalidadesOptions = [
     'Futebol',
     'Basquete',
@@ -80,6 +82,7 @@ export default function Inscricoes() {
   ];
 
   const onSubmit = async (data: InscricaoFormData) => {
+    setLoading(true);
     try {
       const response = await fetch('/api/inscricoes', {
         method: 'POST',
@@ -92,24 +95,33 @@ export default function Inscricoes() {
         }),
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Falha ao realizar inscrição.');
+        // usa a mensagem que vem do backend
+        throw new Error(result.error || 'Falha ao realizar inscrição.');
       }
 
+      const messageSuccess = (
+        <p className='text-black'>
+          Sua inscrição foi processada com sucesso. Você receberá um email de
+          confirmação em breve.
+        </p>
+      );
       toast.success('Inscrição Realizada!', {
-        description:
-          'Sua inscrição foi processada com sucesso. Você receberá um email de confirmação em breve.',
+        description: messageSuccess,
       });
       reset();
     } catch (error: unknown) {
       let message = 'Ocorreu um erro. Tente novamente.';
       if (error instanceof Error) {
-        message = error.message;
+        message = error.message; // aqui já vai pegar o error do backend
       }
       toast.error('Erro na Inscrição', {
-        description: message,
+        description: <p className='text-black'>{message}</p>,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -127,10 +139,7 @@ export default function Inscricoes() {
           </p>
           <Card className='max-w-md mx-auto mb-8 bg-gradient-accent text-white'>
             <CardContent className='p-6'>
-              <CountdownTimer
-                targetDate={inscricoesEndDate}
-                title='⏰ Inscrições Encerram Em:'
-              />
+              <CountdownTimer />
             </CardContent>
           </Card>
         </div>
@@ -333,10 +342,17 @@ export default function Inscricoes() {
                   type='submit'
                   variant='default'
                   size='lg'
+                  disabled={loading} // 👈 modificado
                   className='px-12 cursor-pointer hover:bg-orange-500 hover:text-white transition-colors'
                 >
-                  <Users className='mr-2 h-5 w-5' />
-                  Finalizar Inscrição
+                  {loading ? (
+                    <Loader2 className='animate-spin mr-2 h-5 w-5' />
+                  ) : (
+                    <>
+                      <Users className='mr-2 h-5 w-5' />
+                      Finalizar Inscrição
+                    </>
+                  )}
                 </Button>
                 <p className='text-xs text-muted-foreground mt-4'>
                   Ao submeter este formulário, você concorda com os termos e

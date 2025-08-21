@@ -1,14 +1,16 @@
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import nodemailer from 'nodemailer';
+import { Prisma } from '@prisma/client';
 
 // Esquema de validação com Zod
 const inscricaoSchema = z.object({
   nome: z
     .string()
-    .min(3, { message: 'O nome deve ter pelo menos 3 caracteres.' }),
+    .min(10, { message: 'O nome deve ter pelo menos 10 caracteres.' }),
   email: z.email({ message: 'Email inválido.' }),
-  cpf: z.string().min(11, { message: 'CPF deve ter 11 caracteres.' }),
+  cpf: z.string().max(11).min(11, { message: 'CPF deve ter 11 caracteres.' }),
   dataNascimento: z.coerce.date().refine((date) => !isNaN(date.getTime()), {
     message: 'Por favor, insira uma data válida.',
   }),
@@ -20,6 +22,7 @@ const inscricaoSchema = z.object({
     .min(1, { message: 'Selecione ao menos uma modalidade.' }),
 });
 
+// GET: retorna todas as inscrições
 export async function GET() {
   try {
     const inscricoes = await prisma.inscricao.findMany();
@@ -33,6 +36,7 @@ export async function GET() {
   }
 }
 
+// POST: cria uma nova inscrição
 export async function POST(req: Request) {
   try {
     const data = await req.json();
@@ -42,14 +46,30 @@ export async function POST(req: Request) {
       data: validatedData,
     });
 
+    // Dispara o envio do email sem travar a resposta
+    sendEmail(inscricao).catch((err) => {
+      console.error('Erro ao enviar email:', err);
+    });
+
+    // Retorna a inscrição criada
     return NextResponse.json(inscricao, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        {
-          error: 'Dados de entrada inválidos.',
-          details: z.treeifyError(error),
-        },
+        { error: 'Dados de entrada inválidos.', details: error.message },
+        { status: 400 },
+      );
+    }
+
+    // Tratamento de email/cpf duplicados
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2002'
+    ) {
+      const target = (error.meta?.target as string[]) || [];
+      const field = target.includes('email') ? 'Email' : 'CPF';
+      return NextResponse.json(
+        { error: `${field} já cadastrado.` },
         { status: 400 },
       );
     }
@@ -60,4 +80,43 @@ export async function POST(req: Request) {
       { status: 500 },
     );
   }
+}
+
+// Tipo da inscrição
+type Inscricao = {
+  nome: string;
+  email: string;
+  cpf: string;
+  dataNascimento: Date;
+  telefone: string;
+  camiseta: string;
+  afiliacao: string;
+  modalidades: string[];
+};
+
+// Função de envio de email
+async function sendEmail(inscricao: Inscricao) {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_PASSWORD,
+    },
+  });
+
+  await transporter.sendMail({
+    from: `"Organização Olinsesp 2026" <${process.env.SMTP_USER}>`,
+    to: inscricao.email,
+    subject: 'Confirmação de Inscrição - Olinsesp 2026',
+    html: `
+      <h2>Olá, ${inscricao.nome}!</h2>
+      <p>Sua inscrição para o <strong>Olinsesp 2026</strong> foi realizada com sucesso 🎉</p>
+      <p><strong>Modalidades selecionadas:</strong></p>
+      <ul>
+        ${inscricao.modalidades.map((m) => `<li>${m}</li>`).join('')}
+      </ul>
+      <p>Em breve entraremos em contato com mais informações.<br>
+      Obrigado por participar!</p>
+    `,
+  });
 }

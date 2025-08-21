@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Camera, Video, FileText, Eye } from 'lucide-react';
+import { Camera, Video, FileText, Eye, Loader2 } from 'lucide-react';
 import Image, { StaticImageData } from 'next/image';
 
 interface Midia {
@@ -54,8 +54,8 @@ export default function Galeria() {
 
   if (isLoading)
     return (
-      <div className='container mx-auto px-4 py-8 text-center'>
-        Carregando mídias...
+      <div className='flex items-center justify-center h-screen'>
+        <Loader2 className='inline-block h-6 w-6 animate-spin' />{' '}
       </div>
     );
   if (isError)

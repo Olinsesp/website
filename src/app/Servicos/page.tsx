@@ -15,6 +15,7 @@ import {
   Clock,
   Shield,
   Accessibility,
+  Loader2,
 } from 'lucide-react';
 
 interface Servico {
@@ -47,8 +48,8 @@ export default function Servicos() {
 
   if (isLoading)
     return (
-      <div className='container mx-auto px-4 py-8 text-center'>
-        Carregando serviços...
+      <div className='flex items-center justify-center h-screen'>
+        <Loader2 className='inline-block h-6 w-6 animate-spin' />{' '}
       </div>
     );
   if (isError)
