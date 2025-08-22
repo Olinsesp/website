@@ -16,6 +16,9 @@ const inscricaoSchema = z.object({
   telefone: z.string().min(10, { message: 'Telefone inválido.' }),
   camiseta: z.string(),
   afiliacao: z.string(),
+  matricula: z
+    .string()
+    .min(5, { message: 'Matrícula deve ter ao menos 5 caracteres.' }),
   modalidades: z
     .array(z.string())
     .min(1, { message: 'Selecione ao menos uma modalidade.' }),

@@ -10,8 +10,16 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, Clock, Loader2, MapPin, Trophy, Users } from 'lucide-react';
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Loader2,
+  MapPin,
+  Trophy,
+  Users,
+} from 'lucide-react';
 
 interface Evento {
   id: string;
@@ -93,7 +101,7 @@ export default function Cronograma() {
     return Object.values(groupedByDay);
   }, [eventos]);
 
-  const [selectedDay, setSelectedDay] = useState('dia1');
+  const [currentDayIndex, setCurrentDayIndex] = useState(0);
 
   const getStatusBadge = (status: string | undefined) => {
     switch (status) {
@@ -189,35 +197,41 @@ export default function Cronograma() {
           <CardHeader>
             <CardTitle className='text-2xl'>Programação Detalhada</CardTitle>
             <CardDescription>
-              Selecione o dia para ver a programação completa
+              Navegue pelos dias para ver a programação completa
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs value={selectedDay} onValueChange={setSelectedDay}>
-              <TabsList className='grid w-full grid-cols-1 sm:grid-cols-3 mb-6'>
-                {cronogramaDias.map((dia) => (
-                  <TabsTrigger
-                    key={dia.id}
-                    value={dia.id}
-                    className='flex flex-col'
+            {cronogramaDias.length > 0 ? (
+              <>
+                <div className='flex items-center justify-between mb-6'>
+                  <Button
+                    onClick={() => setCurrentDayIndex(currentDayIndex - 1)}
+                    disabled={currentDayIndex === 0}
+                    variant='outline'
                   >
-                    <span className='font-semibold'>{dia.titulo}</span>
-                    <span className='text-xs'>{dia.data}</span>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-
-              {cronogramaDias.map((dia) => (
-                <TabsContent key={dia.id} value={dia.id} className='space-y-4'>
-                  <div className='text-center mb-6'>
-                    <h3 className='text-2xl font-bold text-primary'>
-                      {dia.titulo}
+                    <ChevronLeft className='h-4 w-4 mr-2' />
+                    Anterior
+                  </Button>
+                  <div className='text-center'>
+                    <h3 className='text-xl font-bold text-primary'>
+                      {cronogramaDias[currentDayIndex].titulo}
                     </h3>
-                    <p className='text-muted-foreground'>{dia.descricao}</p>
+                    <p className='text-muted-foreground'>
+                      {cronogramaDias[currentDayIndex].data}
+                    </p>
                   </div>
-
-                  <div className='space-y-3'>
-                    {dia.eventos.map((evento, index) => (
+                  <Button
+                    onClick={() => setCurrentDayIndex(currentDayIndex + 1)}
+                    disabled={currentDayIndex === cronogramaDias.length - 1}
+                    variant='outline'
+                  >
+                    Próximo
+                    <ChevronRight className='h-4 w-4 ml-2' />
+                  </Button>
+                </div>
+                <div className='space-y-3'>
+                  {cronogramaDias[currentDayIndex].eventos.map(
+                    (evento, index) => (
                       <Card
                         key={index}
                         className='hover:shadow-primary transition-smooth border border-zinc-300'
@@ -267,11 +281,13 @@ export default function Cronograma() {
                           </div>
                         </CardContent>
                       </Card>
-                    ))}
-                  </div>
-                </TabsContent>
-              ))}
-            </Tabs>
+                    ),
+                  )}
+                </div>
+              </>
+            ) : (
+              <p>Nenhum evento agendado.</p>
+            )}
           </CardContent>
         </Card>
       </div>

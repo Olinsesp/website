@@ -12,6 +12,7 @@ model Inscricao {
   nome           String
   email          String   @unique
   cpf            String   @unique
+  matricula      String   @unique
   dataNascimento DateTime
   telefone       String
   camiseta       String

@@ -40,6 +40,9 @@ const inscricaoSchema = z.object({
     message: 'Data de nascimento inválida',
   }),
   camiseta: z.string().nonempty('Selecione um tamanho de camiseta.'),
+  matricula: z
+    .string()
+    .min(5, { message: 'Matrícula deve ter ao menos 5 caracteres.' }),
   afiliacao: z.string().optional(),
   modalidades: z
     .array(z.string())
@@ -284,6 +287,15 @@ export default function Inscricoes() {
                         {errors.camiseta.message}
                       </p>
                     )}
+                  </div>
+                  <div>
+                    <Label htmlFor='matricula'>Matrícula</Label>
+                    <Input
+                      id='matricula'
+                      {...register('matricula')}
+                      placeholder='Ex: 123456'
+                      className='border border-zinc-300'
+                    />
                   </div>
                   <div>
                     <Label htmlFor='afiliacao'>Afiliação/Força</Label>
