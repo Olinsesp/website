@@ -14,6 +14,7 @@ async function main() {
       camiseta: 'M',
       afiliacao: 'Polícia Militar',
       modalidades: ['Futebol', 'Corrida'],
+      matricula: '123456',
     },
     {
       nome: 'Maria Souza',
@@ -24,6 +25,7 @@ async function main() {
       camiseta: 'G',
       afiliacao: 'Corpo de Bombeiros',
       modalidades: ['Natação', 'Judô'],
+      matricula: '123456',
     },
   ];
 
