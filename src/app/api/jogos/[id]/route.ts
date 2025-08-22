@@ -11,10 +11,10 @@ const jogoUpdateSchema = z.object({
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const id = params.id;
+    const { id } = await params;
     const jogo = await prisma.jogo.findUnique({
       where: { id },
     });
@@ -38,10 +38,10 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const id = params.id;
+    const { id } = await params;
     const data = await request.json();
     const validatedData = jogoUpdateSchema.parse(data);
 
@@ -71,10 +71,10 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const id = params.id;
+    const { id } = await params;
     await prisma.jogo.delete({
       where: { id },
     });

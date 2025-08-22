@@ -19,10 +19,10 @@ const inscricaoUpdateSchema = z.object({
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const id = params.id;
+    const { id } = await params;
     const inscricao = await prisma.inscricao.findUnique({
       where: { id },
     });
@@ -46,10 +46,10 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const id = params.id;
+    const { id } = await params;
     const data = await request.json();
     const validatedData = inscricaoUpdateSchema.parse(data);
 
@@ -79,10 +79,10 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const id = params.id;
+    const { id } = await params;
     await prisma.inscricao.delete({
       where: { id },
     });
