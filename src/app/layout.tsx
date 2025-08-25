@@ -5,6 +5,7 @@ import Provider from '@/lib/Provider';
 import { Tooltip } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/sonner';
 import Navbar from '@/components/ui/NavBar';
+import { Analytics } from '@vercel/analytics/next';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -29,6 +30,7 @@ export default function RootLayout({
             <div className='min-h-screen'>
               <Navbar />
               {children}
+              <Analytics />
             </div>
           </Tooltip>
         </Provider>
