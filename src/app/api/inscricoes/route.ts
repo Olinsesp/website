@@ -100,7 +100,7 @@ async function sendEmail(inscricao: Inscricao) {
   });
 
   await transporter.sendMail({
-    from: `"Organização Olinsesp 2026" <${process.env.SMTP_USER}>`,
+    from: `"Organização Olinsesp 2026" <${process.env.GMAIL_USER}>`,
     to: inscricao.email,
     subject: 'Confirmação de Inscrição - Olinsesp 2026',
     html: `
@@ -113,5 +113,12 @@ async function sendEmail(inscricao: Inscricao) {
       <p>Em breve entraremos em contato com mais informações.<br>
       Obrigado por participar!</p>
     `,
+  });
+  transporter.verify((error, success) => {
+    if (error) {
+      console.error('Erro na conexão SMTP:', error);
+    } else {
+      console.log('Servidor pronto para enviar emails:', success);
+    }
   });
 }
