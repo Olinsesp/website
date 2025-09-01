@@ -23,7 +23,7 @@ export default function Navbar() {
     { name: 'Inscrições', path: '/Inscricoes', icon: Users },
     { name: 'Cronograma', path: '/Cronograma', icon: Calendar },
     { name: 'Galeria', path: '/Galeria', icon: Camera },
-    { name: 'Serviços', path: '/Servicos', icon: FileText },
+    { name: 'Classificações', path: '/Classificacoes', icon: FileText },
     { name: 'Modalidades', path: '/Modalidades', icon: Trophy },
     { name: 'Dashboard', path: '/Dashboard', icon: LayoutDashboard },
   ];

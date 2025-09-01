@@ -23,6 +23,7 @@ import {
   LabelList,
 } from 'recharts';
 import { generatePDF } from '@/components/pdf-utils';
+import { Loader2 } from 'lucide-react';
 
 interface Inscricoes {
   nome: string;
@@ -94,7 +95,12 @@ export default function DashboardPage() {
     return Array.from(map, ([name, value]) => ({ name, value }));
   }, [inscritosFiltrados, modalidade]);
 
-  if (loading) return <div>Carregando inscrições...</div>;
+  if (loading)
+    return (
+      <div className='flex items-center justify-center h-screen'>
+        <Loader2 className='inline-block h-6 w-6 animate-spin' />{' '}
+      </div>
+    );
   if (error) return <div>Erro: {error}</div>;
 
   return (
