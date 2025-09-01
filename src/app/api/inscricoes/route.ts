@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import nodemailer from 'nodemailer';
+import { inscricoes } from './inscriçoesData';
 
 const inscricaoSchema = z.object({
   nome: z
@@ -24,7 +25,6 @@ const inscricaoSchema = z.object({
 
 export async function GET() {
   try {
-    const inscricoes: Inscricao[] = [];
     return NextResponse.json(inscricoes);
   } catch (error) {
     console.error('Erro ao buscar inscrições:', error);
@@ -39,11 +39,6 @@ export async function POST(req: Request) {
   try {
     const data = await req.json();
     const validatedData = inscricaoSchema.parse(data);
-
-    console.log('--- MOCK INSCRIÇÃO (SEM DATABASE) ---');
-    console.log(validatedData);
-    console.log('------------------------------------');
-
     sendEmail(validatedData).catch((err) => {
       console.error('Erro ao enviar email (simulado):', err.message);
     });
@@ -78,9 +73,6 @@ type Inscricao = {
 
 async function sendEmail(inscricao: Inscricao) {
   if (!process.env.GMAIL_USER || !process.env.GMAIL_PASSWORD) {
-    console.log(
-      'Credenciais de email não configuradas, pulando envio de email.',
-    );
     return;
   }
 

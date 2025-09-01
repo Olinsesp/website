@@ -9,6 +9,7 @@ import {
   Menu,
   X,
   Trophy,
+  LayoutDashboard,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -24,6 +25,7 @@ export default function Navbar() {
     { name: 'Galeria', path: '/Galeria', icon: Camera },
     { name: 'Serviços', path: '/Servicos', icon: FileText },
     { name: 'Modalidades', path: '/Modalidades', icon: Trophy },
+    { name: 'Dashboard', path: '/Dashboard', icon: LayoutDashboard },
   ];
 
   return (

@@ -69,8 +69,6 @@ const modalidades = [
 
 export async function GET() {
   try {
-    // In a real app, you would fetch this from a database
-    // const modalidades = await prisma.modalidade.findMany();
     return NextResponse.json(modalidades);
   } catch (error) {
     console.error('Erro ao buscar modalidades:', error);
