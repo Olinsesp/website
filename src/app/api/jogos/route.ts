@@ -1,51 +1,36 @@
-import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
-import { z } from 'zod';
 
-const jogoSchema = z.object({
-  modalidade: z.string().min(1, 'A modalidade é obrigatória.'),
-  data: z.iso.datetime({ message: 'Data inválida.' }),
-  horario: z.string().min(1, 'O horário é obrigatório.'),
-  resultado: z.string().optional(),
-});
+const staticJogos = [
+  {
+    id: '1',
+    modalidade: 'Futebol de Campo',
+    data: new Date('2026-12-15T10:30:00').toISOString(),
+    horario: '10:30',
+    resultado: 'Equipe A 2 vs 1 Equipe B',
+  },
+  {
+    id: '2',
+    modalidade: 'Voleibol',
+    data: new Date('2026-12-15T11:00:00').toISOString(),
+    horario: '11:00',
+    resultado: 'Equipe C 3 vs 2 Equipe D',
+  },
+  {
+    id: '3',
+    modalidade: 'Basquete',
+    data: new Date('2026-12-17T15:00:00').toISOString(),
+    horario: '15:00',
+    resultado: 'Equipe E 88 vs 85 Equipe F',
+  },
+];
 
 export async function GET() {
   try {
-    const jogos = await prisma.jogo.findMany({ orderBy: { data: 'asc' } });
-    return NextResponse.json(jogos);
+    return NextResponse.json(staticJogos);
   } catch (error) {
     console.error('Erro ao buscar jogos:', error);
     return NextResponse.json(
       { error: 'Ocorreu um erro no servidor ao buscar os jogos.' },
-      { status: 500 },
-    );
-  }
-}
-
-export async function POST(req: Request) {
-  try {
-    const data = await req.json();
-    const validatedData = jogoSchema.parse(data);
-
-    const jogo = await prisma.jogo.create({
-      data: validatedData,
-    });
-
-    return NextResponse.json(jogo, { status: 201 });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        {
-          error: 'Dados de entrada inválidos.',
-          details: z.treeifyError(error),
-        },
-        { status: 400 },
-      );
-    }
-
-    console.error('Erro ao criar jogo:', error);
-    return NextResponse.json(
-      { error: 'Ocorreu um erro no servidor ao processar a solicitação.' },
       { status: 500 },
     );
   }

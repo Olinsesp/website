@@ -8,6 +8,7 @@ import {
   Users,
   Menu,
   X,
+  Trophy,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -22,6 +23,7 @@ export default function Navbar() {
     { name: 'Cronograma', path: '/Cronograma', icon: Calendar },
     { name: 'Galeria', path: '/Galeria', icon: Camera },
     { name: 'Serviços', path: '/Servicos', icon: FileText },
+    { name: 'Modalidades', path: '/Modalidades', icon: Trophy },
   ];
 
   return (

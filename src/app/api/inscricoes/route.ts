@@ -1,8 +1,6 @@
-import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import nodemailer from 'nodemailer';
-import { Prisma } from '@prisma/client';
 
 const inscricaoSchema = z.object({
   nome: z
@@ -26,7 +24,7 @@ const inscricaoSchema = z.object({
 
 export async function GET() {
   try {
-    const inscricoes = await prisma.inscricao.findMany();
+    const inscricoes: Inscricao[] = [];
     return NextResponse.json(inscricoes);
   } catch (error) {
     console.error('Erro ao buscar inscrições:', error);
@@ -42,15 +40,15 @@ export async function POST(req: Request) {
     const data = await req.json();
     const validatedData = inscricaoSchema.parse(data);
 
-    const inscricao = await prisma.inscricao.create({
-      data: validatedData,
+    console.log('--- MOCK INSCRIÇÃO (SEM DATABASE) ---');
+    console.log(validatedData);
+    console.log('------------------------------------');
+
+    sendEmail(validatedData).catch((err) => {
+      console.error('Erro ao enviar email (simulado):', err.message);
     });
 
-    sendEmail(inscricao).catch((err) => {
-      console.error('Erro ao enviar email:', err);
-    });
-
-    return NextResponse.json(inscricao, { status: 201 });
+    return NextResponse.json(validatedData, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -59,19 +57,7 @@ export async function POST(req: Request) {
       );
     }
 
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === 'P2002'
-    ) {
-      const target = (error.meta?.target as string[]) || [];
-      const field = target.includes('email') ? 'Email' : 'CPF';
-      return NextResponse.json(
-        { error: `${field} já cadastrado.` },
-        { status: 400 },
-      );
-    }
-
-    console.error('Erro ao criar inscrição:', error);
+    console.error('Erro ao criar inscrição (simulado):', error);
     return NextResponse.json(
       { error: 'Ocorreu um erro no servidor ao processar a inscrição.' },
       { status: 500 },
@@ -91,6 +77,13 @@ type Inscricao = {
 };
 
 async function sendEmail(inscricao: Inscricao) {
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_PASSWORD) {
+    console.log(
+      'Credenciais de email não configuradas, pulando envio de email.',
+    );
+    return;
+  }
+
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -113,12 +106,5 @@ async function sendEmail(inscricao: Inscricao) {
       <p>Em breve entraremos em contato com mais informações.<br>
       Obrigado por participar!</p>
     `,
-  });
-  transporter.verify((error, success) => {
-    if (error) {
-      console.error('Erro na conexão SMTP:', error);
-    } else {
-      console.log('Servidor pronto para enviar emails:', success);
-    }
   });
 }

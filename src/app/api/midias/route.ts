@@ -1,53 +1,59 @@
-import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
-import { z } from 'zod';
 
-const midiaSchema = z.object({
-  tipo: z.string().min(1, 'O tipo é obrigatório.'),
-  url: z.url({ message: 'URL inválida.' }),
-  titulo: z.string().optional(),
-  destaque: z.boolean().optional(),
-});
+const staticMidias = [
+  {
+    id: '1',
+    tipo: 'imagem',
+    url: 'https://wcflwdtdjkkkbkljatfs.supabase.co/storage/v1/object/public/olinsesp/foto1.png',
+    titulo: 'Abertura do Evento',
+    destaque: true,
+    createdAt: new Date('2026-12-15T09:00:00').toISOString(),
+  },
+  {
+    id: '2',
+    tipo: 'imagem',
+    url: 'https://wcflwdtdjkkkbkljatfs.supabase.co/storage/v1/object/public/olinsesp/foto1.png',
+    titulo: 'Jogo de Vôlei',
+    destaque: false,
+    createdAt: new Date('2026-12-15T11:30:00').toISOString(),
+  },
+  {
+    id: '3',
+    tipo: 'video',
+    url: 'https://wcflwdtdjkkkbkljatfs.supabase.co/storage/v1/object/public/olinsesp/foto1.png',
+    titulo: 'Melhores Momentos - Dia 1',
+    destaque: true,
+    createdAt: new Date('2026-12-15T20:00:00').toISOString(),
+  },
+  {
+    id: '4',
+    tipo: 'release',
+    url: 'Resultados do primeiro dia de competições da Olinsesp 2026.',
+    titulo: 'Balanço do Dia 1',
+    destaque: false,
+    createdAt: new Date('2026-12-16T09:00:00').toISOString(),
+  },
+  {
+    id: '5',
+    tipo: 'imagem',
+    url: 'https://wcflwdtdjkkkbkljatfs.supabase.co/storage/v1/object/public/olinsesp/foto1.png',
+    titulo: 'Corrida de Rua',
+    destaque: false,
+    createdAt: new Date('2026-12-16T10:00:00').toISOString(),
+  },
+];
 
 export async function GET() {
   try {
-    const midias = await prisma.midia.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
+    const midias = staticMidias.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
     return NextResponse.json(midias);
   } catch (error) {
     console.error('Erro ao buscar mídias:', error);
     return NextResponse.json(
       { error: 'Ocorreu um erro no servidor ao buscar as mídias.' },
-      { status: 500 },
-    );
-  }
-}
-
-export async function POST(req: Request) {
-  try {
-    const data = await req.json();
-    const validatedData = midiaSchema.parse(data);
-
-    const midia = await prisma.midia.create({
-      data: validatedData,
-    });
-
-    return NextResponse.json(midia, { status: 201 });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        {
-          error: 'Dados de entrada inválidos.',
-          details: z.treeifyError(error),
-        },
-        { status: 400 },
-      );
-    }
-
-    console.error('Erro ao criar mídia:', error);
-    return NextResponse.json(
-      { error: 'Ocorreu um erro no servidor ao processar a solicitação.' },
       { status: 500 },
     );
   }

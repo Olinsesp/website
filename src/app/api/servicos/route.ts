@@ -1,51 +1,48 @@
-import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
-import { z } from 'zod';
 
-const servicoSchema = z.object({
-  nome: z.string().min(1, 'O nome do serviço é obrigatório.'),
-  descricao: z.string().min(1, 'A descrição é obrigatória.'),
-  localizacao: z.string().min(1, 'A localização é obrigatória.'),
-  horario: z.string().min(1, 'O horário é obrigatório.'),
-});
+const staticServicos = [
+  {
+    id: '1',
+    nome: 'Posto Médico',
+    descricao: 'Atendimento de primeiros socorros e emergências médicas.',
+    localizacao: 'Ao lado do Ginásio Principal',
+    horario: '08:00 - 20:00',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: '2',
+    nome: 'Praça de Alimentação',
+    descricao:
+      'Diversas opções de lanches, refeições e bebidas para atletas e público.',
+    localizacao: 'Área central do complexo',
+    horario: '09:00 - 21:00',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: '3',
+    nome: 'Achados e Perdidos',
+    descricao: 'Central para itens encontrados ou perdidos durante o evento.',
+    localizacao: 'Balcão de Informações',
+    horario: '08:00 - 19:00',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: '4',
+    nome: 'Balcão de Informações',
+    descricao: 'Tire suas dúvidas sobre horários, locais e programação geral.',
+    localizacao: 'Entrada principal',
+    horario: '08:00 - 19:00',
+    createdAt: new Date().toISOString(),
+  },
+];
 
 export async function GET() {
   try {
-    const servicos = await prisma.servico.findMany();
-    return NextResponse.json(servicos);
+    return NextResponse.json(staticServicos);
   } catch (error) {
     console.error('Erro ao buscar serviços:', error);
     return NextResponse.json(
       { error: 'Ocorreu um erro no servidor ao buscar os serviços.' },
-      { status: 500 },
-    );
-  }
-}
-
-export async function POST(req: Request) {
-  try {
-    const data = await req.json();
-    const validatedData = servicoSchema.parse(data);
-
-    const servico = await prisma.servico.create({
-      data: validatedData,
-    });
-
-    return NextResponse.json(servico, { status: 201 });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        {
-          error: 'Dados de entrada inválidos.',
-          details: z.treeifyError(error),
-        },
-        { status: 400 },
-      );
-    }
-
-    console.error('Erro ao criar serviço:', error);
-    return NextResponse.json(
-      { error: 'Ocorreu um erro no servidor ao processar a solicitação.' },
       { status: 500 },
     );
   }
