@@ -25,12 +25,8 @@ import {
 import { generatePDF } from '@/components/pdf-utils';
 import { Loader2 } from 'lucide-react';
 
-interface Inscricoes {
-  nome: string;
-  afiliacao: string;
-  modalidades: string[];
-  email: string;
-}
+import { columns, Inscricoes } from './columns';
+import { DataTable } from './data-table';
 
 export default function DashboardPage() {
   const [afiliacao, setAfiliacao] = useState<string | null>(null);
@@ -98,7 +94,7 @@ export default function DashboardPage() {
   if (loading)
     return (
       <div className='flex items-center justify-center h-screen'>
-        <Loader2 className='inline-block h-6 w-6 animate-spin' />{' '}
+        <Loader2 className='inline-block h-6 w-6 animate-spin' />
       </div>
     );
   if (error) return <div>Erro: {error}</div>;
@@ -107,27 +103,27 @@ export default function DashboardPage() {
     <div className='p-6 grid gap-6'>
       {/* Indicadores */}
       <div className='grid grid-cols-3 gap-4'>
-        <Card>
+        <Card className='border-2 border-zinc-400'>
           <CardHeader>
             <CardTitle>Total Inscritos</CardTitle>
           </CardHeader>
-          <CardContent className='text-3xl font-bold'>
+          <CardContent className='text-3xl font-bold text-blue-500'>
             {inscritosFiltrados.length}
           </CardContent>
         </Card>
-        <Card>
+        <Card className='border-2 border-zinc-400'>
           <CardHeader>
             <CardTitle>Modalidades</CardTitle>
           </CardHeader>
-          <CardContent className='text-3xl font-bold'>
+          <CardContent className='text-3xl font-bold text-blue-500'>
             {modalidadesCount.length}
           </CardContent>
         </Card>
-        <Card>
+        <Card className='border-2 border-zinc-400'>
           <CardHeader>
             <CardTitle>Afiliações</CardTitle>
           </CardHeader>
-          <CardContent className='text-3xl font-bold'>
+          <CardContent className='text-3xl font-bold text-blue-500'>
             {afiliacoesCount.length}
           </CardContent>
         </Card>
@@ -137,10 +133,10 @@ export default function DashboardPage() {
       <div className='flex gap-4'>
         <div className='flex gap-4'>
           <Select
-            value={afiliacao || undefined}
+            value={afiliacao ?? 'todos'}
             onValueChange={(val) => setAfiliacao(val === 'todos' ? null : val)}
           >
-            <SelectTrigger className='w-[180px]'>
+            <SelectTrigger className='w-[180px] border border-zinc-400'>
               <SelectValue placeholder='Filtrar Afiliação' />
             </SelectTrigger>
             <SelectContent>
@@ -154,10 +150,10 @@ export default function DashboardPage() {
           </Select>
 
           <Select
-            value={modalidade || undefined}
+            value={modalidade ?? 'todos'}
             onValueChange={(val) => setModalidade(val === 'todos' ? null : val)}
           >
-            <SelectTrigger className='w-[180px]'>
+            <SelectTrigger className='w-[180px] border border-zinc-400'>
               <SelectValue placeholder='Filtrar Modalidade' />
             </SelectTrigger>
             <SelectContent>
@@ -188,7 +184,7 @@ export default function DashboardPage() {
         </Button>
       </div>
 
-      {/* Gráfico por afiliação (Bar com cores) */}
+      {/* Gráfico por afiliação */}
       <div className='grid grid-cols-2 gap-4'>
         <Card>
           <CardHeader>
@@ -216,7 +212,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Gráfico por modalidade (Pie) */}
+        {/* Gráfico por modalidade */}
         <Card>
           <CardHeader>
             <CardTitle>Inscritos por Modalidade</CardTitle>
@@ -241,6 +237,24 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* DataTable de inscritos */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Lista de Inscritos</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DataTable
+            columns={columns}
+            data={inscritosFiltrados.map((i) => ({
+              ...i,
+              modalidades: modalidade
+                ? i.modalidades.filter((m) => m === modalidade)
+                : i.modalidades,
+            }))}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }

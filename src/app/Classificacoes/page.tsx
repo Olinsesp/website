@@ -87,12 +87,21 @@ export default function ClassificacoesPage() {
         </div>
 
         <Tabs defaultValue='geral' className='w-full'>
-          <TabsList className='grid w-full grid-cols-2'>
-            <TabsTrigger value='geral'>Classificação Geral</TabsTrigger>
-            <TabsTrigger value='modalidade'>
+          <TabsList className='grid w-full grid-cols-2 gap-2'>
+            <TabsTrigger
+              className='border-b-8 border-zinc-300 cursor-pointer data-[state=active]:border-zinc-600 transition-colors'
+              value='geral'
+            >
+              Classificação Geral
+            </TabsTrigger>
+            <TabsTrigger
+              className='border-b-8 border-zinc-300 cursor-pointer data-[state=active]:border-zinc-600 transition-colors'
+              value='modalidade'
+            >
               Resultados por Modalidade
             </TabsTrigger>
           </TabsList>
+
           <TabsContent value='geral'>
             <Card className='bg-gradient-card shadow-card'>
               <CardHeader>

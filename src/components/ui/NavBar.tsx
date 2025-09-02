@@ -10,6 +10,7 @@ import {
   X,
   Trophy,
   LayoutDashboard,
+  Home,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -19,7 +20,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navItems = [
-    { name: 'Início', path: '/', icon: Medal },
+    { name: 'Início', path: '/', icon: Home },
     { name: 'Inscrições', path: '/Inscricoes', icon: Users },
     { name: 'Cronograma', path: '/Cronograma', icon: Calendar },
     { name: 'Galeria', path: '/Galeria', icon: Camera },
