@@ -10,7 +10,16 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Camera, Video, FileText, Eye, Loader2 } from 'lucide-react';
+import {
+  Camera,
+  Eye,
+  Loader2,
+  ImageIcon,
+  PlayCircle,
+  FileTextIcon,
+  Download,
+  Share2,
+} from 'lucide-react';
 import Image, { StaticImageData } from 'next/image';
 
 interface Midia {
@@ -54,99 +63,138 @@ export default function Galeria() {
 
   if (isLoading)
     return (
-      <div className='flex items-center justify-center h-screen'>
-        <Loader2 className='inline-block h-6 w-6 animate-spin' />{' '}
+      <div className='flex items-center justify-center h-screen bg-gradient-to-br from-blue-50 to-orange-50'>
+        <div className='text-center'>
+          <Loader2 className='inline-block h-12 w-12 animate-spin text-blue-600 mb-4' />
+          <p className='text-lg text-gray-600'>Carregando galeria...</p>
+        </div>
       </div>
     );
+
   if (isError)
     return (
-      <div className='container mx-auto px-4 py-8 text-center text-red-500'>
-        Erro ao carregar mídias: {error.message}
+      <div className='container mx-auto px-4 py-8 text-center'>
+        <Card className='max-w-md mx-auto bg-white/80 backdrop-blur-sm'>
+          <CardContent className='p-8'>
+            <div className='text-red-500 text-6xl mb-4'>⚠️</div>
+            <h2 className='text-xl font-semibold text-gray-800 mb-2'>
+              Erro ao carregar
+            </h2>
+            <p className='text-gray-600 mb-4'>{error.message}</p>
+            <Button onClick={() => window.location.reload()}>
+              Tentar Novamente
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
 
   return (
-    <div className='min-h-screen py-8'>
+    <div className='min-h-screen py-12 bg-gradient-to-br from-blue-50 via-white to-orange-50'>
       <div className='container mx-auto px-4'>
-        {/* Header */}
-        <div className='text-center mb-8'>
-          <h1 className='text-3xl md:text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent'>
+        {/* Header da Página */}
+        <div className='text-center mb-12'>
+          <div className='inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-orange-500 text-white px-6 py-3 rounded-full text-sm font-medium mb-6'>
+            <Camera className='h-4 w-4' />
+            Galeria Atualizada
+          </div>
+
+          <h1 className='text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-blue-500 to-orange-500 bg-clip-text text-transparent'>
             Galeria de Mídias
           </h1>
-          <p className='text-base md:text-lg text-muted-foreground'>
+          <p className='text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed'>
             Reviva os melhores momentos através de fotos, vídeos e notícias
-            exclusivas
+            exclusivas do Olinsesp VIII
           </p>
         </div>
 
-        {/* Stats */}
-        <div className='grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8'>
-          <Card className='text-center bg-gradient-card shadow-card border border-zinc-300'>
-            <CardContent className='p-6'>
-              <Camera className='h-8 w-8 text-blue-500 mx-auto mb-2' />
-              <h3 className='text-2xl font-bold text-primary'>
+        {/* Estatísticas */}
+        <div className='grid grid-cols-1 sm:grid-cols-3 gap-8 mb-12'>
+          <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
+            <CardContent className='p-8'>
+              <div className='h-16 w-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center'>
+                <ImageIcon className='h-8 w-8 text-white' />
+              </div>
+              <h3 className='text-2xl font-bold text-gray-800 mb-2'>
                 {fotos.length}+
               </h3>
-              <p className='text-sm text-muted-foreground'>Fotos Exclusivas</p>
+              <p className='text-gray-600'>Fotos Exclusivas</p>
             </CardContent>
           </Card>
 
-          <Card className='text-center bg-gradient-card shadow-card border border-zinc-300'>
-            <CardContent className='p-6'>
-              <Video className='h-8 w-8 text-blue-500 mx-auto mb-2' />
-              <h3 className='text-2xl font-bold text-primary'>
+          <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
+            <CardContent className='p-8'>
+              <div className='h-16 w-16 mx-auto mb-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center'>
+                <PlayCircle className='h-8 w-8 text-white' />
+              </div>
+              <h3 className='text-2xl font-bold text-gray-800 mb-2'>
                 {videos.length}+
               </h3>
-              <p className='text-sm text-muted-foreground'>Vídeos HD</p>
+              <p className='text-gray-600'>Vídeos HD</p>
             </CardContent>
           </Card>
 
-          <Card className='text-center bg-gradient-card shadow-card border border-zinc-300'>
-            <CardContent className='p-6'>
-              <FileText className='h-8 w-8 text-blue-500 mx-auto mb-2' />
-              <h3 className='text-2xl font-bold text-primary'>
+          <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
+            <CardContent className='p-8'>
+              <div className='h-16 w-16 mx-auto mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center'>
+                <FileTextIcon className='h-8 w-8 text-white' />
+              </div>
+              <h3 className='text-2xl font-bold text-gray-800 mb-2'>
                 {releases.length}+
               </h3>
-              <p className='text-sm text-muted-foreground'>Releases</p>
+              <p className='text-gray-600'>Releases</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Content Tabs */}
-        <Card className='bg-gradient-card shadow-card'>
-          <CardHeader>
-            <CardTitle className='text-2xl'>Conteúdo Multimídia</CardTitle>
-            <CardDescription>
-              Explore fotos, vídeos e releases do evento
+        {/* Conteúdo Principal */}
+        <Card className='bg-white/90 backdrop-blur-sm border-0 shadow-2xl'>
+          <CardHeader className='text-center pb-6'>
+            <div className='h-20 w-20 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center'>
+              <Camera className='h-10 w-10 text-white' />
+            </div>
+            <CardTitle className='text-3xl text-gray-800'>
+              Conteúdo Multimídia
+            </CardTitle>
+            <CardDescription className='text-lg text-gray-600 max-w-2xl mx-auto'>
+              Explore fotos, vídeos e releases do evento em uma experiência
+              visual única
             </CardDescription>
           </CardHeader>
-          <CardContent>
+
+          <CardContent className='p-8'>
             <Tabs defaultValue='fotos' className='w-full'>
-              <TabsList className='grid w-full grid-cols-1 sm:grid-cols-3'>
-                <TabsTrigger value='fotos' className='flex items-center gap-2'>
-                  <Camera className='h-4 w-4' />
-                  Fotos
+              <TabsList className='grid w-full grid-cols-1 sm:grid-cols-3 bg-gray-100 p-1 rounded-xl'>
+                <TabsTrigger
+                  value='fotos'
+                  className='flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-blue-600 transition-all duration-300'
+                >
+                  <ImageIcon className='h-4 w-4' />
+                  Fotos ({fotos.length})
                 </TabsTrigger>
-                <TabsTrigger value='videos' className='flex items-center gap-2'>
-                  <Video className='h-4 w-4' />
-                  Vídeos
+                <TabsTrigger
+                  value='videos'
+                  className='flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-orange-600 transition-all duration-300'
+                >
+                  <PlayCircle className='h-4 w-4' />
+                  Vídeos ({videos.length})
                 </TabsTrigger>
                 <TabsTrigger
                   value='releases'
-                  className='flex items-center gap-2'
+                  className='flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-green-600 transition-all duration-300'
                 >
-                  <FileText className='h-4 w-4' />
-                  Releases
+                  <FileTextIcon className='h-4 w-4' />
+                  Releases ({releases.length})
                 </TabsTrigger>
               </TabsList>
 
               {/* Fotos */}
-              <TabsContent value='fotos' className='space-y-6'>
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+              <TabsContent value='fotos' className='space-y-8 mt-8'>
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
                   {fotos.map((foto) => (
                     <Card
                       key={foto.id}
-                      className='group cursor-pointer hover:shadow-primary transition-smooth'
+                      className='group cursor-pointer hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-0 shadow-lg overflow-hidden'
                     >
                       <div className='relative overflow-hidden'>
                         <Image
@@ -154,30 +202,54 @@ export default function Galeria() {
                           height={300}
                           src={foto.url}
                           alt={foto.titulo || 'Foto do evento'}
-                          className='w-full h-48 object-cover group-hover:scale-105 transition-smooth'
+                          className='w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500'
                           onClick={() => setSelectedImage(foto.url)}
                         />
-                        <div className='absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-smooth flex items-center justify-center'>
+                        <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4'>
                           <Button
                             variant='secondary'
                             size='sm'
                             onClick={() => setSelectedImage(foto.url)}
+                            className='bg-white/90 text-gray-800 hover:bg-white border-0 shadow-lg'
                           >
                             <Eye className='h-4 w-4 mr-2' />
                             Ver Ampliada
                           </Button>
                         </div>
+
+                        {foto.destaque && (
+                          <div className='absolute top-3 right-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium'>
+                            ⭐ Destaque
+                          </div>
+                        )}
                       </div>
-                      <CardContent className='p-4'>
-                        <h4 className='font-semibold mb-1'>
+
+                      <CardContent className='p-6'>
+                        <h4 className='font-semibold text-lg mb-3 text-gray-800'>
                           {foto.titulo || 'Foto do Evento'}
                         </h4>
-                        <div className='flex justify-between items-center text-xs'>
-                          <span className='text-muted-foreground'>
+                        <div className='flex justify-between items-center text-sm text-gray-500'>
+                          <span>
                             {new Date(foto.createdAt).toLocaleDateString(
                               'pt-BR',
                             )}
                           </span>
+                          <div className='flex gap-2'>
+                            <Button
+                              variant='ghost'
+                              size='sm'
+                              className='h-8 w-8 p-0 hover:bg-gray-100'
+                            >
+                              <Download className='h-4 w-4' />
+                            </Button>
+                            <Button
+                              variant='ghost'
+                              size='sm'
+                              className='h-8 w-8 p-0 hover:bg-gray-100'
+                            >
+                              <Share2 className='h-4 w-4' />
+                            </Button>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -186,12 +258,12 @@ export default function Galeria() {
               </TabsContent>
 
               {/* Vídeos */}
-              <TabsContent value='videos' className='space-y-6'>
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+              <TabsContent value='videos' className='space-y-8 mt-8'>
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
                   {videos.map((video) => (
                     <Card
                       key={video.id}
-                      className='group cursor-pointer hover:shadow-primary transition-smooth'
+                      className='group cursor-pointer hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-0 shadow-lg overflow-hidden'
                     >
                       <div className='relative overflow-hidden'>
                         <Image
@@ -199,23 +271,44 @@ export default function Galeria() {
                           height={300}
                           src={video.url}
                           alt={video.titulo || 'Vídeo do evento'}
-                          className='w-full h-40 object-cover'
+                          className='w-full h-48 object-cover'
                         />
-                        <div className='absolute inset-0 bg-black/60 flex items-center justify-center'>
+                        <div className='absolute inset-0 bg-black/60 flex items-center justify-center group-hover:bg-black/70 transition-colors duration-300'>
                           <Button
                             variant='secondary'
                             size='lg'
-                            className='rounded-full h-16 w-16 p-0'
+                            className='rounded-full h-16 w-16 p-0 bg-white/90 text-gray-800 hover:bg-white border-0 shadow-lg group-hover:scale-110 transition-transform duration-300'
                             onClick={() => window.open(video.url, '_blank')}
                           >
-                            <Video className='h-6 w-6' />
+                            <PlayCircle className='h-8 w-8' />
                           </Button>
                         </div>
+
+                        {video.destaque && (
+                          <div className='absolute top-3 right-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium'>
+                            ⭐ Destaque
+                          </div>
+                        )}
                       </div>
-                      <CardContent className='p-4'>
-                        <h4 className='font-semibold mb-1'>
+
+                      <CardContent className='p-6'>
+                        <h4 className='font-semibold text-lg mb-3 text-gray-800'>
                           {video.titulo || 'Vídeo do Evento'}
                         </h4>
+                        <div className='flex justify-between items-center text-sm text-gray-500'>
+                          <span>
+                            {new Date(video.createdAt).toLocaleDateString(
+                              'pt-BR',
+                            )}
+                          </span>
+                          <Button
+                            variant='ghost'
+                            size='sm'
+                            className='h-8 w-8 p-0 hover:bg-gray-100'
+                          >
+                            <Share2 className='h-4 w-4' />
+                          </Button>
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
@@ -223,36 +316,61 @@ export default function Galeria() {
               </TabsContent>
 
               {/* Releases */}
-              <TabsContent value='releases' className='space-y-6'>
-                <div className='space-y-4'>
+              <TabsContent value='releases' className='space-y-8 mt-8'>
+                <div className='space-y-6'>
                   {releases.map((release) => (
                     <Card
                       key={release.id}
-                      className='hover:shadow-primary transition-smooth'
+                      className='hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-r from-gray-50 to-white shadow-lg'
                     >
-                      <CardContent className='p-6'>
-                        <h4 className='text-lg font-semibold mb-2 hover:text-primary cursor-pointer'>
-                          {release.titulo}
-                        </h4>
-                        <p className='text-muted-foreground mb-3'>
-                          {release.url}
-                        </p>
-                        <div className='flex justify-between items-center'>
-                          <span className='text-sm text-muted-foreground'>
-                            Publicado em:{' '}
-                            {new Date(release.createdAt).toLocaleDateString(
-                              'pt-BR',
-                            )}
-                          </span>
-                          <Button asChild variant='outline' size='sm'>
-                            <a
-                              href={release.url}
-                              target='_blank'
-                              rel='noopener noreferrer'
+                      <CardContent className='p-8'>
+                        <div className='flex items-start justify-between gap-6'>
+                          <div className='flex-1'>
+                            <h4 className='text-xl font-semibold mb-4 text-gray-800 hover:text-blue-600 cursor-pointer transition-colors'>
+                              {release.titulo}
+                            </h4>
+                            <p className='text-gray-600 mb-4 leading-relaxed'>
+                              {release.url}
+                            </p>
+                            <div className='flex items-center gap-4 text-sm text-gray-500'>
+                              <span>
+                                Publicado em:{' '}
+                                {new Date(release.createdAt).toLocaleDateString(
+                                  'pt-BR',
+                                )}
+                              </span>
+                              {release.destaque && (
+                                <span className='bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium'>
+                                  ⭐ Destaque
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className='flex gap-2'>
+                            <Button
+                              asChild
+                              variant='outline'
+                              size='sm'
+                              className='border-2 border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors'
                             >
-                              Ler Mais
-                            </a>
-                          </Button>
+                              <a
+                                href={release.url}
+                                target='_blank'
+                                rel='noopener noreferrer'
+                              >
+                                <FileTextIcon className='h-4 w-4 mr-2' />
+                                Ler Mais
+                              </a>
+                            </Button>
+                            <Button
+                              variant='ghost'
+                              size='sm'
+                              className='h-10 w-10 p-0 hover:bg-gray-100'
+                            >
+                              <Share2 className='h-4 w-4' />
+                            </Button>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -266,16 +384,26 @@ export default function Galeria() {
         {/* Modal para imagem ampliada */}
         {selectedImage && (
           <div
-            className='fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4'
+            className='fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4'
             onClick={() => setSelectedImage(null)}
           >
-            <Image
-              width={1200}
-              height={800}
-              src={selectedImage}
-              alt='Imagem ampliada'
-              className='max-w-full max-h-full object-contain'
-            />
+            <div className='relative max-w-4xl max-h-full'>
+              <Image
+                width={1200}
+                height={800}
+                src={selectedImage}
+                alt='Imagem ampliada'
+                className='max-w-full max-h-full object-contain rounded-lg'
+              />
+              <Button
+                variant='secondary'
+                size='sm'
+                className='absolute top-4 right-4 bg-white/90 text-gray-800 hover:bg-white border-0'
+                onClick={() => setSelectedImage(null)}
+              >
+                ✕
+              </Button>
+            </div>
           </div>
         )}
       </div>

@@ -23,7 +23,15 @@ import {
   LabelList,
 } from 'recharts';
 import { generatePDF } from '@/components/pdf-utils';
-import { Loader2 } from 'lucide-react';
+import {
+  Loader2,
+  Users,
+  Trophy,
+  Building2,
+  FileText,
+  Download,
+  Filter,
+} from 'lucide-react';
 
 import { columns, Inscricoes } from './columns';
 import { DataTable } from './data-table';
@@ -40,7 +48,9 @@ export default function DashboardPage() {
     CBMDF: '#ff7f0e',
     PCDF: '#2ca02c',
     PRF: '#d62728',
-    OUTROS: '#9467bd',
+    DEPEN: '#9467bd',
+    'SSP-DF': '#8c564b',
+    OUTROS: '#e377c2',
   };
 
   useEffect(() => {
@@ -93,176 +103,279 @@ export default function DashboardPage() {
 
   if (loading)
     return (
-      <div className='flex items-center justify-center h-screen'>
-        <Loader2 className='inline-block h-6 w-6 animate-spin' />
+      <div className='flex items-center justify-center h-screen bg-gradient-to-br from-blue-50 to-orange-50'>
+        <div className='text-center'>
+          <Loader2 className='inline-block h-12 w-12 animate-spin text-blue-600 mb-4' />
+          <p className='text-lg text-gray-600'>Carregando dashboard...</p>
+        </div>
       </div>
     );
-  if (error) return <div>Erro: {error}</div>;
+
+  if (error)
+    return (
+      <div className='flex items-center justify-center h-screen bg-gradient-to-br from-red-50 to-pink-50'>
+        <Card className='max-w-md mx-auto text-center'>
+          <CardContent className='p-8'>
+            <div className='text-red-500 text-6xl mb-4'>⚠️</div>
+            <h2 className='text-xl font-semibold text-gray-800 mb-2'>
+              Erro ao carregar
+            </h2>
+            <p className='text-gray-600 mb-4'>{error}</p>
+            <Button onClick={() => window.location.reload()}>
+              Tentar Novamente
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
 
   return (
-    <div className='flex flex-col gap-6 p-4 bg-zinc-300'>
-      <h1 className='text-4xl font-extrabold text-center bg-zinc-800 text-white p-4 rounded-lg'>
-        Dashboard
-      </h1>
-      {/* Indicadores */}
-      <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-        <Card className='border border-zinc-400'>
-          <CardHeader>
-            <CardTitle>Total Inscritos</CardTitle>
-          </CardHeader>
-          <CardContent className='text-3xl font-bold text-blue-500'>
-            {inscritosFiltrados.length}
-          </CardContent>
-        </Card>
-        <Card className='border border-zinc-400'>
-          <CardHeader>
-            <CardTitle>Modalidades</CardTitle>
-          </CardHeader>
-          <CardContent className='text-3xl font-bold text-blue-500'>
-            {modalidadesCount.length}
-          </CardContent>
-        </Card>
-        <Card className='border border-zinc-400'>
-          <CardHeader>
-            <CardTitle>Afiliações</CardTitle>
-          </CardHeader>
-          <CardContent className='text-3xl font-bold text-blue-500'>
-            {afiliacoesCount.length}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filtros e PDF */}
-
-      <div className='flex flex-col items-end sm:flex-row gap-4 w-full'>
-        <div className=''>
-          <span>Afiliação</span>
-          <Select
-            value={afiliacao ?? 'todos'}
-            onValueChange={(val) => setAfiliacao(val === 'todos' ? null : val)}
-          >
-            <SelectTrigger className='w-full sm:w-40 border border-zinc-400 bg-zinc-50'>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='todos'>Todos</SelectItem>
-              {[...new Set(inscritos.map((i) => i.afiliacao))].map((a) => (
-                <SelectItem key={a} value={a}>
-                  {a}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+    <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50'>
+      <div className='container mx-auto px-4 py-8'>
+        {/* Header do Dashboard */}
+        <div className='text-center mb-8'>
+          <h1 className='text-4xl md:text-5xl font-extrabold mb-4 bg-gradient-to-r from-blue-600 via-blue-500 to-orange-500 bg-clip-text text-transparent'>
+            Dashboard Olinsesp VIII
+          </h1>
+          <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
+            Acompanhe em tempo real as estatísticas e informações do maior
+            evento esportivo de integração das forças de segurança
+          </p>
         </div>
 
-        <div>
-          <span>Modalidades</span>
-          <Select
-            value={modalidade ?? 'todos'}
-            onValueChange={(val) => setModalidade(val === 'todos' ? null : val)}
-          >
-            <SelectTrigger className='w-full sm:w-40 border border-zinc-400 bg-zinc-50'>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='todos'>Todos</SelectItem>
-              {[...new Set(inscritos.flatMap((i) => i.modalidades))].map(
-                (m) => (
-                  <SelectItem key={m} value={m}>
-                    {m}
-                  </SelectItem>
-                ),
-              )}
-            </SelectContent>
-          </Select>
+        {/* Indicadores Principais */}
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
+          <Card className='bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
+            <CardHeader className='pb-3'>
+              <CardTitle className='flex items-center gap-3 text-white'>
+                <Users className='h-6 w-6' />
+                Total de Inscritos
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className='text-4xl font-bold'>
+                {inscritosFiltrados.length}
+              </div>
+              <p className='text-blue-100 text-sm mt-2'>
+                {inscritosFiltrados.length > 0
+                  ? 'Atletas confirmados'
+                  : 'Aguardando inscrições'}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className='bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
+            <CardHeader className='pb-3'>
+              <CardTitle className='flex items-center gap-3 text-white'>
+                <Trophy className='h-6 w-6' />
+                Modalidades
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className='text-4xl font-bold'>
+                {modalidadesCount.length}
+              </div>
+              <p className='text-orange-100 text-sm mt-2'>
+                Categorias disponíveis
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className='bg-gradient-to-br from-green-500 to-green-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
+            <CardHeader className='pb-3'>
+              <CardTitle className='flex items-center gap-3 text-white'>
+                <Building2 className='h-6 w-6' />
+                Afiliações
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className='text-4xl font-bold'>{afiliacoesCount.length}</div>
+              <p className='text-green-100 text-sm mt-2'>
+                Forças representadas
+              </p>
+            </CardContent>
+          </Card>
         </div>
-        <Button
-          className='cursor-pointer'
-          onClick={() => {
-            const dadosParaPDF = inscritosFiltrados.map((i) => ({
-              ...i,
-              modalidades: modalidade
-                ? i.modalidades.filter((m) => m === modalidade)
-                : i.modalidades,
-            }));
-            generatePDF(dadosParaPDF);
-          }}
-        >
-          Gerar Relatório PDF
-        </Button>
-      </div>
 
-      {/* Gráfico por afiliação */}
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
-        <Card>
+        {/* Filtros e Controles */}
+        <Card className='mb-8 border-0 shadow-lg bg-white/80 backdrop-blur-sm'>
           <CardHeader>
-            <CardTitle>Inscritos por Afiliação</CardTitle>
+            <CardTitle className='flex items-center gap-2 text-gray-800'>
+              <Filter className='h-5 w-5 text-blue-600' />
+              Filtros e Relatórios
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width='100%' height={300}>
-              <BarChart data={afiliacoesCount}>
-                <XAxis dataKey='name' />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey='quantidade' radius={[8, 8, 0, 0]}>
-                  {afiliacoesCount.map((entry) => (
-                    <Cell
-                      key={entry.name}
-                      fill={
-                        afiliacaoColors[entry.name] || afiliacaoColors['OUTROS']
-                      }
-                    />
-                  ))}
-                  <LabelList dataKey='quantidade' position='top' />
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Gráfico por modalidade */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Inscritos por Modalidade</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width='100%' height={300}>
-              <PieChart>
-                <Pie
-                  data={modalidadesCount}
-                  dataKey='value'
-                  nameKey='name'
-                  outerRadius='80%'
-                  label
+            <div className='flex flex-col lg:flex-row items-start lg:items-end gap-4 w-full'>
+              <div className='space-y-2'>
+                <label className='text-sm font-medium text-gray-700'>
+                  Filtrar por Afiliação
+                </label>
+                <Select
+                  value={afiliacao ?? 'todos'}
+                  onValueChange={(val) =>
+                    setAfiliacao(val === 'todos' ? null : val)
+                  }
                 >
-                  {modalidadesCount.map((_, i) => (
-                    <Cell key={i} fill={`hsl(${i * 40}, 70%, 50%)`} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+                  <SelectTrigger className='w-full lg:w-48 border-2 border-gray-200 bg-white hover:border-blue-300 transition-colors'>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='todos'>Todas as Afiliações</SelectItem>
+                    {[...new Set(inscritos.map((i) => i.afiliacao))].map(
+                      (a) => (
+                        <SelectItem key={a} value={a}>
+                          {a}
+                        </SelectItem>
+                      ),
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className='space-y-2'>
+                <label className='text-sm font-medium text-gray-700'>
+                  Filtrar por Modalidade
+                </label>
+                <Select
+                  value={modalidade ?? 'todos'}
+                  onValueChange={(val) =>
+                    setModalidade(val === 'todos' ? null : val)
+                  }
+                >
+                  <SelectTrigger className='w-full lg:w-48 border-2 border-gray-200 bg-white hover:border-blue-300 transition-colors'>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='todos'>Todas as Modalidades</SelectItem>
+                    {[...new Set(inscritos.flatMap((i) => i.modalidades))].map(
+                      (m) => (
+                        <SelectItem key={m} value={m}>
+                          {m}
+                        </SelectItem>
+                      ),
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Button
+                className='bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2'
+                onClick={() => {
+                  const dadosParaPDF = inscritosFiltrados.map((i) => ({
+                    ...i,
+                    modalidades: modalidade
+                      ? i.modalidades.filter((m) => m === modalidade)
+                      : i.modalidades,
+                  }));
+                  generatePDF(dadosParaPDF);
+                }}
+              >
+                <Download className='h-4 w-4' />
+                Gerar Relatório PDF
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Gráficos */}
+        <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8'>
+          <Card className='border-0 shadow-lg bg-white/80 backdrop-blur-sm'>
+            <CardHeader>
+              <CardTitle className='text-gray-800 flex items-center gap-2'>
+                <BarChart className='h-5 w-5 text-blue-600' />
+                Inscritos por Afiliação
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width='100%' height={300}>
+                <BarChart data={afiliacoesCount}>
+                  <XAxis dataKey='name' />
+                  <YAxis />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                    }}
+                  />
+                  <Bar dataKey='quantidade' radius={[8, 8, 0, 0]}>
+                    {afiliacoesCount.map((entry) => (
+                      <Cell
+                        key={entry.name}
+                        fill={
+                          afiliacaoColors[entry.name] ||
+                          afiliacaoColors['OUTROS']
+                        }
+                      />
+                    ))}
+                    <LabelList dataKey='quantidade' position='top' />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <Card className='border-0 shadow-lg bg-white/80 backdrop-blur-sm'>
+            <CardHeader>
+              <CardTitle className='text-gray-800 flex items-center gap-2'>
+                <PieChart className='h-5 w-5 text-orange-600' />
+                Inscritos por Modalidade
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width='100%' height={300}>
+                <PieChart>
+                  <Pie
+                    data={modalidadesCount}
+                    dataKey='value'
+                    nameKey='name'
+                    outerRadius='80%'
+                    label
+                  >
+                    {modalidadesCount.map((_, i) => (
+                      <Cell key={i} fill={`hsl(${i * 40}, 70%, 50%)`} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Tabela de Inscritos */}
+        <Card className='border-0 shadow-lg bg-white/80 backdrop-blur-sm'>
+          <CardHeader>
+            <CardTitle className='text-gray-800 flex items-center gap-2'>
+              <FileText className='h-5 w-5 text-green-600' />
+              Lista de Inscritos
+              <span className='text-sm font-normal text-gray-500 ml-2'>
+                ({inscritosFiltrados.length} registros)
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className='overflow-x-auto'>
+            <DataTable
+              columns={columns}
+              data={inscritosFiltrados.map((i) => ({
+                ...i,
+                modalidades: modalidade
+                  ? i.modalidades.filter((m) => m === modalidade)
+                  : i.modalidades,
+              }))}
+            />
           </CardContent>
         </Card>
       </div>
-
-      {/* DataTable de inscritos */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Lista de Inscritos</CardTitle>
-        </CardHeader>
-        <CardContent className='overflow-x-auto'>
-          <DataTable
-            columns={columns}
-            data={inscritosFiltrados.map((i) => ({
-              ...i,
-              modalidades: modalidade
-                ? i.modalidades.filter((m) => m === modalidade)
-                : i.modalidades,
-            }))}
-          />
-        </CardContent>
-      </Card>
     </div>
   );
 }

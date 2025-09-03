@@ -138,3 +138,215 @@
     --chart-5: oklch(0.645 0.246 16.439);
   }
 }
+
+/* Classes CSS personalizadas para animações e efeitos */
+@layer utilities {
+  /* Animações personalizadas */
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+  }
+
+  .animate-bounce-delay-500 {
+    animation: bounce 2s infinite 0.5s;
+  }
+
+  .animate-bounce-delay-1000 {
+    animation: bounce 2s infinite 1s;
+  }
+
+  /* Transições suaves */
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .transition-bounce {
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  /* Efeitos de hover */
+  .hover-lift {
+    transition:
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  /* Gradientes personalizados */
+  .bg-gradient-card {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.9),
+      rgba(255, 255, 255, 0.7)
+    );
+  }
+
+  .bg-gradient-accent {
+    background: linear-gradient(135deg, #3b82f6, #f59e0b);
+  }
+
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #1e40af, #f59e0b);
+  }
+
+  /* Sombras personalizadas */
+  .shadow-card {
+    box-shadow:
+      0 10px 25px -5px rgba(0, 0, 0, 0.1),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  .shadow-primary {
+    box-shadow:
+      0 20px 25px -5px rgba(59, 130, 246, 0.1),
+      0 10px 10px -5px rgba(59, 130, 246, 0.04);
+  }
+
+  /* Backdrop blur */
+  .backdrop-blur-card {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  /* Animações de entrada */
+  .fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  .fade-in-down {
+    animation: fadeInDown 0.6s ease-out;
+  }
+
+  .fade-in-left {
+    animation: fadeInLeft 0.6s ease-out;
+  }
+
+  .fade-in-right {
+    animation: fadeInRight 0.6s ease-out;
+  }
+
+  /* Delays para animações em sequência */
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+  .animation-delay-500 {
+    animation-delay: 500ms;
+  }
+}
+
+/* Keyframes para animações personalizadas */
+@keyframes pulse-glow {
+  0% {
+    text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  }
+  100% {
+    text-shadow:
+      0 0 30px rgba(59, 130, 246, 0.8),
+      0 0 40px rgba(59, 130, 246, 0.3);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Melhorias para scroll suave */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Estilos para scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #3b82f6, #f59e0b);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #2563eb, #d97706);
+}
+
+/* Melhorias para seleção de texto */
+::selection {
+  background: rgba(59, 130, 246, 0.2);
+  color: #1e40af;
+}
+
+/* Efeitos de foco melhorados */
+.focus-ring:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Classes para responsividade aprimorada */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1200px;
+  }
+}

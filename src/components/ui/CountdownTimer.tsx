@@ -46,10 +46,10 @@ export default function CountdownTimer() {
       <div className='grid grid-cols-4 gap-2 max-w-md mx-auto'>
         {timeUnits.map((unit) => (
           <Card key={unit.label} className='p-3 bg-gradient-card shadow-card'>
-            <div className='text-2xl font-bold text-white'>
+            <div className='text-2xl font-bold'>
               {unit.value.toString().padStart(2, '0')}
             </div>
-            <div className='text-xs uppercase text-white'>{unit.label}</div>
+            <div className='text-xs uppercase text-gray-800'>{unit.label}</div>
           </Card>
         ))}
       </div>

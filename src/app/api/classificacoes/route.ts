@@ -1,78 +1,107 @@
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-  const dummyData = {
-    byAfiliacao: [
-      {
-        rank: 1,
-        name: 'PMDF',
-        gold: 5,
-        silver: 3,
-        bronze: 2,
-        points: 0,
-      },
-      {
-        rank: 2,
-        name: 'CBMDF',
-        gold: 3,
-        silver: 4,
-        bronze: 5,
-        points: 0,
-      },
-      {
-        rank: 3,
-        name: 'PCDF',
-        gold: 2,
-        silver: 3,
-        bronze: 4,
-        points: 0,
-      },
-      {
-        rank: 4,
-        name: 'DEPEN',
-        gold: 1,
-        silver: 2,
-        bronze: 3,
-        points: 0,
-      },
-    ],
-    byModalidade: [
-      {
-        rank: 1,
-        name: 'Futsal Masculino',
-        affiliation: 'PMDF',
-      },
-      {
-        rank: 2,
-        name: 'Futsal Feminino',
-        affiliation: 'CBMDF',
-      },
-      {
-        rank: 3,
-        name: 'Vôlei Masculino',
-        affiliation: 'PCDF',
-      },
-      {
-        rank: 4,
-        name: 'Vôlei Feminino',
-        affiliation: 'DEPEN',
-      },
-      {
-        rank: 5,
-        name: 'Basquete Masculino',
-        affiliation: 'PMDF',
-      },
-    ],
-  };
+  const classificacoes = [
+    {
+      id: '1',
+      modalidade: 'Futsal Masculino',
+      categoria: 'Adulto',
+      posicao: 1,
+      afiliacao: 'PMDF',
+      pontuacao: 95,
+      observacoes: 'Campeão da modalidade',
+    },
+    {
+      id: '2',
+      modalidade: 'Futsal Masculino',
+      categoria: 'Adulto',
+      posicao: 2,
+      afiliacao: 'CBMDF',
+      pontuacao: 88,
+      observacoes: 'Vice-campeão da modalidade',
+    },
+    {
+      id: '3',
+      modalidade: 'Futsal Masculino',
+      categoria: 'Adulto',
+      posicao: 3,
+      afiliacao: 'PCDF',
+      pontuacao: 82,
+      observacoes: 'Terceiro lugar na modalidade',
+    },
+    {
+      id: '4',
+      modalidade: 'Vôlei Feminino',
+      categoria: 'Adulto',
+      posicao: 1,
+      afiliacao: 'PMDF',
+      pontuacao: 92,
+      observacoes: 'Campeão da modalidade',
+    },
+    {
+      id: '5',
+      modalidade: 'Vôlei Feminino',
+      categoria: 'Adulto',
+      posicao: 2,
+      afiliacao: 'CBMDF',
+      pontuacao: 87,
+      observacoes: 'Vice-campeão da modalidade',
+    },
+    {
+      id: '6',
+      modalidade: 'Basquete Masculino',
+      categoria: 'Adulto',
+      posicao: 1,
+      afiliacao: 'PMDF',
+      pontuacao: 94,
+      observacoes: 'Campeão da modalidade',
+    },
+    {
+      id: '7',
+      modalidade: 'Basquete Masculino',
+      categoria: 'Adulto',
+      posicao: 2,
+      afiliacao: 'PCDF',
+      pontuacao: 89,
+      observacoes: 'Vice-campeão da modalidade',
+    },
+    {
+      id: '8',
+      modalidade: 'Atletismo',
+      categoria: '100m',
+      posicao: 1,
+      atleta: 'Lucas Mendes',
+      afiliacao: 'DEPEN',
+      pontuacao: 96,
+      tempo: '10.45s',
+      distancia: '100m',
+      observacoes: 'Recorde do evento',
+    },
+    {
+      id: '9',
+      modalidade: 'Atletismo',
+      categoria: '100m',
+      posicao: 2,
+      atleta: 'Ricardo Alves',
+      afiliacao: 'PMDF',
+      pontuacao: 91,
+      tempo: '10.78s',
+      distancia: '100m',
+      observacoes: 'Velocidade impressionante',
+    },
+    {
+      id: '10',
+      modalidade: 'Natação',
+      categoria: '50m Livre',
+      posicao: 1,
+      atleta: 'Gabriel Torres',
+      afiliacao: 'CBMDF',
+      pontuacao: 93,
+      tempo: '25.32s',
+      distancia: '50m',
+      observacoes: 'Estilo perfeito',
+    },
+  ];
 
-  dummyData.byAfiliacao.forEach((item) => {
-    item.points = item.gold * 5 + item.silver * 3 + item.bronze * 1;
-  });
-
-  dummyData.byAfiliacao.sort((a, b) => b.points - a.points);
-  dummyData.byAfiliacao.forEach((item, index) => {
-    item.rank = index + 1;
-  });
-
-  return NextResponse.json(dummyData);
+  return NextResponse.json(classificacoes);
 }
