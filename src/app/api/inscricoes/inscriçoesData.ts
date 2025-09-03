@@ -1,5 +1,6 @@
 export const inscricoes = [
   {
+    id: '1',
     nome: 'Rebeca Freitas',
     email: 'camposarthur@ig.com.br',
     cpf: '47109256316',
@@ -11,6 +12,7 @@ export const inscricoes = [
     modalidades: ['Basquete', 'Tênis'],
   },
   {
+    id: '2',
     nome: 'Srta. Isabel Silva',
     email: 'gomessabrina@ig.com.br',
     cpf: '71630985295',
@@ -22,6 +24,7 @@ export const inscricoes = [
     modalidades: ['Karatê'],
   },
   {
+    id: '3',
     nome: 'Sophie Monteiro',
     email: 'alexandreda-rocha@carvalho.net',
     cpf: '69518340757',
@@ -33,6 +36,7 @@ export const inscricoes = [
     modalidades: ['Basquete', 'Atletismo', 'Futebol de Areia'],
   },
   {
+    id: '4',
     nome: 'Maria Luiza Ramos',
     email: 'salesmelissa@yahoo.com.br',
     cpf: '98216430787',
@@ -44,6 +48,7 @@ export const inscricoes = [
     modalidades: ['Futsal', 'Judô', 'Basquete'],
   },
   {
+    id: '5',
     nome: 'Ryan Peixoto',
     email: 'marianefreitas@gmail.com',
     cpf: '09385174657',
@@ -55,6 +60,7 @@ export const inscricoes = [
     modalidades: ['Futebol de Areia', 'Futebol'],
   },
   {
+    id: '6',
     nome: 'Srta. Laís Cavalcanti',
     email: 'gcarvalho@da.net',
     cpf: '73895261068',
@@ -66,6 +72,7 @@ export const inscricoes = [
     modalidades: ['Futebol de Areia', 'Natação', 'Basquete', 'Jiu-Jitsu'],
   },
   {
+    id: '7',
     nome: 'Dr. Arthur Correia',
     email: 'anaribeiro@lopes.br',
     cpf: '24103768517',
@@ -77,6 +84,7 @@ export const inscricoes = [
     modalidades: ['Futsal', 'Basquete', 'Corrida'],
   },
   {
+    id: '8',
     nome: 'Dr. Fernando Freitas',
     email: 'jazevedo@ig.com.br',
     cpf: '25347801662',
@@ -88,6 +96,7 @@ export const inscricoes = [
     modalidades: ['Jiu-Jitsu', 'Natação'],
   },
   {
+    id: '9',
     nome: 'Gabriela Farias',
     email: 'maria-sophia21@nunes.br',
     cpf: '53768021408',
@@ -99,6 +108,7 @@ export const inscricoes = [
     modalidades: ['Jiu-Jitsu', 'Basquete', 'Futsal', 'Tênis'],
   },
   {
+    id: '10',
     nome: 'Srta. Maria Fernanda Teixeira',
     email: 'gfernandes@correia.com',
     cpf: '13907264878',
@@ -110,6 +120,7 @@ export const inscricoes = [
     modalidades: ['Corrida', 'Jiu-Jitsu', 'Handebol'],
   },
   {
+    id: '11',
     nome: 'Guilherme Moura',
     email: 'vitor01@uol.com.br',
     cpf: '75128043690',
@@ -121,6 +132,7 @@ export const inscricoes = [
     modalidades: ['Futsal', 'Jiu-Jitsu', 'Natação'],
   },
   {
+    id: '12',
     nome: 'João Felipe Silva',
     email: 'gabriela89@da.net',
     cpf: '02193457670',
@@ -132,6 +144,7 @@ export const inscricoes = [
     modalidades: ['Tênis'],
   },
   {
+    id: '13',
     nome: 'Lucca da Rosa',
     email: 'tteixeira@gmail.com',
     cpf: '21453980660',
@@ -143,6 +156,7 @@ export const inscricoes = [
     modalidades: ['Basquete', 'Futsal', 'Natação'],
   },
   {
+    id: '14',
     nome: 'Arthur Nogueira',
     email: 'maria-claramoraes@ig.com.br',
     cpf: '13085264906',
@@ -154,6 +168,7 @@ export const inscricoes = [
     modalidades: ['Jiu-Jitsu'],
   },
   {
+    id: '15',
     nome: 'Dra. Giovanna Ribeiro',
     email: 'rebeca87@bol.com.br',
     cpf: '74913520814',
@@ -165,6 +180,7 @@ export const inscricoes = [
     modalidades: ['Handebol', 'Atletismo', 'Vôlei'],
   },
   {
+    id: '16',
     nome: 'Ana Carolina Lima',
     email: 'mpinto@yahoo.com.br',
     cpf: '50341782904',
@@ -176,6 +192,7 @@ export const inscricoes = [
     modalidades: ['Corrida'],
   },
   {
+    id: '17',
     nome: 'Giovanna da Cruz',
     email: 'da-cruzluiz-felipe@yahoo.com.br',
     cpf: '41079328696',
@@ -187,6 +204,7 @@ export const inscricoes = [
     modalidades: ['Judô', 'Atletismo', 'Basquete', 'Futebol'],
   },
   {
+    id: '18',
     nome: 'Dra. Kamilly Fernandes',
     email: 'da-rosaeloah@bol.com.br',
     cpf: '79406125811',
@@ -198,6 +216,7 @@ export const inscricoes = [
     modalidades: ['Atletismo', 'Natação', 'Futebol'],
   },
   {
+    id: '19',
     nome: 'Evelyn Caldeira',
     email: 'vsilva@hotmail.com',
     cpf: '21854609351',
@@ -209,6 +228,7 @@ export const inscricoes = [
     modalidades: ['Natação', 'Corrida', 'Judô', 'Handebol'],
   },
   {
+    id: '20',
     nome: 'Vitor Hugo Costa',
     email: 'isaacnovaes@uol.com.br',
     cpf: '61935820451',
@@ -220,6 +240,7 @@ export const inscricoes = [
     modalidades: ['Atletismo', 'Judô', 'Tênis', 'Futsal'],
   },
   {
+    id: '21',
     nome: 'Rebeca Cavalcanti',
     email: 'meloaugusto@da.org',
     cpf: '65809234747',
@@ -231,6 +252,7 @@ export const inscricoes = [
     modalidades: ['Basquete'],
   },
   {
+    id: '22',
     nome: 'Stephany Freitas',
     email: 'ana-sophia11@ig.com.br',
     cpf: '74526903116',
@@ -242,6 +264,7 @@ export const inscricoes = [
     modalidades: ['Handebol'],
   },
   {
+    id: '23',
     nome: 'Maria Julia da Cunha',
     email: 'barroselisa@bol.com.br',
     cpf: '69752841309',
@@ -253,6 +276,7 @@ export const inscricoes = [
     modalidades: ['Natação', 'Ciclismo', 'Vôlei'],
   },
   {
+    id: '24',
     nome: 'Cecília Dias',
     email: 'tda-mata@nunes.com',
     cpf: '14807392603',
@@ -264,6 +288,7 @@ export const inscricoes = [
     modalidades: ['Futebol de Areia', 'Vôlei', 'Futebol', 'Tênis'],
   },
   {
+    id: '25',
     nome: 'Heitor Silveira',
     email: 'wporto@gmail.com',
     cpf: '73064891510',
@@ -275,6 +300,7 @@ export const inscricoes = [
     modalidades: ['Jiu-Jitsu', 'Natação', 'Vôlei', 'Corrida'],
   },
   {
+    id: '26',
     nome: 'Kaique Porto',
     email: 'mda-costa@pires.br',
     cpf: '08724936529',
@@ -286,6 +312,7 @@ export const inscricoes = [
     modalidades: ['Natação', 'Judô', 'Futsal'],
   },
   {
+    id: '27',
     nome: 'Nicole Ferreira',
     email: 'caldeirabrenda@aragao.com',
     cpf: '67584230180',
@@ -297,6 +324,7 @@ export const inscricoes = [
     modalidades: ['Futebol', 'Vôlei', 'Karatê', 'Futsal'],
   },
   {
+    id: '28',
     nome: 'Henrique Almeida',
     email: 'da-cruzjuan@yahoo.com.br',
     cpf: '16435298033',
@@ -308,6 +336,7 @@ export const inscricoes = [
     modalidades: ['Atletismo', 'Basquete'],
   },
   {
+    id: '29',
     nome: 'Evelyn Novaes',
     email: 'da-motafrancisco@ig.com.br',
     cpf: '39247058600',
@@ -319,6 +348,7 @@ export const inscricoes = [
     modalidades: ['Natação', 'Tênis', 'Handebol'],
   },
   {
+    id: '30',
     nome: 'Kevin Costela',
     email: 'zmartins@pereira.com',
     cpf: '92786305438',

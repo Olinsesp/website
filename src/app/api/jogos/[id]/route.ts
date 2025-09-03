@@ -1,6 +1,29 @@
-import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+
+const staticJogos = [
+  {
+    id: '1',
+    modalidade: 'Futebol de Campo',
+    data: new Date('2026-12-15T10:30:00').toISOString(),
+    horario: '10:30',
+    resultado: 'Equipe A 2 vs 1 Equipe B',
+  },
+  {
+    id: '2',
+    modalidade: 'Voleibol',
+    data: new Date('2026-12-15T11:00:00').toISOString(),
+    horario: '11:00',
+    resultado: 'Equipe C 3 vs 2 Equipe D',
+  },
+  {
+    id: '3',
+    modalidade: 'Basquete',
+    data: new Date('2026-12-17T15:00:00').toISOString(),
+    horario: '15:00',
+    resultado: 'Equipe E 88 vs 85 Equipe F',
+  },
+];
 
 const jogoUpdateSchema = z.object({
   modalidade: z.string().min(1, 'A modalidade é obrigatória.').optional(),
@@ -15,9 +38,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const jogo = await prisma.jogo.findUnique({
-      where: { id },
-    });
+    const jogo = staticJogos.find((j) => j.id === id);
 
     if (!jogo) {
       return NextResponse.json(
@@ -45,12 +66,21 @@ export async function PUT(
     const data = await request.json();
     const validatedData = jogoUpdateSchema.parse(data);
 
-    const jogo = await prisma.jogo.update({
-      where: { id },
-      data: validatedData,
-    });
+    const jogoIndex = staticJogos.findIndex((j) => j.id === id);
 
-    return NextResponse.json(jogo);
+    if (jogoIndex === -1) {
+      return NextResponse.json(
+        { error: 'Jogo não encontrado.' },
+        { status: 404 },
+      );
+    }
+
+    const jogoAtualizado = {
+      ...staticJogos[jogoIndex],
+      ...validatedData,
+    };
+
+    return NextResponse.json(jogoAtualizado);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -75,15 +105,23 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    await prisma.jogo.delete({
-      where: { id },
-    });
+
+    const jogoIndex = staticJogos.findIndex((j) => j.id === id);
+
+    if (jogoIndex === -1) {
+      return NextResponse.json(
+        { error: 'Jogo não encontrado.' },
+        { status: 404 },
+      );
+    }
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error('Erro ao deletar jogo:', error);
     return NextResponse.json(
-      { error: 'Ocorreu um erro no servidor ao deletar o jogo.' },
+      {
+        error: 'Ocorreu um erro no servidor ao deletar o jogo.',
+      },
       { status: 500 },
     );
   }

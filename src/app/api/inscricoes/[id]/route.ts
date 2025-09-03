@@ -1,6 +1,6 @@
-import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { inscricoes } from '../inscriçoesData';
 
 const inscricaoUpdateSchema = z.object({
   nome: z
@@ -23,9 +23,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const inscricao = await prisma.inscricao.findUnique({
-      where: { id },
-    });
+    const inscricao = inscricoes.find((i) => i.id === id);
 
     if (!inscricao) {
       return NextResponse.json(
@@ -53,12 +51,21 @@ export async function PUT(
     const data = await request.json();
     const validatedData = inscricaoUpdateSchema.parse(data);
 
-    const inscricao = await prisma.inscricao.update({
-      where: { id },
-      data: validatedData,
-    });
+    const inscricaoIndex = inscricoes.findIndex((i) => i.id === id);
 
-    return NextResponse.json(inscricao);
+    if (inscricaoIndex === -1) {
+      return NextResponse.json(
+        { error: 'Inscrição não encontrada.' },
+        { status: 404 },
+      );
+    }
+
+    const inscricaoAtualizada = {
+      ...inscricoes[inscricaoIndex],
+      ...validatedData,
+    };
+
+    return NextResponse.json(inscricaoAtualizada);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -83,15 +90,23 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    await prisma.inscricao.delete({
-      where: { id },
-    });
+
+    const inscricaoIndex = inscricoes.findIndex((i) => i.id === id);
+
+    if (inscricaoIndex === -1) {
+      return NextResponse.json(
+        { error: 'Inscrição não encontrada.' },
+        { status: 404 },
+      );
+    }
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error('Erro ao deletar inscrição:', error);
     return NextResponse.json(
-      { error: 'Ocorreu um erro no servidor ao deletar a inscrição.' },
+      {
+        error: 'Ocorreu um erro no servidor ao deletar a inscrição.',
+      },
       { status: 500 },
     );
   }

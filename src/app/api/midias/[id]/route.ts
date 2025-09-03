@@ -1,6 +1,48 @@
-import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+
+const staticMidias = [
+  {
+    id: '1',
+    tipo: 'imagem',
+    url: 'https://wcflwdtdjkkkbkljatfs.supabase.co/storage/v1/object/public/olinsesp/foto1.png',
+    titulo: 'Abertura do Evento',
+    destaque: true,
+    createdAt: new Date('2026-12-15T09:00:00').toISOString(),
+  },
+  {
+    id: '2',
+    tipo: 'imagem',
+    url: 'https://wcflwdtdjkkkbkljatfs.supabase.co/storage/v1/object/public/olinsesp/foto1.png',
+    titulo: 'Jogo de Vôlei',
+    destaque: false,
+    createdAt: new Date('2026-12-15T11:30:00').toISOString(),
+  },
+  {
+    id: '3',
+    tipo: 'video',
+    url: 'https://wcflwdtdjkkkbkljatfs.supabase.co/storage/v1/object/public/olinsesp/foto1.png',
+    titulo: 'Melhores Momentos - Dia 1',
+    destaque: true,
+    createdAt: new Date('2026-12-15T20:00:00').toISOString(),
+  },
+  {
+    id: '4',
+    tipo: 'release',
+    url: 'Resultados do primeiro dia de competições da Olinsesp VIII.',
+    titulo: 'Balanço do Dia 1',
+    destaque: false,
+    createdAt: new Date('2026-12-16T09:00:00').toISOString(),
+  },
+  {
+    id: '5',
+    tipo: 'imagem',
+    url: 'https://wcflwdtdjkkkbkljatfs.supabase.co/storage/v1/object/public/olinsesp/foto1.png',
+    titulo: 'Corrida de Rua',
+    destaque: false,
+    createdAt: new Date('2026-12-16T10:00:00').toISOString(),
+  },
+];
 
 const midiaUpdateSchema = z.object({
   tipo: z.string().min(1, 'O tipo é obrigatório.').optional(),
@@ -15,9 +57,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const midia = await prisma.midia.findUnique({
-      where: { id },
-    });
+    const midia = staticMidias.find((m) => m.id === id);
 
     if (!midia) {
       return NextResponse.json(
@@ -45,12 +85,21 @@ export async function PUT(
     const data = await request.json();
     const validatedData = midiaUpdateSchema.parse(data);
 
-    const midia = await prisma.midia.update({
-      where: { id },
-      data: validatedData,
-    });
+    const midiaIndex = staticMidias.findIndex((m) => m.id === id);
 
-    return NextResponse.json(midia);
+    if (midiaIndex === -1) {
+      return NextResponse.json(
+        { error: 'Mídia não encontrada.' },
+        { status: 404 },
+      );
+    }
+
+    const midiaAtualizada = {
+      ...staticMidias[midiaIndex],
+      ...validatedData,
+    };
+
+    return NextResponse.json(midiaAtualizada);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -75,15 +124,23 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    await prisma.midia.delete({
-      where: { id },
-    });
+
+    const midiaIndex = staticMidias.findIndex((m) => m.id === id);
+
+    if (midiaIndex === -1) {
+      return NextResponse.json(
+        { error: 'Mídia não encontrada.' },
+        { status: 404 },
+      );
+    }
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error('Erro ao deletar mídia:', error);
     return NextResponse.json(
-      { error: 'Ocorreu um erro no servidor ao deletar a mídia.' },
+      {
+        error: 'Ocorreu um erro no servidor ao deletar a mídia.',
+      },
       { status: 500 },
     );
   }

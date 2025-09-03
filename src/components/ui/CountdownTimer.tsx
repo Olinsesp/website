@@ -11,7 +11,7 @@ export default function CountdownTimer() {
   }>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    const targetDate = new Date('2025-09-30T23:59:59');
+    const targetDate = new Date('2026-02-15T09:00:00');
     const timer = setInterval(() => {
       const now = new Date().getTime();
       const distance = targetDate.getTime() - now;
@@ -42,7 +42,7 @@ export default function CountdownTimer() {
 
   return (
     <div className='text-center bg-gradient-to-r from-blue-500 to-orange-500 p-6 rounded-lg shadow-lg'>
-      <h3 className='text-lg font-semibold mb-4'>As inscrições terminam em:</h3>
+      <h3 className='text-lg font-semibold mb-4'>O evento começa em:</h3>
       <div className='grid grid-cols-4 gap-2 max-w-md mx-auto'>
         {timeUnits.map((unit) => (
           <Card key={unit.label} className='p-3 bg-gradient-card shadow-card'>

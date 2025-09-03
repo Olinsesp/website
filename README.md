@@ -1,36 +1,169 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏆 Olinsesp VIII - MVP
 
-## Getting Started
+> **O maior evento esportivo de integração das forças de segurança**
 
-First, run the development server:
+Este é um MVP (Minimum Viable Product) desenvolvido com [Next.js](https://nextjs.org) para demonstrar o sistema de gerenciamento do evento Olinsesp VIII.
+
+## 🚀 Funcionalidades
+
+- ✅ **Sistema de Inscrições** - Formulário completo com validação
+- ✅ **Cronograma do Evento** - Programação detalhada por dia
+- ✅ **Galeria de Mídias** - Fotos, vídeos e releases
+- ✅ **Classificações** - Quadro de medalhas e resultados
+- ✅ **Modalidades Esportivas** - Catálogo completo com editais
+- ✅ **Dashboard Administrativo** - Relatórios e estatísticas
+- ✅ **Geração de PDF** - Relatórios exportáveis
+- ✅ **API REST** - Endpoints para integração futura
+
+## 🎯 Sobre o MVP
+
+Este projeto utiliza **dados estáticos** para demonstração, simulando todas as operações CRUD. É perfeito para:
+
+- Apresentações para stakeholders
+- Validação de funcionalidades
+- Demonstração de UX/UI
+- Base para desenvolvimento futuro
+
+## 🛠️ Tecnologias
+
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS, shadcn/ui
+- **Validação**: Zod, React Hook Form
+- **Charts**: Recharts
+- **PDF**: jsPDF
+- **State Management**: TanStack Query
+- **Icons**: Lucide React
+
+## 📋 Pré-requisitos
+
+- Node.js 18+
+- npm ou yarn
+
+## ⚙️ Instalação
+
+1. **Clone o repositório**
+
+```bash
+git clone https://github.com/seu-usuario/olinsesp.git
+cd olinsesp
+```
+
+2. **Instale as dependências**
+
+```bash
+npm install
+# ou
+yarn install
+```
+
+3. **Configure as variáveis de ambiente**
+
+```bash
+cp .env.example .env.local
+# Edite o arquivo .env.local com suas configurações
+```
+
+4. **Execute o projeto**
 
 ```bash
 npm run dev
-# or
+# ou
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. **Acesse a aplicação**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📁 Estrutura do Projeto
 
-## Learn More
+```
+src/
+├── app/                    # App Router do Next.js 15
+│   ├── api/               # API Routes com dados estáticos
+│   ├── Classificacoes/    # Página de classificações
+│   ├── Cronograma/        # Página do cronograma
+│   ├── Dashboard/          # Dashboard administrativo
+│   ├── Galeria/           # Galeria de mídias
+│   ├── Inscricoes/        # Sistema de inscrições
+│   └── Modalidades/       # Lista de modalidades
+├── components/             # Componentes reutilizáveis
+│   └── ui/                # Componentes base (shadcn/ui)
+└── lib/                    # Utilitários e configurações
+```
 
-To learn more about Next.js, take a look at the following resources:
+## 🔧 Scripts Disponíveis
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run dev          # Executa em modo desenvolvimento
+npm run build        # Gera build de produção
+npm run start        # Executa build de produção
+npm run lint         # Executa linting e formatação
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🎨 Personalização
 
-## Deploy on Vercel
+### Cores e Tema
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Edite `src/app/globals.css` para personalizar:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Cores do tema
+- Variáveis CSS
+- Estilos globais
+
+### Dados Estáticos
+
+Modifique os arquivos em `src/app/api/` para:
+
+- Alterar informações do evento
+- Adicionar modalidades
+- Modificar cronograma
+- Atualizar classificações
+
+## 🚀 Deploy
+
+### Vercel (Recomendado)
+
+1. Conecte seu repositório ao Vercel
+2. Configure as variáveis de ambiente
+3. Deploy automático
+
+### Outras Plataformas
+
+- Netlify
+- Railway
+- Heroku
+
+## 🔮 Roadmap
+
+### Fase 1: MVP ✅
+
+- [x] Interface básica
+- [x] Funcionalidades core
+- [x] Dados estáticos
+- [x] API routes
+
+### Fase 2: Produção (Futuro)
+
+- [ ] Banco de dados real
+- [ ] Autenticação de usuários
+- [ ] Sistema de pagamentos
+- [ ] Notificações em tempo real
+- [ ] App mobile
+
+## 📞 Suporte
+
+Para dúvidas ou problemas:
+
+- Abra uma issue no GitHub
+- Entre em contato com a equipe de desenvolvimento
+
+## 📄 Licença
+
+Este projeto é um MVP interno para demonstração.
+
+---
+
+**Desenvolvido com ❤️ para o Olinsesp VIII**
