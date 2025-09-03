@@ -111,53 +111,55 @@ export default function ClassificacoesPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className='w-[80px]'>Posição</TableHead>
-                      <TableHead>Afiliação</TableHead>
-                      <TableHead className='text-center'>Medalhas</TableHead>
-                      <TableHead className='text-right'>Pontuação</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {classificacoes?.byAfiliacao.map((item) => (
-                      <TableRow key={item.rank}>
-                        <TableCell className='font-bold text-lg'>
-                          {item.rank}°
-                        </TableCell>
-                        <TableCell className='font-medium'>
-                          {item.name}
-                        </TableCell>
-                        <TableCell className='text-center'>
-                          <div className='flex items-center justify-center gap-2'>
-                            <Badge
-                              variant='gold'
-                              className='flex items-center gap-1'
-                            >
-                              <Medal className='h-4 w-4' /> {item.gold}
-                            </Badge>
-                            <Badge
-                              variant='silver'
-                              className='flex items-center gap-1'
-                            >
-                              <Medal className='h-4 w-4' /> {item.silver}
-                            </Badge>
-                            <Badge
-                              variant='bronze'
-                              className='flex items-center gap-1'
-                            >
-                              <Medal className='h-4 w-4' /> {item.bronze}
-                            </Badge>
-                          </div>
-                        </TableCell>
-                        <TableCell className='text-right font-bold'>
-                          {item.points}
-                        </TableCell>
+                <div className='border-2 p-2 border-zinc-300 rounded-xl overflow-hidden'>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className='w-[80px]'>Posição</TableHead>
+                        <TableHead>Afiliação</TableHead>
+                        <TableHead className='text-center'>Medalhas</TableHead>
+                        <TableHead className='text-right'>Pontuação</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {classificacoes?.byAfiliacao.map((item) => (
+                        <TableRow key={item.rank}>
+                          <TableCell className='font-bold text-lg'>
+                            {item.rank}°
+                          </TableCell>
+                          <TableCell className='font-medium'>
+                            {item.name}
+                          </TableCell>
+                          <TableCell className='text-center'>
+                            <div className='flex items-center justify-center gap-2'>
+                              <Badge
+                                variant='gold'
+                                className='flex items-center gap-1'
+                              >
+                                <Medal className='h-4 w-4' /> {item.gold}
+                              </Badge>
+                              <Badge
+                                variant='silver'
+                                className='flex items-center gap-1'
+                              >
+                                <Medal className='h-4 w-4' /> {item.silver}
+                              </Badge>
+                              <Badge
+                                variant='bronze'
+                                className='flex items-center gap-1'
+                              >
+                                <Medal className='h-4 w-4' /> {item.bronze}
+                              </Badge>
+                            </div>
+                          </TableCell>
+                          <TableCell className='text-right font-bold'>
+                            {item.points}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -170,31 +172,33 @@ export default function ClassificacoesPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Modalidade</TableHead>
-                      <TableHead>Campeão</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {classificacoes?.byModalidade.map((item) => (
-                      <TableRow key={item.rank}>
-                        <TableCell className='font-medium'>
-                          {item.name}
-                        </TableCell>
-                        <TableCell>
-                          <div className='flex items-center gap-2'>
-                            <Trophy className='h-5 w-5 text-yellow-500' />
-                            <span className='font-medium'>
-                              {item.affiliation}
-                            </span>
-                          </div>
-                        </TableCell>
+                <div className='border-2 p-2 border-zinc-300 rounded-xl overflow-hidden'>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Modalidade</TableHead>
+                        <TableHead>Campeão</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {classificacoes?.byModalidade.map((item) => (
+                        <TableRow key={item.rank}>
+                          <TableCell className='font-medium'>
+                            {item.name}
+                          </TableCell>
+                          <TableCell>
+                            <div className='flex items-center gap-2'>
+                              <Trophy className='h-5 w-5 text-yellow-500' />
+                              <span className='font-medium'>
+                                {item.affiliation}
+                              </span>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

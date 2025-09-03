@@ -133,14 +133,16 @@ export default function DashboardPage() {
       </div>
 
       {/* Filtros e PDF */}
-      <div className='flex flex-col md:flex-row gap-4'>
-        <div className='flex flex-col sm:flex-row gap-4 w-full'>
+
+      <div className='flex flex-col items-end sm:flex-row gap-4 w-full'>
+        <div className=''>
+          <span>Afiliação</span>
           <Select
             value={afiliacao ?? 'todos'}
             onValueChange={(val) => setAfiliacao(val === 'todos' ? null : val)}
           >
             <SelectTrigger className='w-full sm:w-40 border border-zinc-400 bg-zinc-50'>
-              <SelectValue placeholder='Filtrar Afiliação' />
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value='todos'>Todos</SelectItem>
@@ -151,13 +153,16 @@ export default function DashboardPage() {
               ))}
             </SelectContent>
           </Select>
+        </div>
 
+        <div>
+          <span>Modalidades</span>
           <Select
             value={modalidade ?? 'todos'}
             onValueChange={(val) => setModalidade(val === 'todos' ? null : val)}
           >
             <SelectTrigger className='w-full sm:w-40 border border-zinc-400 bg-zinc-50'>
-              <SelectValue placeholder='Filtrar Modalidade' />
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value='todos'>Todos</SelectItem>
@@ -171,8 +176,8 @@ export default function DashboardPage() {
             </SelectContent>
           </Select>
         </div>
-
         <Button
+          className='cursor-pointer'
           onClick={() => {
             const dadosParaPDF = inscritosFiltrados.map((i) => ({
               ...i,
