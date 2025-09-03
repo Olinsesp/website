@@ -100,9 +100,9 @@ export default function DashboardPage() {
   if (error) return <div>Erro: {error}</div>;
 
   return (
-    <div className='p-6 grid gap-6'>
+    <div className='flex flex-col gap-6 p-4'>
       {/* Indicadores */}
-      <div className='grid grid-cols-3 gap-4'>
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
         <Card className='border-2 border-zinc-400'>
           <CardHeader>
             <CardTitle>Total Inscritos</CardTitle>
@@ -130,13 +130,13 @@ export default function DashboardPage() {
       </div>
 
       {/* Filtros e PDF */}
-      <div className='flex gap-4'>
-        <div className='flex gap-4'>
+      <div className='flex flex-col md:flex-row gap-4'>
+        <div className='flex flex-col sm:flex-row gap-4 w-full'>
           <Select
             value={afiliacao ?? 'todos'}
             onValueChange={(val) => setAfiliacao(val === 'todos' ? null : val)}
           >
-            <SelectTrigger className='w-[180px] border border-zinc-400'>
+            <SelectTrigger className='w-full sm:w-40 border border-zinc-400'>
               <SelectValue placeholder='Filtrar Afiliação' />
             </SelectTrigger>
             <SelectContent>
@@ -153,7 +153,7 @@ export default function DashboardPage() {
             value={modalidade ?? 'todos'}
             onValueChange={(val) => setModalidade(val === 'todos' ? null : val)}
           >
-            <SelectTrigger className='w-[180px] border border-zinc-400'>
+            <SelectTrigger className='w-full sm:w-40 border border-zinc-400'>
               <SelectValue placeholder='Filtrar Modalidade' />
             </SelectTrigger>
             <SelectContent>
@@ -185,7 +185,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Gráfico por afiliação */}
-      <div className='grid grid-cols-2 gap-4'>
+      <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
         <Card>
           <CardHeader>
             <CardTitle>Inscritos por Afiliação</CardTitle>
@@ -224,7 +224,7 @@ export default function DashboardPage() {
                   data={modalidadesCount}
                   dataKey='value'
                   nameKey='name'
-                  outerRadius={120}
+                  outerRadius='80%'
                   label
                 >
                   {modalidadesCount.map((_, i) => (
@@ -243,7 +243,7 @@ export default function DashboardPage() {
         <CardHeader>
           <CardTitle>Lista de Inscritos</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className='overflow-x-auto'>
           <DataTable
             columns={columns}
             data={inscritosFiltrados.map((i) => ({
