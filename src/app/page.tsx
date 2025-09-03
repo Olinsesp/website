@@ -6,7 +6,15 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Calendar, Camera, Trophy, Users, Clock, MapPin } from 'lucide-react';
+import {
+  Calendar,
+  Camera,
+  Trophy,
+  Users,
+  Clock,
+  MapPin,
+  FileText,
+} from 'lucide-react';
 
 import CountdownTimer from '@/components/ui/CountdownTimer';
 import Link from 'next/link';
@@ -38,11 +46,11 @@ export default function Home() {
       variant: 'default' as const,
     },
     {
-      icon: Trophy,
-      title: 'Serviços Completos',
+      icon: FileText,
+      title: 'Classificações',
       description:
-        'Alimentação, primeiros socorros e muito mais para sua comodidade.',
-      link: '/Servicos',
+        'Acompanhe as pontuações e veja quem está liderando em cada modalidade.',
+      link: '/Classificacoes',
       variant: 'default' as const,
     },
   ];
