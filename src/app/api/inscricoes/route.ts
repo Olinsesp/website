@@ -85,12 +85,12 @@ async function sendEmail(inscricao: Inscricao) {
   });
 
   await transporter.sendMail({
-    from: `"Organização Olinsesp 2026" <${process.env.GMAIL_USER}>`,
+    from: `"Organização Olinsesp VIII" <${process.env.GMAIL_USER}>`,
     to: inscricao.email,
-    subject: 'Confirmação de Inscrição - Olinsesp 2026',
+    subject: 'Confirmação de Inscrição - Olinsesp VIII',
     html: `
       <h2>Olá, ${inscricao.nome}!</h2>
-      <p>Sua inscrição para o <strong>Olinsesp 2026</strong> foi realizada com sucesso 🎉</p>
+      <p>Sua inscrição para o <strong>Olinsesp VIII</strong> foi realizada com sucesso 🎉</p>
       <p><strong>Modalidades selecionadas:</strong></p>
       <ul>
         ${inscricao.modalidades.map((m) => `<li>${m}</li>`).join('')}

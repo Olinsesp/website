@@ -36,7 +36,7 @@ export default function Navbar() {
           <Link href='/' className='flex items-center space-x-2 '>
             <Image src='/LOGO SSPDF.png' alt='Logo' width={40} height={40} />
             <span className='text-xl font-bold bg-gradient-to-r from-blue-500 to-orange-500 bg-clip-text text-transparent'>
-              Olinsesp 2026
+              Olinsesp VIII
             </span>
           </Link>
           <div className='hidden md:flex space-x-2'>

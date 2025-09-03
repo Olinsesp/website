@@ -100,10 +100,13 @@ export default function DashboardPage() {
   if (error) return <div>Erro: {error}</div>;
 
   return (
-    <div className='flex flex-col gap-6 p-4'>
+    <div className='flex flex-col gap-6 p-4 bg-zinc-300'>
+      <h1 className='text-4xl font-extrabold text-center bg-zinc-800 text-white p-4 rounded-lg'>
+        Dashboard
+      </h1>
       {/* Indicadores */}
       <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-        <Card className='border-2 border-zinc-400'>
+        <Card className='border border-zinc-400'>
           <CardHeader>
             <CardTitle>Total Inscritos</CardTitle>
           </CardHeader>
@@ -111,7 +114,7 @@ export default function DashboardPage() {
             {inscritosFiltrados.length}
           </CardContent>
         </Card>
-        <Card className='border-2 border-zinc-400'>
+        <Card className='border border-zinc-400'>
           <CardHeader>
             <CardTitle>Modalidades</CardTitle>
           </CardHeader>
@@ -119,7 +122,7 @@ export default function DashboardPage() {
             {modalidadesCount.length}
           </CardContent>
         </Card>
-        <Card className='border-2 border-zinc-400'>
+        <Card className='border border-zinc-400'>
           <CardHeader>
             <CardTitle>Afiliações</CardTitle>
           </CardHeader>
@@ -136,7 +139,7 @@ export default function DashboardPage() {
             value={afiliacao ?? 'todos'}
             onValueChange={(val) => setAfiliacao(val === 'todos' ? null : val)}
           >
-            <SelectTrigger className='w-full sm:w-40 border border-zinc-400'>
+            <SelectTrigger className='w-full sm:w-40 border border-zinc-400 bg-zinc-50'>
               <SelectValue placeholder='Filtrar Afiliação' />
             </SelectTrigger>
             <SelectContent>
@@ -153,7 +156,7 @@ export default function DashboardPage() {
             value={modalidade ?? 'todos'}
             onValueChange={(val) => setModalidade(val === 'todos' ? null : val)}
           >
-            <SelectTrigger className='w-full sm:w-40 border border-zinc-400'>
+            <SelectTrigger className='w-full sm:w-40 border border-zinc-400 bg-zinc-50'>
               <SelectValue placeholder='Filtrar Modalidade' />
             </SelectTrigger>
             <SelectContent>

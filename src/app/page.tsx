@@ -60,7 +60,7 @@ export default function Home() {
       <section className="relative h-screen flex items-center justify-center text-white bg-[linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.3)),url('/sports-hero.jpg')] bg-cover bg-center bg-fixed">
         <div className='text-center z-10 max-w-4xl mx-auto px-4'>
           <h1 className='text-4xl sm:text-5xl md:text-7xl font-bold mb-6 animate-pulse-glow'>
-            Olinsesp 2026
+            Olinsesp VIII
           </h1>
           <p className='text-lg sm:text-xl md:text-2xl mb-8 text-white/90'>
             O maior evento esportivo de integração das forças de segurança está

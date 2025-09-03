@@ -90,7 +90,7 @@ export default function Modalidades() {
             Modalidades Esportivas
           </h1>
           <p className='text-base md:text-lg text-muted-foreground'>
-            Conheça todas as modalidades da Olinsesp 2026 e acesse os editais
+            Conheça todas as modalidades da Olinsesp VIII e acesse os editais
             para mais informações.
           </p>
         </div>
