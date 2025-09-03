@@ -21,14 +21,21 @@ type ClassificacaoRow = {
 
 export function generatePDF(
   data: PdfRow[] | ClassificacaoRow[],
-  type: 'inscritos' | 'classificacoes-atletas' | 'classificacoes-equipes' = 'inscritos',
+  type:
+    | 'inscritos'
+    | 'classificacoes-atletas'
+    | 'classificacoes-equipes' = 'inscritos',
 ) {
   const doc = new jsPDF();
 
   if (type.startsWith('classificacoes')) {
     const isEquipe = type === 'classificacoes-equipes';
     doc.setFontSize(18);
-    doc.text(`Relatório de Classificações - ${isEquipe ? 'Equipes' : 'Atletas'}`, 14, 20);
+    doc.text(
+      `Relatório de Classificações - ${isEquipe ? 'Equipes' : 'Atletas'}`,
+      14,
+      20,
+    );
 
     const tableData = (data as ClassificacaoRow[]).map((row) => [
       row.posicao.toString(),

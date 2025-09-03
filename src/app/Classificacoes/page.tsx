@@ -17,12 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Trophy,
   Medal,
@@ -349,19 +344,29 @@ export default function Classificacoes() {
         </Card>
 
         {/* Classificações Tabs */}
-        <Tabs defaultValue="atletas" onValueChange={handleTabChange} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-gray-200/60 p-1 rounded-lg">
-            <TabsTrigger value="atletas" className="py-2.5 text-sm font-semibold leading-5 text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-md transition-all">
-              <Users className="mr-2 h-4 w-4" />
+        <Tabs
+          defaultValue='atletas'
+          onValueChange={handleTabChange}
+          className='w-full'
+        >
+          <TabsList className='grid w-full grid-cols-2 bg-gray-200/60 p-1 rounded-lg'>
+            <TabsTrigger
+              value='atletas'
+              className='py-2.5 text-sm font-semibold leading-5 text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-md transition-all'
+            >
+              <Users className='mr-2 h-4 w-4' />
               Ranking de Atletas
             </TabsTrigger>
-            <TabsTrigger value="equipes" className="py-2.5 text-sm font-semibold leading-5 text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-md transition-all">
-              <Shield className="mr-2 h-4 w-4" />
+            <TabsTrigger
+              value='equipes'
+              className='py-2.5 text-sm font-semibold leading-5 text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-md transition-all'
+            >
+              <Shield className='mr-2 h-4 w-4' />
               Ranking de Equipes
             </TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="atletas" className="mt-8">
+
+          <TabsContent value='atletas' className='mt-8'>
             <Card className='bg-white/90 backdrop-blur-sm border-0 shadow-2xl'>
               <CardHeader className='text-center pb-6'>
                 <div className='h-20 w-20 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center'>
@@ -472,7 +477,7 @@ export default function Classificacoes() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="equipes" className="mt-8">
+          <TabsContent value='equipes' className='mt-8'>
             <Card className='bg-white/90 backdrop-blur-sm border-0 shadow-2xl'>
               <CardHeader className='text-center pb-6'>
                 <div className='h-20 w-20 mx-auto mb-6 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center'>
@@ -482,7 +487,8 @@ export default function Classificacoes() {
                   Ranking das Equipes
                 </CardTitle>
                 <CardDescription className='text-lg text-gray-600 max-w-2xl mx-auto'>
-                  Confira as posições e pontuações das equipes nas modalidades coletivas.
+                  Confira as posições e pontuações das equipes nas modalidades
+                  coletivas.
                 </CardDescription>
               </CardHeader>
 
