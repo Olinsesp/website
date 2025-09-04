@@ -40,6 +40,7 @@ const inscricaoSchema = z.object({
   modalidades: z
     .array(z.string())
     .min(1, 'Selecione pelo menos uma modalidade'),
+  status: z.enum(['pendente', 'aprovada', 'rejeitada']).optional(),
 });
 
 type InscricaoFormData = z.infer<typeof inscricaoSchema>;
@@ -85,6 +86,7 @@ export default function InscricoesForm() {
       matricula: '',
       afiliacao: '',
       modalidades: [],
+      status: 'pendente', // ✅ valor inicial
     },
   });
 
@@ -151,6 +153,8 @@ export default function InscricoesForm() {
     setValue('matricula', inscricao.matricula);
     setValue('afiliacao', inscricao.afiliacao);
     setValue('modalidades', inscricao.modalidades);
+    setValue('status', inscricao.status);
+
     setIsDialogOpen(true);
   };
 
@@ -472,6 +476,30 @@ export default function InscricoesForm() {
                 <p className='text-sm text-red-600'>
                   {errors.modalidades.message}
                 </p>
+              )}
+            </div>
+            <div className='space-y-2'>
+              <Label htmlFor='status'>Status</Label>
+              <Select
+                onValueChange={(value) =>
+                  setValue(
+                    'status',
+                    value as 'pendente' | 'aprovada' | 'rejeitada',
+                  )
+                }
+                defaultValue={watch('status')}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder='Selecione o status' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='pendente'>Pendente</SelectItem>
+                  <SelectItem value='aprovada'>Aprovada</SelectItem>
+                  <SelectItem value='rejeitada'>Rejeitada</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.status && (
+                <p className='text-sm text-red-600'>{errors.status.message}</p>
               )}
             </div>
 

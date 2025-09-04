@@ -230,19 +230,21 @@ export default function Home() {
                   key={index}
                   className='group flex flex-col h-full hover:shadow-2xl transition-all duration-500 cursor-pointer bg-white border-0 shadow-lg hover:shadow-xl transform hover:-translate-y-2'
                 >
-                  <CardHeader className='text-center pb-4 flex flex-col flex-grow'>
+                  <CardHeader className='pb-4 flex flex-col flex-grow items-center text-center'>
                     <div
                       className={`h-16 w-16 mx-auto mb-6 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}
                     >
                       <Icon className='h-8 w-8 text-white' />
                     </div>
-                    <CardTitle className='text-xl text-gray-800 group-hover:text-blue-600 transition-colors'>
+
+                    <CardTitle className='text-xl text-gray-800 group-hover:text-blue-600 transition-colors text-center'>
                       {feature.title}
                     </CardTitle>
-                    <CardDescription className='text-gray-600 leading-relaxed'>
+                    <CardDescription className='text-gray-600 leading-relaxed text-center'>
                       {feature.description}
                     </CardDescription>
                   </CardHeader>
+
                   <CardContent className='text-center pt-0 mt-auto'>
                     <Link href={feature.link}>
                       <Button
