@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 const staticMidias = [
   {
     id: '1',
-    tipo: 'imagem',
+    tipo: 'foto',
     url: 'https://wcflwdtdjkkkbkljatfs.supabase.co/storage/v1/object/public/olinsesp/foto1.png',
     titulo: 'Abertura do Evento',
     destaque: true,
@@ -11,7 +11,7 @@ const staticMidias = [
   },
   {
     id: '2',
-    tipo: 'imagem',
+    tipo: 'foto',
     url: 'https://wcflwdtdjkkkbkljatfs.supabase.co/storage/v1/object/public/olinsesp/foto1.png',
     titulo: 'Jogo de Vôlei',
     destaque: false,
@@ -35,7 +35,7 @@ const staticMidias = [
   },
   {
     id: '5',
-    tipo: 'imagem',
+    tipo: 'foto',
     url: 'https://wcflwdtdjkkkbkljatfs.supabase.co/storage/v1/object/public/olinsesp/foto1.png',
     titulo: 'Corrida de Rua',
     destaque: false,
