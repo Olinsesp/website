@@ -15,28 +15,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 import {
-  Trash2,
-  Edit,
-  Plus,
-  Save,
-  X,
-  Mail,
-  Phone,
-  Calendar,
-  Shirt,
-} from 'lucide-react';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Trash2, Edit, Plus, Save, Mail, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 
 const inscricaoSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório'),
-  email: z.string().email('Email inválido'),
+  email: z.email('Email inválido'),
+  telefone: z.string().min(1, 'Telefone é obrigatório'),
   cpf: z.string().min(11, 'CPF deve ter 11 dígitos'),
   dataNascimento: z.string().min(1, 'Data de nascimento é obrigatória'),
-  telefone: z.string().min(1, 'Telefone é obrigatório'),
   camiseta: z.string().min(1, 'Tamanho da camiseta é obrigatório'),
+  matricula: z.string().min(1, 'Matrícula é obrigatória'),
   afiliacao: z.string().min(1, 'Afiliação é obrigatória'),
   modalidades: z
     .array(z.string())
@@ -49,21 +48,23 @@ interface Inscricao {
   id: string;
   nome: string;
   email: string;
+  telefone: string;
   cpf: string;
   dataNascimento: string;
-  telefone: string;
   camiseta: string;
+  matricula: string;
   afiliacao: string;
   modalidades: string[];
+  status: 'pendente' | 'aprovada' | 'rejeitada';
   createdAt: string;
 }
 
 export default function InscricoesForm() {
   const [inscricoes, setInscricoes] = useState<Inscricao[]>([]);
-  const [modalidades, setModalidades] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const {
     register,
@@ -75,15 +76,22 @@ export default function InscricoesForm() {
   } = useForm<InscricaoFormData>({
     resolver: zodResolver(inscricaoSchema),
     defaultValues: {
+      nome: '',
+      email: '',
+      telefone: '',
+      cpf: '',
+      dataNascimento: '',
+      camiseta: '',
+      matricula: '',
+      afiliacao: '',
       modalidades: [],
     },
   });
 
-  const watchedModalidades = watch('modalidades') || [];
+  const watchedModalidades = watch('modalidades');
 
   useEffect(() => {
     fetchInscricoes();
-    fetchModalidades();
   }, []);
 
   const fetchInscricoes = async () => {
@@ -97,19 +105,6 @@ export default function InscricoesForm() {
       toast.error('Erro ao carregar inscrições');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchModalidades = async () => {
-    try {
-      const response = await fetch('/api/modalidades');
-      if (response.ok) {
-        const data = await response.json();
-        const nomesModalidades = data.map((m: any) => m.nome);
-        setModalidades(nomesModalidades);
-      }
-    } catch {
-      console.error('Erro ao carregar modalidades');
     }
   };
 
@@ -134,6 +129,7 @@ export default function InscricoesForm() {
         fetchInscricoes();
         reset();
         setEditingId(null);
+        setIsDialogOpen(false);
       } else {
         throw new Error('Erro ao salvar');
       }
@@ -148,12 +144,14 @@ export default function InscricoesForm() {
     setEditingId(inscricao.id);
     setValue('nome', inscricao.nome);
     setValue('email', inscricao.email);
+    setValue('telefone', inscricao.telefone);
     setValue('cpf', inscricao.cpf);
     setValue('dataNascimento', inscricao.dataNascimento);
-    setValue('telefone', inscricao.telefone);
     setValue('camiseta', inscricao.camiseta);
+    setValue('matricula', inscricao.matricula);
     setValue('afiliacao', inscricao.afiliacao);
     setValue('modalidades', inscricao.modalidades);
+    setIsDialogOpen(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -178,29 +176,40 @@ export default function InscricoesForm() {
   const handleCancel = () => {
     reset();
     setEditingId(null);
+    setIsDialogOpen(false);
+  };
+
+  const handleAddNew = () => {
+    reset();
+    setEditingId(null);
+    setIsDialogOpen(true);
   };
 
   const toggleModalidade = (modalidade: string) => {
-    const novasModalidades = watchedModalidades.includes(modalidade)
-      ? watchedModalidades.filter((m) => m !== modalidade)
-      : [...watchedModalidades, modalidade];
-    setValue('modalidades', novasModalidades);
+    const current = watchedModalidades || [];
+    const updated = current.includes(modalidade)
+      ? current.filter((m) => m !== modalidade)
+      : [...current, modalidade];
+    setValue('modalidades', updated);
+  };
+
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      pendente: { label: 'Pendente', color: 'bg-yellow-500' },
+      aprovada: { label: 'Aprovada', color: 'bg-green-500' },
+      rejeitada: { label: 'Rejeitada', color: 'bg-red-500' },
+    };
+    const config = statusConfig[status as keyof typeof statusConfig] || {
+      label: 'Desconhecido',
+      color: 'bg-gray-500',
+    };
+    return (
+      <Badge className={`${config.color} text-white`}>{config.label}</Badge>
+    );
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
-  };
-
-  const formatCPF = (cpf: string) => {
-    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-  };
-
-  const formatPhone = (phone: string) => {
-    return phone.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    return new Date(dateString).toLocaleDateString('pt-BR');
   };
 
   if (loading) {
@@ -218,170 +227,13 @@ export default function InscricoesForm() {
     <div className='space-y-6'>
       <Card>
         <CardHeader>
-          <CardTitle className='flex items-center gap-2'>
-            <Plus className='h-5 w-5' />
-            {editingId ? 'Editar Inscrição' : 'Nova Inscrição'}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              <div className='space-y-2'>
-                <Label htmlFor='nome'>Nome Completo *</Label>
-                <Input
-                  id='nome'
-                  {...register('nome')}
-                  placeholder='Nome completo do atleta'
-                />
-                {errors.nome && (
-                  <p className='text-sm text-red-600'>{errors.nome.message}</p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <Label htmlFor='email'>Email *</Label>
-                <Input
-                  id='email'
-                  type='email'
-                  {...register('email')}
-                  placeholder='email@exemplo.com'
-                />
-                {errors.email && (
-                  <p className='text-sm text-red-600'>{errors.email.message}</p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <Label htmlFor='cpf'>CPF *</Label>
-                <Input
-                  id='cpf'
-                  {...register('cpf')}
-                  placeholder='00000000000'
-                  maxLength={11}
-                />
-                {errors.cpf && (
-                  <p className='text-sm text-red-600'>{errors.cpf.message}</p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <Label htmlFor='dataNascimento'>Data de Nascimento *</Label>
-                <Input
-                  id='dataNascimento'
-                  type='date'
-                  {...register('dataNascimento')}
-                />
-                {errors.dataNascimento && (
-                  <p className='text-sm text-red-600'>
-                    {errors.dataNascimento.message}
-                  </p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <Label htmlFor='telefone'>Telefone *</Label>
-                <Input
-                  id='telefone'
-                  {...register('telefone')}
-                  placeholder='11999999999'
-                />
-                {errors.telefone && (
-                  <p className='text-sm text-red-600'>
-                    {errors.telefone.message}
-                  </p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <Label htmlFor='camiseta'>Tamanho da Camiseta *</Label>
-                <Select onValueChange={(value) => setValue('camiseta', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Selecione o tamanho' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='P'>P</SelectItem>
-                    <SelectItem value='M'>M</SelectItem>
-                    <SelectItem value='G'>G</SelectItem>
-                    <SelectItem value='GG'>GG</SelectItem>
-                    <SelectItem value='XG'>XG</SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.camiseta && (
-                  <p className='text-sm text-red-600'>
-                    {errors.camiseta.message}
-                  </p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <Label htmlFor='afiliacao'>Afiliação *</Label>
-                <Select onValueChange={(value) => setValue('afiliacao', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Selecione a afiliação' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='PMDF'>PMDF</SelectItem>
-                    <SelectItem value='CBMDF'>CBMDF</SelectItem>
-                    <SelectItem value='PCDF'>PCDF</SelectItem>
-                    <SelectItem value='PRF'>PRF</SelectItem>
-                    <SelectItem value='DEPEN'>DEPEN</SelectItem>
-                    <SelectItem value='SSP-DF'>SSP-DF</SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.afiliacao && (
-                  <p className='text-sm text-red-600'>
-                    {errors.afiliacao.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className='space-y-2'>
-              <Label>Modalidades *</Label>
-              <div className='grid grid-cols-2 md:grid-cols-3 gap-2 mt-2'>
-                {modalidades.map((modalidade) => (
-                  <div key={modalidade} className='flex items-center space-x-2'>
-                    <Checkbox
-                      id={modalidade}
-                      checked={watchedModalidades.includes(modalidade)}
-                      onCheckedChange={() => toggleModalidade(modalidade)}
-                    />
-                    <Label htmlFor={modalidade} className='text-sm'>
-                      {modalidade}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-              {errors.modalidades && (
-                <p className='text-sm text-red-600'>
-                  {errors.modalidades.message}
-                </p>
-              )}
-            </div>
-
-            <div className='flex gap-2'>
-              <Button type='submit' disabled={isSubmitting}>
-                {isSubmitting ? (
-                  <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
-                ) : (
-                  <Save className='h-4 w-4 mr-2' />
-                )}
-                {editingId ? 'Atualizar' : 'Salvar'}
-              </Button>
-              {editingId && (
-                <Button type='button' variant='outline' onClick={handleCancel}>
-                  <X className='h-4 w-4 mr-2' />
-                  Cancelar
-                </Button>
-              )}
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Inscrições Existentes</CardTitle>
+          <div className='flex items-center justify-between'>
+            <CardTitle>Inscrições</CardTitle>
+            <Button onClick={handleAddNew}>
+              <Plus className='h-4 w-4 mr-2' />
+              Nova Inscrição
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className='space-y-4'>
@@ -396,55 +248,32 @@ export default function InscricoesForm() {
                       <h3 className='font-semibold text-lg'>
                         {inscricao.nome}
                       </h3>
-                      <Badge variant='outline'>{inscricao.afiliacao}</Badge>
+                      {getStatusBadge(inscricao.status)}
                     </div>
 
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600'>
-                      <div className='space-y-1'>
-                        <div className='flex items-center gap-2'>
-                          <Mail className='h-4 w-4' />
-                          <span>{inscricao.email}</span>
-                        </div>
-                        <div className='flex items-center gap-2'>
-                          <Phone className='h-4 w-4' />
-                          <span>{formatPhone(inscricao.telefone)}</span>
-                        </div>
-                        <div className='flex items-center gap-2'>
-                          <Calendar className='h-4 w-4' />
-                          <span>
-                            Nascimento: {formatDate(inscricao.dataNascimento)}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className='space-y-1'>
-                        <div>
-                          <strong>CPF:</strong> {formatCPF(inscricao.cpf)}
-                        </div>
-                        <div className='flex items-center gap-2'>
-                          <Shirt className='h-4 w-4' />
-                          <span>Camiseta: {inscricao.camiseta}</span>
-                        </div>
-                        <div>
-                          <strong>Inscrito em:</strong>{' '}
-                          {formatDate(inscricao.createdAt)}
-                        </div>
-                      </div>
+                    <div className='flex items-center gap-4 text-sm text-gray-500'>
+                      <span className='flex items-center gap-1'>
+                        <Mail className='h-4 w-4' />
+                        {inscricao.email}
+                      </span>
+                      <span className='flex items-center gap-1'>
+                        <Phone className='h-4 w-4' />
+                        {inscricao.telefone}
+                      </span>
                     </div>
 
-                    <div className='mt-3'>
-                      <h4 className='text-sm font-medium mb-2'>Modalidades:</h4>
-                      <div className='flex flex-wrap gap-1'>
-                        {inscricao.modalidades.map((modalidade, index) => (
-                          <Badge
-                            key={index}
-                            variant='secondary'
-                            className='text-xs'
-                          >
-                            {modalidade}
-                          </Badge>
-                        ))}
-                      </div>
+                    <div className='text-sm text-gray-600'>
+                      <p>
+                        <strong>Afiliação:</strong> {inscricao.afiliacao}
+                      </p>
+                      <p>
+                        <strong>Modalidades:</strong>{' '}
+                        {inscricao.modalidades.join(', ')}
+                      </p>
+                      <p>
+                        <strong>Inscrito em:</strong>{' '}
+                        {formatDate(inscricao.createdAt)}
+                      </p>
                     </div>
                   </div>
 
@@ -475,6 +304,193 @@ export default function InscricoesForm() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Dialog para Adicionar/Editar */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className='sm:max-w-[700px] max-h-[90vh] overflow-y-auto'>
+          <DialogHeader>
+            <DialogTitle>
+              {editingId ? 'Editar Inscrição' : 'Nova Inscrição'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingId
+                ? 'Faça as alterações necessárias na inscrição.'
+                : 'Adicione uma nova inscrição ao sistema.'}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              <div className='space-y-2'>
+                <Label htmlFor='nome'>Nome Completo *</Label>
+                <Input
+                  id='nome'
+                  {...register('nome')}
+                  placeholder='Nome completo'
+                />
+                {errors.nome && (
+                  <p className='text-sm text-red-600'>{errors.nome.message}</p>
+                )}
+              </div>
+
+              <div className='space-y-2'>
+                <Label htmlFor='email'>Email *</Label>
+                <Input
+                  id='email'
+                  type='email'
+                  {...register('email')}
+                  placeholder='email@exemplo.com'
+                />
+                {errors.email && (
+                  <p className='text-sm text-red-600'>{errors.email.message}</p>
+                )}
+              </div>
+
+              <div className='space-y-2'>
+                <Label htmlFor='telefone'>Telefone *</Label>
+                <Input
+                  id='telefone'
+                  {...register('telefone')}
+                  placeholder='(61) 99999-9999'
+                />
+                {errors.telefone && (
+                  <p className='text-sm text-red-600'>
+                    {errors.telefone.message}
+                  </p>
+                )}
+              </div>
+
+              <div className='space-y-2'>
+                <Label htmlFor='cpf'>CPF *</Label>
+                <Input
+                  id='cpf'
+                  {...register('cpf')}
+                  placeholder='000.000.000-00'
+                />
+                {errors.cpf && (
+                  <p className='text-sm text-red-600'>{errors.cpf.message}</p>
+                )}
+              </div>
+
+              <div className='space-y-2'>
+                <Label htmlFor='dataNascimento'>Data de Nascimento *</Label>
+                <Input
+                  id='dataNascimento'
+                  type='date'
+                  {...register('dataNascimento')}
+                />
+                {errors.dataNascimento && (
+                  <p className='text-sm text-red-600'>
+                    {errors.dataNascimento.message}
+                  </p>
+                )}
+              </div>
+
+              <div className='space-y-2'>
+                <Label htmlFor='camiseta'>Tamanho da Camiseta *</Label>
+                <Select onValueChange={(value) => setValue('camiseta', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder='Selecione o tamanho' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='P'>P</SelectItem>
+                    <SelectItem value='M'>M</SelectItem>
+                    <SelectItem value='G'>G</SelectItem>
+                    <SelectItem value='GG'>GG</SelectItem>
+                    <SelectItem value='XG'>XG</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.camiseta && (
+                  <p className='text-sm text-red-600'>
+                    {errors.camiseta.message}
+                  </p>
+                )}
+              </div>
+
+              <div className='space-y-2'>
+                <Label htmlFor='matricula'>Matrícula *</Label>
+                <Input
+                  id='matricula'
+                  {...register('matricula')}
+                  placeholder='Número da matrícula'
+                />
+                {errors.matricula && (
+                  <p className='text-sm text-red-600'>
+                    {errors.matricula.message}
+                  </p>
+                )}
+              </div>
+
+              <div className='space-y-2'>
+                <Label htmlFor='afiliacao'>Afiliação *</Label>
+                <Select onValueChange={(value) => setValue('afiliacao', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder='Selecione a afiliação' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='PMDF'>PMDF</SelectItem>
+                    <SelectItem value='CBMDF'>CBMDF</SelectItem>
+                    <SelectItem value='PCDF'>PCDF</SelectItem>
+                    <SelectItem value='PRF'>PRF</SelectItem>
+                    <SelectItem value='DEPEN'>DEPEN</SelectItem>
+                    <SelectItem value='SSP-DF'>SSP-DF</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.afiliacao && (
+                  <p className='text-sm text-red-600'>
+                    {errors.afiliacao.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className='space-y-2'>
+              <Label>Modalidades *</Label>
+              <div className='grid grid-cols-2 md:grid-cols-3 gap-2'>
+                {[
+                  'Futebol',
+                  'Vôlei',
+                  'Basquete',
+                  'Natação',
+                  'Atletismo',
+                  'Tênis',
+                ].map((modalidade) => (
+                  <div key={modalidade} className='flex items-center space-x-2'>
+                    <Checkbox
+                      id={modalidade}
+                      checked={
+                        watchedModalidades?.includes(modalidade) || false
+                      }
+                      onCheckedChange={() => toggleModalidade(modalidade)}
+                    />
+                    <Label htmlFor={modalidade} className='text-sm'>
+                      {modalidade}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+              {errors.modalidades && (
+                <p className='text-sm text-red-600'>
+                  {errors.modalidades.message}
+                </p>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button type='button' variant='outline' onClick={handleCancel}>
+                Cancelar
+              </Button>
+              <Button type='submit' disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
+                ) : (
+                  <Save className='h-4 w-4 mr-2' />
+                )}
+                {editingId ? 'Atualizar' : 'Salvar'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

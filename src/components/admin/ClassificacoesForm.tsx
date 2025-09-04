@@ -17,7 +17,15 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Edit, Plus, Save, X } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Trash2, Edit, Plus, Save } from 'lucide-react';
 import { toast } from 'sonner';
 
 const classificacaoSchema = z.object({
@@ -52,6 +60,7 @@ export default function ClassificacoesForm() {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const {
     register,
@@ -102,6 +111,7 @@ export default function ClassificacoesForm() {
         fetchClassificacoes();
         reset();
         setEditingId(null);
+        setIsDialogOpen(false);
       } else {
         throw new Error('Erro ao salvar');
       }
@@ -123,6 +133,7 @@ export default function ClassificacoesForm() {
     setValue('tempo', classificacao.tempo || '');
     setValue('distancia', classificacao.distancia || '');
     setValue('observacoes', classificacao.observacoes || '');
+    setIsDialogOpen(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -147,6 +158,13 @@ export default function ClassificacoesForm() {
   const handleCancel = () => {
     reset();
     setEditingId(null);
+    setIsDialogOpen(false);
+  };
+
+  const handleAddNew = () => {
+    reset();
+    setEditingId(null);
+    setIsDialogOpen(true);
   };
 
   const getPosicaoBadge = (posicao: number) => {
@@ -179,12 +197,84 @@ export default function ClassificacoesForm() {
     <div className='space-y-6'>
       <Card>
         <CardHeader>
-          <CardTitle className='flex items-center gap-2'>
-            <Plus className='h-5 w-5' />
-            {editingId ? 'Editar Classificação' : 'Nova Classificação'}
-          </CardTitle>
+          <div className='flex items-center justify-between'>
+            <CardTitle>Classificações</CardTitle>
+            <Button onClick={handleAddNew}>
+              <Plus className='h-4 w-4 mr-2' />
+              Nova Classificação
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
+          <div className='space-y-4'>
+            {classificacoes.map((classificacao) => (
+              <div
+                key={classificacao.id}
+                className='flex items-center justify-between p-4 border rounded-lg'
+              >
+                <div className='flex items-center gap-4'>
+                  {getPosicaoBadge(classificacao.posicao)}
+                  <div>
+                    <h3 className='font-semibold'>
+                      {classificacao.modalidade} - {classificacao.categoria}
+                    </h3>
+                    <p className='text-sm text-gray-600'>
+                      {classificacao.atleta && `${classificacao.atleta} - `}
+                      {classificacao.afiliacao} - {classificacao.pontuacao}{' '}
+                      pontos
+                    </p>
+                    {classificacao.tempo && (
+                      <p className='text-xs text-gray-500'>
+                        Tempo: {classificacao.tempo}
+                      </p>
+                    )}
+                    {classificacao.distancia && (
+                      <p className='text-xs text-gray-500'>
+                        Distância: {classificacao.distancia}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className='flex gap-2'>
+                  <Button
+                    size='sm'
+                    variant='outline'
+                    onClick={() => handleEdit(classificacao)}
+                  >
+                    <Edit className='h-4 w-4' />
+                  </Button>
+                  <Button
+                    size='sm'
+                    variant='destructive'
+                    onClick={() => handleDelete(classificacao.id)}
+                  >
+                    <Trash2 className='h-4 w-4' />
+                  </Button>
+                </div>
+              </div>
+            ))}
+            {classificacoes.length === 0 && (
+              <p className='text-center text-gray-500 py-8'>
+                Nenhuma classificação cadastrada
+              </p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Dialog para Adicionar/Editar */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className='sm:max-w-[600px] max-h-[80vh] overflow-y-auto'>
+          <DialogHeader>
+            <DialogTitle>
+              {editingId ? 'Editar Classificação' : 'Nova Classificação'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingId
+                ? 'Faça as alterações necessárias na classificação.'
+                : 'Adicione uma nova classificação ao sistema.'}
+            </DialogDescription>
+          </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div className='space-y-2'>
@@ -304,8 +394,10 @@ export default function ClassificacoesForm() {
                 rows={3}
               />
             </div>
-
-            <div className='flex gap-2'>
+            <DialogFooter>
+              <Button type='button' variant='outline' onClick={handleCancel}>
+                Cancelar
+              </Button>
               <Button type='submit' disabled={isSubmitting}>
                 {isSubmitting ? (
                   <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
@@ -314,77 +406,10 @@ export default function ClassificacoesForm() {
                 )}
                 {editingId ? 'Atualizar' : 'Salvar'}
               </Button>
-              {editingId && (
-                <Button type='button' variant='outline' onClick={handleCancel}>
-                  <X className='h-4 w-4 mr-2' />
-                  Cancelar
-                </Button>
-              )}
-            </div>
+            </DialogFooter>
           </form>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Classificações Existentes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className='space-y-4'>
-            {classificacoes.map((classificacao) => (
-              <div
-                key={classificacao.id}
-                className='flex items-center justify-between p-4 border rounded-lg'
-              >
-                <div className='flex items-center gap-4'>
-                  {getPosicaoBadge(classificacao.posicao)}
-                  <div>
-                    <h3 className='font-semibold'>
-                      {classificacao.modalidade} - {classificacao.categoria}
-                    </h3>
-                    <p className='text-sm text-gray-600'>
-                      {classificacao.atleta && `${classificacao.atleta} - `}
-                      {classificacao.afiliacao} - {classificacao.pontuacao}{' '}
-                      pontos
-                    </p>
-                    {classificacao.tempo && (
-                      <p className='text-xs text-gray-500'>
-                        Tempo: {classificacao.tempo}
-                      </p>
-                    )}
-                    {classificacao.distancia && (
-                      <p className='text-xs text-gray-500'>
-                        Distância: {classificacao.distancia}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className='flex gap-2'>
-                  <Button
-                    size='sm'
-                    variant='outline'
-                    onClick={() => handleEdit(classificacao)}
-                  >
-                    <Edit className='h-4 w-4' />
-                  </Button>
-                  <Button
-                    size='sm'
-                    variant='destructive'
-                    onClick={() => handleDelete(classificacao.id)}
-                  >
-                    <Trash2 className='h-4 w-4' />
-                  </Button>
-                </div>
-              </div>
-            ))}
-            {classificacoes.length === 0 && (
-              <p className='text-center text-gray-500 py-8'>
-                Nenhuma classificação cadastrada
-              </p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

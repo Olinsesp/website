@@ -19,11 +19,18 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
   Trash2,
   Edit,
   Plus,
   Save,
-  X,
   Image as ImageIcon,
   Video,
   FileText,
@@ -31,12 +38,30 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-const midiaSchema = z.object({
-  tipo: z.enum(['foto', 'video', 'release']),
-  url: z.string().url('URL inválida'),
-  titulo: z.string().optional(),
-  destaque: z.boolean(),
-});
+const midiaSchema = z
+  .object({
+    tipo: z.enum(['foto', 'video', 'release']),
+    url: z.string().min(1, 'Campo obrigatório'),
+    titulo: z.string().optional(),
+    destaque: z.boolean(),
+  })
+  .refine(
+    (data) => {
+      if (data.tipo === 'release') {
+        return data.url.length > 0;
+      }
+      try {
+        new URL(data.url);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    {
+      message: 'Informe uma URL válida',
+      path: ['url'],
+    },
+  );
 
 type MidiaFormData = z.infer<typeof midiaSchema>;
 
@@ -54,6 +79,7 @@ export default function GaleriaForm() {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const {
     register,
@@ -109,6 +135,7 @@ export default function GaleriaForm() {
         fetchMidias();
         reset();
         setEditingId(null);
+        setIsDialogOpen(false);
       } else {
         throw new Error('Erro ao salvar');
       }
@@ -125,6 +152,7 @@ export default function GaleriaForm() {
     setValue('url', midia.url);
     setValue('titulo', midia.titulo || '');
     setValue('destaque', midia.destaque);
+    setIsDialogOpen(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -149,6 +177,13 @@ export default function GaleriaForm() {
   const handleCancel = () => {
     reset();
     setEditingId(null);
+    setIsDialogOpen(false);
+  };
+
+  const handleAddNew = () => {
+    reset();
+    setEditingId(null);
+    setIsDialogOpen(true);
   };
 
   const getTipoIcon = (tipo: string) => {
@@ -207,107 +242,13 @@ export default function GaleriaForm() {
     <div className='space-y-6'>
       <Card>
         <CardHeader>
-          <CardTitle className='flex items-center gap-2'>
-            <Plus className='h-5 w-5' />
-            {editingId ? 'Editar Mídia' : 'Adicionar Mídia'}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              <div className='space-y-2'>
-                <Label htmlFor='tipo'>Tipo de Mídia *</Label>
-                <Select
-                  onValueChange={(value) => setValue('tipo', value as any)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder='Selecione o tipo' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='foto'>
-                      <div className='flex items-center gap-2'>
-                        <ImageIcon className='h-4 w-4' />
-                        Foto
-                      </div>
-                    </SelectItem>
-                    <SelectItem value='video'>
-                      <div className='flex items-center gap-2'>
-                        <Video className='h-4 w-4' />
-                        Vídeo
-                      </div>
-                    </SelectItem>
-                    <SelectItem value='release'>
-                      <div className='flex items-center gap-2'>
-                        <FileText className='h-4 w-4' />
-                        Release
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.tipo && (
-                  <p className='text-sm text-red-600'>{errors.tipo.message}</p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <Label htmlFor='url'>URL *</Label>
-                <Input
-                  id='url'
-                  {...register('url')}
-                  placeholder='https://exemplo.com/imagem.jpg'
-                />
-                {errors.url && (
-                  <p className='text-sm text-red-600'>{errors.url.message}</p>
-                )}
-              </div>
-            </div>
-
-            <div className='space-y-2'>
-              <Label htmlFor='titulo'>Título</Label>
-              <Input
-                id='titulo'
-                {...register('titulo')}
-                placeholder='Título da mídia (opcional)'
-              />
-            </div>
-
-            <div className='flex items-center space-x-2'>
-              <Checkbox
-                id='destaque'
-                checked={watchedDestaque}
-                onCheckedChange={(checked) =>
-                  setValue('destaque', checked as boolean)
-                }
-              />
-              <Label htmlFor='destaque' className='flex items-center gap-2'>
-                <Star className='h-4 w-4' />
-                Destacar na galeria
-              </Label>
-            </div>
-
-            <div className='flex gap-2'>
-              <Button type='submit' disabled={isSubmitting}>
-                {isSubmitting ? (
-                  <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
-                ) : (
-                  <Save className='h-4 w-4 mr-2' />
-                )}
-                {editingId ? 'Atualizar' : 'Adicionar'}
-              </Button>
-              {editingId && (
-                <Button type='button' variant='outline' onClick={handleCancel}>
-                  <X className='h-4 w-4 mr-2' />
-                  Cancelar
-                </Button>
-              )}
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Mídias da Galeria</CardTitle>
+          <div className='flex items-center justify-between'>
+            <CardTitle>Mídias da Galeria</CardTitle>
+            <Button onClick={handleAddNew}>
+              <Plus className='h-4 w-4 mr-2' />
+              Adicionar Mídia
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className='space-y-4'>
@@ -347,6 +288,8 @@ export default function GaleriaForm() {
                         <Image
                           src={midia.url}
                           alt={midia.titulo || 'Imagem'}
+                          width={200}
+                          height={128}
                           className='max-w-xs max-h-32 object-cover rounded border'
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display =
@@ -416,6 +359,115 @@ export default function GaleriaForm() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Dialog para Adicionar/Editar */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className='sm:max-w-[425px]'>
+          <DialogHeader>
+            <DialogTitle>
+              {editingId ? 'Editar Mídia' : 'Adicionar Mídia'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingId
+                ? 'Faça as alterações necessárias na mídia.'
+                : 'Adicione uma nova mídia à galeria.'}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
+            <div className='grid gap-4'>
+              <div className='space-y-2'>
+                <Label htmlFor='tipo'>Tipo de Mídia *</Label>
+                <Select
+                  onValueChange={(value) => setValue('tipo', value as any)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder='Selecione o tipo' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='foto'>
+                      <div className='flex items-center gap-2'>
+                        <ImageIcon className='h-4 w-4' />
+                        Foto
+                      </div>
+                    </SelectItem>
+                    <SelectItem value='video'>
+                      <div className='flex items-center gap-2'>
+                        <Video className='h-4 w-4' />
+                        Vídeo
+                      </div>
+                    </SelectItem>
+                    <SelectItem value='release'>
+                      <div className='flex items-center gap-2'>
+                        <FileText className='h-4 w-4' />
+                        Release
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.tipo && (
+                  <p className='text-sm text-red-600'>{errors.tipo.message}</p>
+                )}
+              </div>
+
+              <div className='space-y-2'>
+                <Label htmlFor='url'>
+                  {watch('tipo') === 'release'
+                    ? 'Texto ou URL do Release *'
+                    : 'URL *'}
+                </Label>
+                <Input
+                  id='url'
+                  {...register('url')}
+                  placeholder={
+                    watch('tipo') === 'release'
+                      ? 'Digite o release ou cole o link'
+                      : 'https://exemplo.com/imagem.jpg'
+                  }
+                />
+                {errors.url && (
+                  <p className='text-sm text-red-600'>{errors.url.message}</p>
+                )}
+              </div>
+
+              <div className='space-y-2'>
+                <Label htmlFor='titulo'>Título</Label>
+                <Input
+                  id='titulo'
+                  {...register('titulo')}
+                  placeholder='Título da mídia (opcional)'
+                />
+              </div>
+
+              <div className='flex items-center space-x-2'>
+                <Checkbox
+                  id='destaque'
+                  checked={watchedDestaque}
+                  onCheckedChange={(checked) =>
+                    setValue('destaque', checked as boolean)
+                  }
+                />
+                <Label htmlFor='destaque' className='flex items-center gap-2'>
+                  <Star className='h-4 w-4' />
+                  Destacar na galeria
+                </Label>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type='button' variant='outline' onClick={handleCancel}>
+                Cancelar
+              </Button>
+              <Button type='submit' disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
+                ) : (
+                  <Save className='h-4 w-4 mr-2' />
+                )}
+                {editingId ? 'Atualizar' : 'Adicionar'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

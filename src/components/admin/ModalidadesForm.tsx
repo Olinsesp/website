@@ -18,15 +18,14 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import {
-  Trash2,
-  Edit,
-  Plus,
-  Save,
-  X,
-  Calendar,
-  MapPin,
-  Clock,
-} from 'lucide-react';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Trash2, Edit, Plus, Save, MapPin, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 
 const modalidadeSchema = z.object({
@@ -36,14 +35,8 @@ const modalidadeSchema = z.object({
   maxParticipantes: z
     .number()
     .min(1, 'Máximo de participantes deve ser maior que 0'),
-  dataInicio: z.string().min(1, 'Data de início é obrigatória'),
-  dataFim: z.string().min(1, 'Data de fim é obrigatória'),
-  local: z.string().min(1, 'Local é obrigatório'),
-  horario: z.string().min(1, 'Horário é obrigatório'),
-  regras: z.array(z.string()).optional(),
-  premios: z.array(z.string()).optional(),
   status: z.enum([
-    'inscricoes-abertas',
+    'aberta',
     'inscricoes-fechadas',
     'em-andamento',
     'finalizada',
@@ -58,18 +51,13 @@ interface Modalidade {
   descricao: string;
   categoria: string;
   maxParticipantes: number;
-  participantesAtuais: number;
-  dataInicio: string;
-  dataFim: string;
-  local: string;
-  horario: string;
+  status: 'aberta' | 'inscricoes-fechadas' | 'em-andamento' | 'finalizada';
   regras: string[];
   premios: string[];
-  status:
-    | 'inscricoes-abertas'
-    | 'inscricoes-fechadas'
-    | 'em-andamento'
-    | 'finalizada';
+  dataInicio?: string;
+  dataFim?: string;
+  local?: string;
+  participantes: number;
 }
 
 export default function ModalidadesForm() {
@@ -77,26 +65,24 @@ export default function ModalidadesForm() {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [regraInput, setRegraInput] = useState('');
-  const [premioInput, setPremioInput] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const {
     register,
     handleSubmit,
     reset,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<ModalidadeFormData>({
     resolver: zodResolver(modalidadeSchema),
     defaultValues: {
-      regras: [],
-      premios: [],
+      nome: '',
+      descricao: '',
+      categoria: '',
+      maxParticipantes: 0,
+      status: 'aberta',
     },
   });
-
-  const watchedRegras = watch('regras') || [];
-  const watchedPremios = watch('premios') || [];
 
   useEffect(() => {
     fetchModalidades();
@@ -137,6 +123,7 @@ export default function ModalidadesForm() {
         fetchModalidades();
         reset();
         setEditingId(null);
+        setIsDialogOpen(false);
       } else {
         throw new Error('Erro ao salvar');
       }
@@ -153,13 +140,8 @@ export default function ModalidadesForm() {
     setValue('descricao', modalidade.descricao);
     setValue('categoria', modalidade.categoria);
     setValue('maxParticipantes', modalidade.maxParticipantes);
-    setValue('dataInicio', modalidade.dataInicio);
-    setValue('dataFim', modalidade.dataFim);
-    setValue('local', modalidade.local);
-    setValue('horario', modalidade.horario);
-    setValue('regras', modalidade.regras);
-    setValue('premios', modalidade.premios);
     setValue('status', modalidade.status);
+    setIsDialogOpen(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -184,40 +166,18 @@ export default function ModalidadesForm() {
   const handleCancel = () => {
     reset();
     setEditingId(null);
+    setIsDialogOpen(false);
   };
 
-  const addRegra = () => {
-    if (regraInput.trim()) {
-      const novasRegras = [...watchedRegras, regraInput.trim()];
-      setValue('regras', novasRegras);
-      setRegraInput('');
-    }
-  };
-
-  const removeRegra = (index: number) => {
-    const novasRegras = watchedRegras.filter((_, i) => i !== index);
-    setValue('regras', novasRegras);
-  };
-
-  const addPremio = () => {
-    if (premioInput.trim()) {
-      const novosPremios = [...watchedPremios, premioInput.trim()];
-      setValue('premios', novosPremios);
-      setPremioInput('');
-    }
-  };
-
-  const removePremio = (index: number) => {
-    const novosPremios = watchedPremios.filter((_, i) => i !== index);
-    setValue('premios', novosPremios);
+  const handleAddNew = () => {
+    reset();
+    setEditingId(null);
+    setIsDialogOpen(true);
   };
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      'inscricoes-abertas': {
-        label: 'Inscrições Abertas',
-        color: 'bg-green-500',
-      },
+      aberta: { label: 'Aberta', color: 'bg-green-500' },
       'inscricoes-fechadas': {
         label: 'Inscrições Fechadas',
         color: 'bg-yellow-500',
@@ -225,7 +185,10 @@ export default function ModalidadesForm() {
       'em-andamento': { label: 'Em Andamento', color: 'bg-blue-500' },
       finalizada: { label: 'Finalizada', color: 'bg-gray-500' },
     };
-    const config = statusConfig[status as keyof typeof statusConfig];
+    const config = statusConfig[status as keyof typeof statusConfig] || {
+      label: 'Desconhecido',
+      color: 'bg-gray-500',
+    };
     return (
       <Badge className={`${config.color} text-white`}>{config.label}</Badge>
     );
@@ -246,12 +209,86 @@ export default function ModalidadesForm() {
     <div className='space-y-6'>
       <Card>
         <CardHeader>
-          <CardTitle className='flex items-center gap-2'>
-            <Plus className='h-5 w-5' />
-            {editingId ? 'Editar Modalidade' : 'Nova Modalidade'}
-          </CardTitle>
+          <div className='flex items-center justify-between'>
+            <CardTitle>Modalidades</CardTitle>
+            <Button onClick={handleAddNew}>
+              <Plus className='h-4 w-4 mr-2' />
+              Nova Modalidade
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
+          <div className='space-y-4'>
+            {modalidades.map((modalidade) => (
+              <div
+                key={modalidade.id}
+                className='p-4 border rounded-lg space-y-3'
+              >
+                <div className='flex items-start justify-between'>
+                  <div className='space-y-2 flex-1'>
+                    <div className='flex items-center gap-2'>
+                      <h3 className='font-semibold text-lg'>
+                        {modalidade.nome}
+                      </h3>
+                      {getStatusBadge(modalidade.status)}
+                    </div>
+
+                    <p className='text-gray-600'>{modalidade.descricao}</p>
+
+                    <div className='flex items-center gap-4 text-sm text-gray-500'>
+                      <span className='flex items-center gap-1'>
+                        <MapPin className='h-4 w-4' />
+                        {modalidade.categoria}
+                      </span>
+                      <span className='flex items-center gap-1'>
+                        <Clock className='h-4 w-4' />
+                        {modalidade.participantes}/{modalidade.maxParticipantes}{' '}
+                        participantes
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className='flex gap-2 ml-4'>
+                    <Button
+                      size='sm'
+                      variant='outline'
+                      onClick={() => handleEdit(modalidade)}
+                    >
+                      <Edit className='h-4 w-4' />
+                    </Button>
+                    <Button
+                      size='sm'
+                      variant='destructive'
+                      onClick={() => handleDelete(modalidade.id)}
+                    >
+                      <Trash2 className='h-4 w-4' />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {modalidades.length === 0 && (
+              <p className='text-center text-gray-500 py-8'>
+                Nenhuma modalidade cadastrada
+              </p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Dialog para Adicionar/Editar */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className='sm:max-w-[600px] max-h-[80vh] overflow-y-auto'>
+          <DialogHeader>
+            <DialogTitle>
+              {editingId ? 'Editar Modalidade' : 'Nova Modalidade'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingId
+                ? 'Faça as alterações necessárias na modalidade.'
+                : 'Adicione uma nova modalidade ao sistema.'}
+            </DialogDescription>
+          </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div className='space-y-2'>
@@ -268,19 +305,11 @@ export default function ModalidadesForm() {
 
               <div className='space-y-2'>
                 <Label htmlFor='categoria'>Categoria *</Label>
-                <Select onValueChange={(value) => setValue('categoria', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Selecione a categoria' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='Coletivo'>Coletivo</SelectItem>
-                    <SelectItem value='Individual'>Individual</SelectItem>
-                    <SelectItem value='Aquático'>Aquático</SelectItem>
-                    <SelectItem value='Combate'>Combate</SelectItem>
-                    <SelectItem value='Precisão'>Precisão</SelectItem>
-                    <SelectItem value='Resistência'>Resistência</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Input
+                  id='categoria'
+                  {...register('categoria')}
+                  placeholder='Ex: Coletivo'
+                />
                 {errors.categoria && (
                   <p className='text-sm text-red-600'>
                     {errors.categoria.message}
@@ -314,9 +343,7 @@ export default function ModalidadesForm() {
                     <SelectValue placeholder='Selecione o status' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='inscricoes-abertas'>
-                      Inscrições Abertas
-                    </SelectItem>
+                    <SelectItem value='aberta'>Aberta</SelectItem>
                     <SelectItem value='inscricoes-fechadas'>
                       Inscrições Fechadas
                     </SelectItem>
@@ -327,56 +354,6 @@ export default function ModalidadesForm() {
                 {errors.status && (
                   <p className='text-sm text-red-600'>
                     {errors.status.message}
-                  </p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <Label htmlFor='dataInicio'>Data de Início *</Label>
-                <Input
-                  id='dataInicio'
-                  type='date'
-                  {...register('dataInicio')}
-                />
-                {errors.dataInicio && (
-                  <p className='text-sm text-red-600'>
-                    {errors.dataInicio.message}
-                  </p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <Label htmlFor='dataFim'>Data de Fim *</Label>
-                <Input id='dataFim' type='date' {...register('dataFim')} />
-                {errors.dataFim && (
-                  <p className='text-sm text-red-600'>
-                    {errors.dataFim.message}
-                  </p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <Label htmlFor='local'>Local *</Label>
-                <Input
-                  id='local'
-                  {...register('local')}
-                  placeholder='Ex: Ginásio Principal'
-                />
-                {errors.local && (
-                  <p className='text-sm text-red-600'>{errors.local.message}</p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <Label htmlFor='horario'>Horário *</Label>
-                <Input
-                  id='horario'
-                  {...register('horario')}
-                  placeholder='Ex: 14:00'
-                />
-                {errors.horario && (
-                  <p className='text-sm text-red-600'>
-                    {errors.horario.message}
                   </p>
                 )}
               </div>
@@ -397,79 +374,10 @@ export default function ModalidadesForm() {
               )}
             </div>
 
-            <div className='space-y-4'>
-              <div>
-                <Label>Regras</Label>
-                <div className='flex gap-2 mt-2'>
-                  <Input
-                    value={regraInput}
-                    onChange={(e) => setRegraInput(e.target.value)}
-                    placeholder='Adicionar regra...'
-                    onKeyPress={(e) =>
-                      e.key === 'Enter' && (e.preventDefault(), addRegra())
-                    }
-                  />
-                  <Button type='button' onClick={addRegra}>
-                    Adicionar
-                  </Button>
-                </div>
-                <div className='flex flex-wrap gap-2 mt-2'>
-                  {watchedRegras.map((regra, index) => (
-                    <Badge
-                      key={index}
-                      variant='secondary'
-                      className='flex items-center gap-1'
-                    >
-                      {regra}
-                      <button
-                        type='button'
-                        onClick={() => removeRegra(index)}
-                        className='ml-1 hover:text-red-500'
-                      >
-                        <X className='h-3 w-3' />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <Label>Prêmios</Label>
-                <div className='flex gap-2 mt-2'>
-                  <Input
-                    value={premioInput}
-                    onChange={(e) => setPremioInput(e.target.value)}
-                    placeholder='Adicionar prêmio...'
-                    onKeyPress={(e) =>
-                      e.key === 'Enter' && (e.preventDefault(), addPremio())
-                    }
-                  />
-                  <Button type='button' onClick={addPremio}>
-                    Adicionar
-                  </Button>
-                </div>
-                <div className='flex flex-wrap gap-2 mt-2'>
-                  {watchedPremios.map((premio, index) => (
-                    <Badge
-                      key={index}
-                      variant='secondary'
-                      className='flex items-center gap-1'
-                    >
-                      {premio}
-                      <button
-                        type='button'
-                        onClick={() => removePremio(index)}
-                        className='ml-1 hover:text-red-500'
-                      >
-                        <X className='h-3 w-3' />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className='flex gap-2'>
+            <DialogFooter>
+              <Button type='button' variant='outline' onClick={handleCancel}>
+                Cancelar
+              </Button>
               <Button type='submit' disabled={isSubmitting}>
                 {isSubmitting ? (
                   <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
@@ -478,128 +386,10 @@ export default function ModalidadesForm() {
                 )}
                 {editingId ? 'Atualizar' : 'Salvar'}
               </Button>
-              {editingId && (
-                <Button type='button' variant='outline' onClick={handleCancel}>
-                  <X className='h-4 w-4 mr-2' />
-                  Cancelar
-                </Button>
-              )}
-            </div>
+            </DialogFooter>
           </form>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Modalidades Existentes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className='space-y-4'>
-            {modalidades.map((modalidade) => (
-              <div
-                key={modalidade.id}
-                className='p-4 border rounded-lg space-y-3'
-              >
-                <div className='flex items-start justify-between'>
-                  <div className='space-y-2'>
-                    <div className='flex items-center gap-2'>
-                      <h3 className='font-semibold text-lg'>
-                        {modalidade.nome}
-                      </h3>
-                      {getStatusBadge(modalidade.status)}
-                    </div>
-                    <p className='text-sm text-gray-600'>
-                      {modalidade.descricao}
-                    </p>
-                    <div className='flex items-center gap-4 text-sm text-gray-500'>
-                      <span className='flex items-center gap-1'>
-                        <Calendar className='h-4 w-4' />
-                        {new Date(
-                          modalidade.dataInicio,
-                        ).toLocaleDateString()} -{' '}
-                        {new Date(modalidade.dataFim).toLocaleDateString()}
-                      </span>
-                      <span className='flex items-center gap-1'>
-                        <Clock className='h-4 w-4' />
-                        {modalidade.horario}
-                      </span>
-                      <span className='flex items-center gap-1'>
-                        <MapPin className='h-4 w-4' />
-                        {modalidade.local}
-                      </span>
-                    </div>
-                    <div className='flex items-center gap-4 text-sm'>
-                      <span>
-                        Categoria:{' '}
-                        <Badge variant='outline'>{modalidade.categoria}</Badge>
-                      </span>
-                      <span>
-                        Participantes: {modalidade.participantesAtuais}/
-                        {modalidade.maxParticipantes}
-                      </span>
-                    </div>
-                  </div>
-                  <div className='flex gap-2'>
-                    <Button
-                      size='sm'
-                      variant='outline'
-                      onClick={() => handleEdit(modalidade)}
-                    >
-                      <Edit className='h-4 w-4' />
-                    </Button>
-                    <Button
-                      size='sm'
-                      variant='destructive'
-                      onClick={() => handleDelete(modalidade.id)}
-                    >
-                      <Trash2 className='h-4 w-4' />
-                    </Button>
-                  </div>
-                </div>
-
-                {modalidade.regras.length > 0 && (
-                  <div>
-                    <h4 className='text-sm font-medium mb-2'>Regras:</h4>
-                    <div className='flex flex-wrap gap-1'>
-                      {modalidade.regras.map((regra, index) => (
-                        <Badge
-                          key={index}
-                          variant='secondary'
-                          className='text-xs'
-                        >
-                          {regra}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {modalidade.premios.length > 0 && (
-                  <div>
-                    <h4 className='text-sm font-medium mb-2'>Prêmios:</h4>
-                    <div className='flex flex-wrap gap-1'>
-                      {modalidade.premios.map((premio, index) => (
-                        <Badge
-                          key={index}
-                          variant='outline'
-                          className='text-xs'
-                        >
-                          {premio}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-            {modalidades.length === 0 && (
-              <p className='text-center text-gray-500 py-8'>
-                Nenhuma modalidade cadastrada
-              </p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

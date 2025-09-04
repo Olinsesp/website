@@ -10,6 +10,8 @@ export const inscricoes = [
     afiliacao: 'PMDF',
     matricula: '65880469',
     modalidades: ['Basquete', 'Tênis'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '2',
@@ -22,6 +24,8 @@ export const inscricoes = [
     afiliacao: 'DEPEN',
     matricula: '58171326',
     modalidades: ['Karatê'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '3',
@@ -34,6 +38,8 @@ export const inscricoes = [
     afiliacao: 'CBMDF',
     matricula: '49440125',
     modalidades: ['Basquete', 'Atletismo', 'Futebol de Areia'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '4',
@@ -46,6 +52,8 @@ export const inscricoes = [
     afiliacao: 'PMDF',
     matricula: '58020663',
     modalidades: ['Futsal', 'Judô', 'Basquete'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '5',
@@ -58,6 +66,8 @@ export const inscricoes = [
     afiliacao: 'CBMDF',
     matricula: '64843910',
     modalidades: ['Futebol de Areia', 'Futebol'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '6',
@@ -70,6 +80,8 @@ export const inscricoes = [
     afiliacao: 'PCDF',
     matricula: '70449386',
     modalidades: ['Futebol de Areia', 'Natação', 'Basquete', 'Jiu-Jitsu'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '7',
@@ -82,6 +94,8 @@ export const inscricoes = [
     afiliacao: 'CBMDF',
     matricula: '11900603',
     modalidades: ['Futsal', 'Basquete', 'Corrida'],
+    status: 'aprovada',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '8',
@@ -94,6 +108,8 @@ export const inscricoes = [
     afiliacao: 'DEPEN',
     matricula: '11799015',
     modalidades: ['Jiu-Jitsu', 'Natação'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '9',
@@ -106,6 +122,8 @@ export const inscricoes = [
     afiliacao: 'PCDF',
     matricula: '66949748',
     modalidades: ['Jiu-Jitsu', 'Basquete', 'Futsal', 'Tênis'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '10',
@@ -118,6 +136,8 @@ export const inscricoes = [
     afiliacao: 'SSP-DF',
     matricula: '89140718',
     modalidades: ['Corrida', 'Jiu-Jitsu', 'Handebol'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '11',
@@ -130,6 +150,8 @@ export const inscricoes = [
     afiliacao: 'CBMDF',
     matricula: '29276284',
     modalidades: ['Futsal', 'Jiu-Jitsu', 'Natação'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '12',
@@ -142,6 +164,8 @@ export const inscricoes = [
     afiliacao: 'CBMDF',
     matricula: '98031480',
     modalidades: ['Tênis'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '13',
@@ -154,6 +178,8 @@ export const inscricoes = [
     afiliacao: 'CBMDF',
     matricula: '45636136',
     modalidades: ['Basquete', 'Futsal', 'Natação'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '14',
@@ -166,6 +192,8 @@ export const inscricoes = [
     afiliacao: 'PMDF',
     matricula: '18715018',
     modalidades: ['Jiu-Jitsu'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '15',
@@ -178,6 +206,8 @@ export const inscricoes = [
     afiliacao: 'SSP-DF',
     matricula: '77420490',
     modalidades: ['Handebol', 'Atletismo', 'Vôlei'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '16',
@@ -190,6 +220,8 @@ export const inscricoes = [
     afiliacao: 'SSP-DF',
     matricula: '12205726',
     modalidades: ['Corrida'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '17',
@@ -202,6 +234,8 @@ export const inscricoes = [
     afiliacao: 'PMDF',
     matricula: '93648794',
     modalidades: ['Judô', 'Atletismo', 'Basquete', 'Futebol'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '18',
@@ -214,6 +248,8 @@ export const inscricoes = [
     afiliacao: 'DEPEN',
     matricula: '58053254',
     modalidades: ['Atletismo', 'Natação', 'Futebol'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '19',
@@ -226,6 +262,8 @@ export const inscricoes = [
     afiliacao: 'CBMDF',
     matricula: '82590961',
     modalidades: ['Natação', 'Corrida', 'Judô', 'Handebol'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '20',
@@ -238,6 +276,8 @@ export const inscricoes = [
     afiliacao: 'PCDF',
     matricula: '25020158',
     modalidades: ['Atletismo', 'Judô', 'Tênis', 'Futsal'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '21',
@@ -250,6 +290,8 @@ export const inscricoes = [
     afiliacao: 'SSP-DF',
     matricula: '50191593',
     modalidades: ['Basquete'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '22',
@@ -262,6 +304,8 @@ export const inscricoes = [
     afiliacao: 'PCDF',
     matricula: '60596994',
     modalidades: ['Handebol'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '23',
@@ -274,6 +318,8 @@ export const inscricoes = [
     afiliacao: 'DEPEN',
     matricula: '79010909',
     modalidades: ['Natação', 'Ciclismo', 'Vôlei'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '24',
@@ -286,6 +332,8 @@ export const inscricoes = [
     afiliacao: 'DEPEN',
     matricula: '83455849',
     modalidades: ['Futebol de Areia', 'Vôlei', 'Futebol', 'Tênis'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '25',
@@ -298,6 +346,8 @@ export const inscricoes = [
     afiliacao: 'SSP-DF',
     matricula: '87546203',
     modalidades: ['Jiu-Jitsu', 'Natação', 'Vôlei', 'Corrida'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '26',
@@ -310,6 +360,8 @@ export const inscricoes = [
     afiliacao: 'PMDF',
     matricula: '29171565',
     modalidades: ['Natação', 'Judô', 'Futsal'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '27',
@@ -322,6 +374,8 @@ export const inscricoes = [
     afiliacao: 'SSP-DF',
     matricula: '19300251',
     modalidades: ['Futebol', 'Vôlei', 'Karatê', 'Futsal'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '28',
@@ -334,6 +388,8 @@ export const inscricoes = [
     afiliacao: 'CBMDF',
     matricula: '98203730',
     modalidades: ['Atletismo', 'Basquete'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '29',
@@ -346,6 +402,8 @@ export const inscricoes = [
     afiliacao: 'PCDF',
     matricula: '19511479',
     modalidades: ['Natação', 'Tênis', 'Handebol'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
   {
     id: '30',
@@ -358,5 +416,7 @@ export const inscricoes = [
     afiliacao: 'DEPEN',
     matricula: '60998813',
     modalidades: ['Tênis', 'Natação'],
+    status: 'pendente',
+    createdAt: '2025-01-01T00:00:00.000Z',
   },
 ];

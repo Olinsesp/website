@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 
+const stringUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
 const staticMidias = [
   {
     id: '1',
     tipo: 'foto',
-    url: 'https://wcflwdtdjkkkbkljatfs.supabase.co/storage/v1/object/public/olinsesp/foto1.png',
+    url: `${stringUrl}/olinsesp/foto1.png`,
     titulo: 'Abertura do Evento',
     destaque: true,
     createdAt: new Date('2026-12-15T09:00:00').toISOString(),
@@ -12,7 +14,7 @@ const staticMidias = [
   {
     id: '2',
     tipo: 'foto',
-    url: 'https://wcflwdtdjkkkbkljatfs.supabase.co/storage/v1/object/public/olinsesp/foto1.png',
+    url: `${stringUrl}/olinsesp/foto1.png`,
     titulo: 'Jogo de Vôlei',
     destaque: false,
     createdAt: new Date('2026-12-15T11:30:00').toISOString(),
@@ -20,7 +22,7 @@ const staticMidias = [
   {
     id: '3',
     tipo: 'video',
-    url: 'https://wcflwdtdjkkkbkljatfs.supabase.co/storage/v1/object/public/olinsesp/foto1.png',
+    url: `${stringUrl}/olinsesp/video1.mp4`,
     titulo: 'Melhores Momentos - Dia 1',
     destaque: true,
     createdAt: new Date('2026-12-15T20:00:00').toISOString(),
@@ -36,7 +38,7 @@ const staticMidias = [
   {
     id: '5',
     tipo: 'foto',
-    url: 'https://wcflwdtdjkkkbkljatfs.supabase.co/storage/v1/object/public/olinsesp/foto1.png',
+    url: `${stringUrl}/olinsesp/foto1.png`,
     titulo: 'Corrida de Rua',
     destaque: false,
     createdAt: new Date('2026-12-16T10:00:00').toISOString(),

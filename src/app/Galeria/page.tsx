@@ -24,7 +24,7 @@ import Image, { StaticImageData } from 'next/image';
 
 interface Midia {
   id: string;
-  tipo: string;
+  tipo: 'foto' | 'video' | 'release';
   url: string;
   titulo?: string | null;
   destaque: boolean;
@@ -55,7 +55,7 @@ export default function Galeria() {
   });
 
   const { fotos, videos, releases } = useMemo(() => {
-    const fotos = midias?.filter((m) => m.tipo === 'imagem') || [];
+    const fotos = midias?.filter((m) => m.tipo === 'foto') || [];
     const videos = midias?.filter((m) => m.tipo === 'video') || [];
     const releases = midias?.filter((m) => m.tipo === 'release') || [];
     return { fotos, videos, releases };
@@ -80,7 +80,7 @@ export default function Galeria() {
             <h2 className='text-xl font-semibold text-gray-800 mb-2'>
               Erro ao carregar
             </h2>
-            <p className='text-gray-600 mb-4'>{error.message}</p>
+            <p className='text-gray-600 mb-4'>{(error as Error).message}</p>
             <Button onClick={() => window.location.reload()}>
               Tentar Novamente
             </Button>
@@ -263,34 +263,20 @@ export default function Galeria() {
                   {videos.map((video) => (
                     <Card
                       key={video.id}
-                      className='group cursor-pointer hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-0 shadow-lg overflow-hidden'
+                      className='hover:shadow-2xl transition-all duration-500 border-0 shadow-lg overflow-hidden'
                     >
                       <div className='relative overflow-hidden'>
-                        <Image
-                          width={500}
-                          height={300}
+                        <video
+                          controls
+                          className='w-full h-56 object-cover'
                           src={video.url}
-                          alt={video.titulo || 'Vídeo do evento'}
-                          className='w-full h-48 object-cover'
                         />
-                        <div className='absolute inset-0 bg-black/60 flex items-center justify-center group-hover:bg-black/70 transition-colors duration-300'>
-                          <Button
-                            variant='secondary'
-                            size='lg'
-                            className='rounded-full h-16 w-16 p-0 bg-white/90 text-gray-800 hover:bg-white border-0 shadow-lg group-hover:scale-110 transition-transform duration-300'
-                            onClick={() => window.open(video.url, '_blank')}
-                          >
-                            <PlayCircle className='h-8 w-8' />
-                          </Button>
-                        </div>
-
                         {video.destaque && (
                           <div className='absolute top-3 right-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium'>
                             ⭐ Destaque
                           </div>
                         )}
                       </div>
-
                       <CardContent className='p-6'>
                         <h4 className='font-semibold text-lg mb-3 text-gray-800'>
                           {video.titulo || 'Vídeo do Evento'}
