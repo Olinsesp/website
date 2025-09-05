@@ -155,7 +155,7 @@ export default function CronogramaForm() {
   };
 
   const formatTime = (time: string) => {
-    return time.slice(0, 5); // Remove seconds if present
+    return time.slice(0, 5);
   };
 
   if (loading) {

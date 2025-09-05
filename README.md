@@ -7,6 +7,7 @@ Sistema completo de gerenciamento desenvolvido com [Next.js](https://nextjs.org)
 ## 🚀 Funcionalidades Implementadas
 
 ### 🎯 **Sistema de Inscrições**
+
 - ✅ Formulário completo com validação em tempo real
 - ✅ Seleção múltipla de modalidades
 - ✅ Validação de CPF e dados pessoais
@@ -14,30 +15,35 @@ Sistema completo de gerenciamento desenvolvido com [Next.js](https://nextjs.org)
 - ✅ Gerenciamento de status (pendente/aprovada/rejeitada)
 
 ### 📅 **Cronograma do Evento**
+
 - ✅ Programação detalhada por dia e horário
 - ✅ Status dos eventos (agendado/em andamento/finalizado)
 - ✅ Filtros por modalidade e tipo de evento
 - ✅ Interface responsiva com visualização otimizada
 
 ### 🏆 **Sistema de Classificações**
+
 - ✅ Quadro de medalhas e resultados
 - ✅ Classificação por modalidade e categoria
 - ✅ Pontuação e tempos registrados
 - ✅ Visualização por atletas e equipes
 
 ### 🎮 **Modalidades Esportivas**
+
 - ✅ Catálogo completo com 15+ modalidades
 - ✅ Informações detalhadas (regras, prêmios, participantes)
 - ✅ Status de inscrições e vagas disponíveis
 - ✅ Categorização por tipo de esporte
 
 ### 📸 **Galeria de Mídias**
+
 - ✅ Upload e gerenciamento de fotos e vídeos
 - ✅ Sistema de destaques
 - ✅ Organização por tipo de mídia
 - ✅ Interface de visualização otimizada
 
 ### 📊 **Dashboard Administrativo**
+
 - ✅ Relatórios e estatísticas em tempo real
 - ✅ Gráficos interativos (barras e pizza)
 - ✅ Filtros avançados por afiliação e modalidade
@@ -45,6 +51,7 @@ Sistema completo de gerenciamento desenvolvido com [Next.js](https://nextjs.org)
 - ✅ Gerenciamento completo de todas as entidades
 
 ### 🔧 **Recursos Técnicos**
+
 - ✅ API REST completa com CRUD operations
 - ✅ Geração de PDFs para relatórios
 - ✅ Sistema de notificações (Sonner)
@@ -64,31 +71,37 @@ Este é um sistema completo de gerenciamento de eventos esportivos que utiliza *
 ## 🛠️ Stack Tecnológica
 
 ### **Frontend & Framework**
+
 - **Next.js 15** - Framework React com App Router
 - **React 19** - Biblioteca de interface de usuário
 - **TypeScript** - Tipagem estática para JavaScript
 
 ### **UI & Styling**
+
 - **Tailwind CSS 4** - Framework CSS utilitário
 - **shadcn/ui** - Biblioteca de componentes modernos
 - **Radix UI** - Componentes primitivos acessíveis
 - **Lucide React** - Ícones modernos e consistentes
 
 ### **Validação & Formulários**
+
 - **Zod** - Validação de schemas TypeScript
 - **React Hook Form** - Gerenciamento de formulários
 - **@hookform/resolvers** - Integração Zod + React Hook Form
 
 ### **Visualização & Relatórios**
+
 - **Recharts** - Gráficos e visualizações interativas
 - **jsPDF** - Geração de relatórios em PDF
 - **jspdf-autotable** - Tabelas em PDF
 
 ### **Estado & Dados**
+
 - **TanStack Query** - Gerenciamento de estado servidor
 - **TanStack Table** - Tabelas avançadas e interativas
 
 ### **Notificações & UX**
+
 - **Sonner** - Sistema de notificações toast
 - **next-themes** - Suporte a temas claro/escuro
 - **Vercel Analytics** - Análise de uso
@@ -145,6 +158,7 @@ pnpm dev
 ### 5. **Acesse a Aplicação**
 
 Abra seu navegador e acesse:
+
 ```
 http://localhost:3000
 ```
@@ -252,7 +266,6 @@ Modifique os arquivos em `src/app/api/` para:
 - **Tailwind CSS** - Personalize classes e utilitários
 - **Ícones** - Use Lucide React para ícones consistentes
 
-
 ## 🔮 Roadmap e Próximos Passos
 
 ### **Fase 1: MVP Completo ✅**
@@ -266,7 +279,7 @@ Modifique os arquivos em `src/app/api/` para:
 
 ## 📄 Licença e Uso
 
-Este projeto é um **sistema interno** desenvolvido para demonstração e uso no evento Olinsesp VIII. 
+Este projeto é um **sistema interno** desenvolvido para demonstração e uso no evento Olinsesp VIII.
 
 ---
 
@@ -274,6 +287,6 @@ Este projeto é um **sistema interno** desenvolvido para demonstração e uso no
 
 **O maior evento esportivo de integração das forças de segurança**
 
-*Desenvolvido com ❤️ para promover a integração e o esporte entre as forças de segurança*
+_Desenvolvido com ❤️ para promover a integração e o esporte entre as forças de segurança_
 
 ---

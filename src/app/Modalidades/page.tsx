@@ -58,7 +58,6 @@ export default function Modalidades() {
     queryKey: ['modalidades'],
     queryFn: fetchModalidades,
   });
-  console.log(modalidades);
 
   const getStatusBadge = (status: string) => {
     switch (status) {

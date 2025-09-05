@@ -86,7 +86,7 @@ export default function InscricoesForm() {
       matricula: '',
       afiliacao: '',
       modalidades: [],
-      status: 'pendente', // ✅ valor inicial
+      status: 'pendente',
     },
   });
 

@@ -1,107 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-
-const classificacoes = [
-  {
-    id: '1',
-    modalidade: 'Futsal Masculino',
-    categoria: 'Adulto',
-    posicao: 1,
-    afiliacao: 'PMDF',
-    pontuacao: 95,
-    observacoes: 'Campeão da modalidade',
-  },
-  {
-    id: '2',
-    modalidade: 'Futsal Masculino',
-    categoria: 'Adulto',
-    posicao: 2,
-    afiliacao: 'CBMDF',
-    pontuacao: 88,
-    observacoes: 'Vice-campeão da modalidade',
-  },
-  {
-    id: '3',
-    modalidade: 'Futsal Masculino',
-    categoria: 'Adulto',
-    posicao: 3,
-    afiliacao: 'PCDF',
-    pontuacao: 82,
-    observacoes: 'Terceiro lugar na modalidade',
-  },
-  {
-    id: '4',
-    modalidade: 'Vôlei Feminino',
-    categoria: 'Adulto',
-    posicao: 1,
-    afiliacao: 'PMDF',
-    pontuacao: 92,
-    observacoes: 'Campeão da modalidade',
-  },
-  {
-    id: '5',
-    modalidade: 'Vôlei Feminino',
-    categoria: 'Adulto',
-    posicao: 2,
-    afiliacao: 'CBMDF',
-    pontuacao: 87,
-    observacoes: 'Vice-campeão da modalidade',
-  },
-  {
-    id: '6',
-    modalidade: 'Basquete Masculino',
-    categoria: 'Adulto',
-    posicao: 1,
-    afiliacao: 'PMDF',
-    pontuacao: 94,
-    observacoes: 'Campeão da modalidade',
-  },
-  {
-    id: '7',
-    modalidade: 'Basquete Masculino',
-    categoria: 'Adulto',
-    posicao: 2,
-    afiliacao: 'PCDF',
-    pontuacao: 89,
-    observacoes: 'Vice-campeão da modalidade',
-  },
-  {
-    id: '8',
-    modalidade: 'Atletismo',
-    categoria: '100m',
-    posicao: 1,
-    atleta: 'Lucas Mendes',
-    afiliacao: 'DEPEN',
-    pontuacao: 96,
-    tempo: '10.45s',
-    distancia: '100m',
-    observacoes: 'Recorde do evento',
-  },
-  {
-    id: '9',
-    modalidade: 'Atletismo',
-    categoria: '100m',
-    posicao: 2,
-    atleta: 'Ricardo Alves',
-    afiliacao: 'PMDF',
-    pontuacao: 91,
-    tempo: '10.78s',
-    distancia: '100m',
-    observacoes: 'Velocidade impressionante',
-  },
-  {
-    id: '10',
-    modalidade: 'Natação',
-    categoria: '50m Livre',
-    posicao: 1,
-    atleta: 'Gabriel Torres',
-    afiliacao: 'CBMDF',
-    pontuacao: 93,
-    tempo: '25.32s',
-    distancia: '50m',
-    observacoes: 'Estilo perfeito',
-  },
-];
+import { classificacoes } from '../classificacoesData';
 
 const classificacaoUpdateSchema = z.object({
   modalidade: z.string().min(1, 'A modalidade é obrigatória.').optional(),
@@ -162,11 +61,10 @@ export async function PUT(
       );
     }
 
-    // Atualizar a classificação
     classificacoes[classificacaoIndex] = {
       ...classificacoes[classificacaoIndex],
       ...validatedData,
-    };
+    } as any;
 
     return NextResponse.json(classificacoes[classificacaoIndex]);
   } catch (error) {
@@ -200,7 +98,6 @@ export async function DELETE(
       );
     }
 
-    // Remover a classificação
     classificacoes.splice(classificacaoIndex, 1);
 
     return new NextResponse(null, { status: 204 });

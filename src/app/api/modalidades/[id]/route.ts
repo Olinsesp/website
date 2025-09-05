@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { modalidades } from '../route';
+import { modalidades } from '../modalidadesData';
 
 const modalidadeUpdateSchema = z.object({
   nome: z.string().min(1, 'O nome é obrigatório.').optional(),
@@ -36,7 +36,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const modalidade = modalidades.find((m) => m.id === id);
+    const modalidade = modalidades.find((m: any) => m.id === id);
 
     if (!modalidade) {
       return NextResponse.json(
@@ -64,9 +64,8 @@ export async function PUT(
     const body = await request.json();
 
     const validatedData = modalidadeUpdateSchema.parse(body);
-    console.log(validatedData);
 
-    const modalidadeIndex = modalidades.findIndex((m) => m.id === id);
+    const modalidadeIndex = modalidades.findIndex((m: any) => m.id === id);
 
     if (modalidadeIndex === -1) {
       return NextResponse.json(
@@ -75,7 +74,6 @@ export async function PUT(
       );
     }
 
-    // Atualizar a modalidade
     modalidades[modalidadeIndex] = {
       ...modalidades[modalidadeIndex],
       ...validatedData,
@@ -104,7 +102,7 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    const modalidadeIndex = modalidades.findIndex((m) => m.id === id);
+    const modalidadeIndex = modalidades.findIndex((m: any) => m.id === id);
 
     if (modalidadeIndex === -1) {
       return NextResponse.json(
@@ -113,7 +111,6 @@ export async function DELETE(
       );
     }
 
-    // Remover a modalidade
     modalidades.splice(modalidadeIndex, 1);
 
     return new NextResponse(null, { status: 204 });

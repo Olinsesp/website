@@ -51,7 +51,11 @@ interface Modalidade {
   descricao: string;
   categoria: string;
   maxParticipantes: number;
-  status: 'inscricoes-abertas' | 'inscricoes-fechadas' | 'em-andamento' | 'finalizada';
+  status:
+    | 'inscricoes-abertas'
+    | 'inscricoes-fechadas'
+    | 'em-andamento'
+    | 'finalizada';
   regras: string[];
   premios: string[];
   dataInicio?: string;
@@ -177,7 +181,10 @@ export default function ModalidadesForm() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      'inscricoes-abertas': { label: 'Inscrições Abertas', color: 'bg-green-500' },
+      'inscricoes-abertas': {
+        label: 'Inscrições Abertas',
+        color: 'bg-green-500',
+      },
       'inscricoes-fechadas': {
         label: 'Inscrições Fechadas',
         color: 'bg-yellow-500',
@@ -242,8 +249,8 @@ export default function ModalidadesForm() {
                       </span>
                       <span className='flex items-center gap-1'>
                         <Clock className='h-4 w-4' />
-                        {modalidade.participantesAtuais}/{modalidade.maxParticipantes}{' '}
-                        participantes
+                        {modalidade.participantesAtuais}/
+                        {modalidade.maxParticipantes} participantes
                       </span>
                     </div>
                   </div>
@@ -343,7 +350,9 @@ export default function ModalidadesForm() {
                     <SelectValue placeholder='Selecione o status' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='inscricoes-abertas'>Inscrições Abertas</SelectItem>
+                    <SelectItem value='inscricoes-abertas'>
+                      Inscrições Abertas
+                    </SelectItem>
                     <SelectItem value='inscricoes-fechadas'>
                       Inscrições Fechadas
                     </SelectItem>
