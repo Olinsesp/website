@@ -58,6 +58,7 @@ export default function Modalidades() {
     queryKey: ['modalidades'],
     queryFn: fetchModalidades,
   });
+  console.log(modalidades);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -208,10 +209,13 @@ export default function Modalidades() {
                 <TrendingUp className='h-8 w-8 text-white' />
               </div>
               <h3 className='text-2xl font-bold text-gray-800 mb-2'>
-                {modalidades?.filter((m) => m.status === 'inscricoes-abertas')
-                  .length || 0}
+                {modalidades?.reduce((total, m) => {
+                  const vagasDisponiveis =
+                    m.maxParticipantes - m.participantesAtuais;
+                  return total + Math.max(0, vagasDisponiveis);
+                }, 0) || 0}
               </h3>
-              <p className='text-gray-600'>Inscrições Abertas</p>
+              <p className='text-gray-600'>Vagas Disponíveis</p>
             </CardContent>
           </Card>
 

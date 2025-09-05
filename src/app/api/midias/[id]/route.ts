@@ -107,7 +107,7 @@ export async function PUT(
       return NextResponse.json(
         {
           error: 'Dados de entrada inválidos.',
-          details: z.treeifyError(error),
+          details: error.issues,
         },
         { status: 400 },
       );

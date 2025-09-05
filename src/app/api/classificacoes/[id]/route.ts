@@ -103,43 +103,72 @@ const classificacoes = [
   },
 ];
 
-const classificacaoSchema = z.object({
-  modalidade: z.string().min(1, 'A modalidade é obrigatória.'),
-  categoria: z.string().min(1, 'A categoria é obrigatória.'),
-  posicao: z.number().min(1, 'A posição deve ser maior que 0.'),
+const classificacaoUpdateSchema = z.object({
+  modalidade: z.string().min(1, 'A modalidade é obrigatória.').optional(),
+  categoria: z.string().min(1, 'A categoria é obrigatória.').optional(),
+  posicao: z.number().min(1, 'A posição deve ser maior que 0.').optional(),
   atleta: z.string().optional(),
-  afiliacao: z.string().min(1, 'A afiliação é obrigatória.'),
-  pontuacao: z.number().min(0, 'A pontuação deve ser maior ou igual a 0.'),
+  afiliacao: z.string().min(1, 'A afiliação é obrigatória.').optional(),
+  pontuacao: z
+    .number()
+    .min(0, 'A pontuação deve ser maior ou igual a 0.')
+    .optional(),
   tempo: z.string().optional(),
   distancia: z.string().optional(),
   observacoes: z.string().optional(),
 });
 
-export async function GET() {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
-    return NextResponse.json(classificacoes);
+    const { id } = await params;
+    const classificacao = classificacoes.find((c) => c.id === id);
+
+    if (!classificacao) {
+      return NextResponse.json(
+        { error: 'Classificação não encontrada.' },
+        { status: 404 },
+      );
+    }
+
+    return NextResponse.json(classificacao);
   } catch (error) {
-    console.error('Erro ao buscar classificações:', error);
+    console.error('Erro ao buscar classificação:', error);
     return NextResponse.json(
-      { error: 'Ocorreu um erro no servidor ao buscar as classificações.' },
+      { error: 'Ocorreu um erro no servidor ao buscar a classificação.' },
       { status: 500 },
     );
   }
 }
 
-export async function POST(req: Request) {
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
-    const body = await req.json();
-    const validatedData = classificacaoSchema.parse(body);
+    const { id } = await params;
+    const body = await request.json();
 
-    const novaClassificacao = {
-      id: (classificacoes.length + 1).toString(),
+    const validatedData = classificacaoUpdateSchema.parse(body);
+
+    const classificacaoIndex = classificacoes.findIndex((c) => c.id === id);
+
+    if (classificacaoIndex === -1) {
+      return NextResponse.json(
+        { error: 'Classificação não encontrada.' },
+        { status: 404 },
+      );
+    }
+
+    // Atualizar a classificação
+    classificacoes[classificacaoIndex] = {
+      ...classificacoes[classificacaoIndex],
       ...validatedData,
     };
 
-    classificacoes.push(novaClassificacao as any);
-
-    return NextResponse.json(novaClassificacao, { status: 201 });
+    return NextResponse.json(classificacoes[classificacaoIndex]);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -147,9 +176,40 @@ export async function POST(req: Request) {
         { status: 400 },
       );
     }
-    console.error('Erro ao criar classificação:', error);
+    console.error('Erro ao atualizar classificação:', error);
     return NextResponse.json(
-      { error: 'Ocorreu um erro no servidor ao criar a classificação.' },
+      { error: 'Ocorreu um erro no servidor ao atualizar a classificação.' },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const { id } = await params;
+
+    const classificacaoIndex = classificacoes.findIndex((c) => c.id === id);
+
+    if (classificacaoIndex === -1) {
+      return NextResponse.json(
+        { error: 'Classificação não encontrada.' },
+        { status: 404 },
+      );
+    }
+
+    // Remover a classificação
+    classificacoes.splice(classificacaoIndex, 1);
+
+    return new NextResponse(null, { status: 204 });
+  } catch (error) {
+    console.error('Erro ao deletar classificação:', error);
+    return NextResponse.json(
+      {
+        error: 'Ocorreu um erro no servidor ao deletar a classificação.',
+      },
       { status: 500 },
     );
   }
