@@ -176,98 +176,107 @@ export default function Modalidades() {
         </div>
 
         {/* Estatísticas */}
-        <div className='grid grid-cols-1 sm:grid-cols-4 gap-8 mb-12'>
+        <div className='grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12'>
           <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
-            <CardContent className='p-8'>
-              <div className='h-16 w-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center'>
-                <Trophy className='h-8 w-8 text-white' />
+            <CardContent className='p-4 sm:p-6 lg:p-8'>
+              <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center'>
+                <Trophy className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
               </div>
-              <h3 className='text-2xl font-bold text-gray-800 mb-2'>
+              <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
                 {modalidades?.length || 0}
               </h3>
-              <p className='text-gray-600'>Modalidades</p>
+              <p className='text-xs sm:text-sm lg:text-base text-gray-600'>
+                Modalidades
+              </p>
             </CardContent>
           </Card>
 
           <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
-            <CardContent className='p-8'>
-              <div className='h-16 w-16 mx-auto mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center'>
-                <Users className='h-8 w-8 text-white' />
+            <CardContent className='p-4 sm:p-6 lg:p-8'>
+              <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center'>
+                <Users className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
               </div>
-              <h3 className='text-2xl font-bold text-gray-800 mb-2'>
+              <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
                 {modalidades?.reduce((acc, m) => acc + m.maxParticipantes, 0) ||
                   0}
               </h3>
-              <p className='text-gray-600'>Vagas Totais</p>
+              <p className='text-xs sm:text-sm lg:text-base text-gray-600'>
+                Vagas Totais
+              </p>
             </CardContent>
           </Card>
 
           <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
-            <CardContent className='p-8'>
-              <div className='h-16 w-16 mx-auto mb-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center'>
-                <TrendingUp className='h-8 w-8 text-white' />
+            <CardContent className='p-4 sm:p-6 lg:p-8'>
+              <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center'>
+                <TrendingUp className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
               </div>
-              <h3 className='text-2xl font-bold text-gray-800 mb-2'>
+              <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
                 {modalidades?.reduce((total, m) => {
                   const vagasDisponiveis =
                     m.maxParticipantes - m.participantesAtuais;
                   return total + Math.max(0, vagasDisponiveis);
                 }, 0) || 0}
               </h3>
-              <p className='text-gray-600'>Vagas Disponíveis</p>
+              <p className='text-xs sm:text-sm lg:text-base text-gray-600'>
+                Vagas Disponíveis
+              </p>
             </CardContent>
           </Card>
 
           <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
-            <CardContent className='p-8'>
-              <div className='h-16 w-16 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center'>
-                <Award className='h-8 w-8 text-white' />
+            <CardContent className='p-4 sm:p-6 lg:p-8'>
+              <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center'>
+                <Award className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
               </div>
-              <h3 className='text-2xl font-bold text-gray-800 mb-2'>
+              <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
                 {modalidades?.reduce(
                   (acc, m) => acc + (m.premios?.length || 0),
                   0,
                 ) || 0}
               </h3>
-              <p className='text-gray-600'>Prêmios</p>
+              <p className='text-xs sm:text-sm lg:text-base text-gray-600'>
+                Prêmios
+              </p>
             </CardContent>
           </Card>
         </div>
 
         {/* Lista de Modalidades */}
-        <div className='space-y-8'>
+        <div className='space-y-6 sm:space-y-8'>
           {modalidades?.map((modalidade) => (
             <Card
               key={modalidade.id}
               className='bg-white/90 backdrop-blur-sm border-0 shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-1 overflow-hidden'
             >
-              <CardHeader className='pb-6'>
-                <div className='flex flex-col lg:flex-row lg:items-center justify-between gap-6'>
-                  <div className='flex items-start gap-6'>
+              <CardHeader className='pb-4 sm:pb-6 px-4 sm:px-6'>
+                <div className='flex flex-col gap-4 sm:gap-6'>
+                  {/* Header - Ícone, Nome e Status */}
+                  <div className='flex items-start gap-4 sm:gap-6'>
                     {/* Ícone da Categoria */}
                     <div
-                      className={`h-20 w-20 bg-gradient-to-br ${getCategoriaColor(modalidade.categoria)} rounded-2xl flex items-center justify-center flex-shrink-0`}
+                      className={`h-16 w-16 sm:h-20 sm:w-20 bg-gradient-to-br ${getCategoriaColor(modalidade.categoria)} rounded-2xl flex items-center justify-center flex-shrink-0`}
                     >
                       {getCategoriaIcon(modalidade.categoria)}
-                      <div className='h-12 w-12 text-white' />
+                      <div className='h-10 w-10 sm:h-12 sm:w-12 text-white' />
                     </div>
 
                     {/* Informações Principais */}
                     <div className='flex-1'>
-                      <div className='flex items-center gap-4 mb-4'>
-                        <h2 className='text-3xl font-bold text-gray-800'>
+                      <div className='flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-3 sm:mb-4'>
+                        <h2 className='text-2xl sm:text-3xl font-bold text-gray-800'>
                           {modalidade.nome}
                         </h2>
                         {getStatusBadge(modalidade.status)}
                       </div>
 
-                      <p className='text-lg text-gray-600 mb-4 leading-relaxed'>
+                      <p className='text-base sm:text-lg text-gray-600 mb-3 sm:mb-4 leading-relaxed'>
                         {modalidade.descricao}
                       </p>
 
-                      <div className='flex flex-wrap gap-4 text-sm text-gray-500'>
+                      <div className='flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500'>
                         <div className='flex items-center gap-2'>
-                          <Calendar className='h-4 w-4 text-blue-500' />
+                          <Calendar className='h-3 w-3 sm:h-4 sm:w-4 text-blue-500 flex-shrink-0' />
                           <span>
                             {new Date(modalidade.dataInicio).toLocaleDateString(
                               'pt-BR',
@@ -280,12 +289,12 @@ export default function Modalidades() {
                         </div>
 
                         <div className='flex items-center gap-2'>
-                          <MapPin className='h-4 w-4 text-green-500' />
+                          <MapPin className='h-3 w-3 sm:h-4 sm:w-4 text-green-500 flex-shrink-0' />
                           <span>{modalidade.local}</span>
                         </div>
 
                         <div className='flex items-center gap-2'>
-                          <Clock className='h-4 w-4 text-orange-500' />
+                          <Clock className='h-3 w-3 sm:h-4 sm:w-4 text-orange-500 flex-shrink-0' />
                           <span>{modalidade.horario}</span>
                         </div>
                       </div>
@@ -293,16 +302,20 @@ export default function Modalidades() {
                   </div>
 
                   {/* Status e Participantes */}
-                  <div className='flex flex-col items-end gap-4 lg:min-w-[200px]'>
-                    <div className='text-right'>
-                      <div className='text-2xl font-bold text-blue-600'>
-                        {modalidade.participantesAtuais}/
-                        {modalidade.maxParticipantes}
+                  <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
+                    <div className='flex items-center gap-4'>
+                      <div className='text-center sm:text-left'>
+                        <div className='text-xl sm:text-2xl font-bold text-blue-600'>
+                          {modalidade.participantesAtuais}/
+                          {modalidade.maxParticipantes}
+                        </div>
+                        <p className='text-xs sm:text-sm text-gray-500'>
+                          Participantes
+                        </p>
                       </div>
-                      <p className='text-sm text-gray-500'>Participantes</p>
                     </div>
 
-                    <div className='w-full bg-gray-200 rounded-full h-2'>
+                    <div className='w-full sm:w-48 bg-gray-200 rounded-full h-2'>
                       <div
                         className='bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full transition-all duration-500'
                         style={{
@@ -314,19 +327,19 @@ export default function Modalidades() {
                 </div>
               </CardHeader>
 
-              <CardContent className='p-8 pt-0'>
-                <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
+              <CardContent className='p-4 sm:p-6 lg:p-8 pt-0'>
+                <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8'>
                   {/* Regras */}
                   <div>
-                    <h3 className='text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2'>
-                      <Info className='h-5 w-5 text-blue-500' />
+                    <h3 className='text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2'>
+                      <Info className='h-4 w-4 sm:h-5 sm:w-5 text-blue-500' />
                       Regras e Regulamentos
                     </h3>
                     <ul className='space-y-2'>
                       {(modalidade.regras ?? []).map((regra, index) => (
                         <li
                           key={index}
-                          className='flex items-start gap-2 text-gray-600'
+                          className='flex items-start gap-2 text-gray-600 text-sm sm:text-base'
                         >
                           <div className='w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0'></div>
                           <span>{regra}</span>
@@ -337,15 +350,15 @@ export default function Modalidades() {
 
                   {/* Prêmios */}
                   <div>
-                    <h3 className='text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2'>
-                      <Star className='h-5 w-5 text-yellow-500' />
+                    <h3 className='text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2'>
+                      <Star className='h-4 w-4 sm:h-5 sm:w-5 text-yellow-500' />
                       Prêmios e Reconhecimentos
                     </h3>
                     <ul className='space-y-2'>
                       {(modalidade.premios ?? []).map((premio, index) => (
                         <li
                           key={index}
-                          className='flex items-start gap-2 text-gray-600'
+                          className='flex items-start gap-2 text-gray-600 text-sm sm:text-base'
                         >
                           <div className='w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0'></div>
                           <span>{premio}</span>
@@ -356,28 +369,28 @@ export default function Modalidades() {
                 </div>
 
                 {/* Botões de Ação */}
-                <div className='flex flex-col sm:flex-row gap-4 justify-center mt-8 pt-6 border-t border-gray-200'>
+                <div className='flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200'>
                   {modalidade.status === 'inscricoes-abertas' ? (
-                    <Button className='bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-4'>
-                      <Users className='h-5 w-5 mr-2' />
+                    <Button className='bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base'>
+                      <Users className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
                       Inscrever-se
                     </Button>
                   ) : (
                     <Button
                       variant='outline'
                       disabled
-                      className='border-2 border-gray-300 text-gray-400 px-8 py-4 cursor-not-allowed'
+                      className='border-2 border-gray-300 text-gray-400 px-6 sm:px-8 py-3 sm:py-4 cursor-not-allowed text-sm sm:text-base'
                     >
-                      <Info className='h-5 w-5 mr-2' />
+                      <Info className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
                       Inscrições Fechadas
                     </Button>
                   )}
 
                   <Button
                     variant='outline'
-                    className='border-2 border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors px-8 py-4'
+                    className='border-2 border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base'
                   >
-                    <Target className='h-5 w-5 mr-2' />
+                    <Target className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
                     Ver Detalhes
                   </Button>
                 </div>
@@ -387,29 +400,29 @@ export default function Modalidades() {
         </div>
 
         {/* Call to Action */}
-        <Card className='mt-16 bg-gradient-to-r from-blue-600 to-orange-500 text-white border-0 shadow-2xl'>
-          <CardContent className='p-12 text-center'>
-            <h2 className='text-3xl font-bold mb-4'>
+        <Card className='mt-12 sm:mt-16 bg-gradient-to-r from-blue-600 to-orange-500 text-white border-0 shadow-2xl'>
+          <CardContent className='p-6 sm:p-8 lg:p-12 text-center'>
+            <h2 className='text-2xl sm:text-3xl font-bold mb-3 sm:mb-4'>
               Pronto para a Competição?
             </h2>
-            <p className='text-xl text-blue-100 mb-8 max-w-2xl mx-auto'>
+            <p className='text-base sm:text-lg lg:text-xl text-blue-100 mb-6 sm:mb-8 max-w-2xl mx-auto'>
               Escolha suas modalidades favoritas e faça parte deste evento
               histórico. As inscrições estão abertas para várias modalidades!
             </p>
-            <div className='flex flex-col sm:flex-row gap-4 justify-center'>
+            <div className='flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center'>
               <Button
                 size='lg'
-                className='bg-white text-blue-600 hover:bg-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-4'
+                className='bg-white text-blue-600 hover:bg-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base'
               >
-                <Users className='h-5 w-5 mr-2' />
+                <Users className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
                 Ver Inscrições
               </Button>
               <Button
                 size='lg'
                 variant='ghost'
-                className='border-2 border-white text-white hover:bg-white hover:text-blue-600 transition-all duration-300 px-8 py-4'
+                className='border-2 border-white text-white hover:bg-white hover:text-blue-600 transition-all duration-300 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base'
               >
-                <Calendar className='h-5 w-5 mr-2' />
+                <Calendar className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
                 Ver Cronograma
               </Button>
             </div>

@@ -199,79 +199,85 @@ export default function Cronograma() {
         </div>
 
         {/* Cards Informativos */}
-        <div className='grid grid-cols-1 sm:grid-cols-3 gap-8 mb-12'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12'>
           <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
-            <CardContent className='p-8'>
-              <div className='h-16 w-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center'>
-                <Calendar className='h-8 w-8 text-white' />
+            <CardContent className='p-4 sm:p-6 lg:p-8'>
+              <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center'>
+                <Calendar className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
               </div>
-              <h3 className='text-xl font-semibold text-gray-800 mb-3'>
+              <h3 className='text-lg sm:text-xl font-semibold text-gray-800 mb-2 sm:mb-3'>
                 15-17 Dezembro
               </h3>
-              <p className='text-gray-600'>3 dias de competições intensas</p>
+              <p className='text-sm sm:text-base text-gray-600'>
+                3 dias de competições intensas
+              </p>
             </CardContent>
           </Card>
 
           <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
-            <CardContent className='p-8'>
-              <div className='h-16 w-16 mx-auto mb-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center'>
-                <Timer className='h-8 w-8 text-white' />
+            <CardContent className='p-4 sm:p-6 lg:p-8'>
+              <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center'>
+                <Timer className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
               </div>
-              <h3 className='text-xl font-semibold text-gray-800 mb-3'>
+              <h3 className='text-lg sm:text-xl font-semibold text-gray-800 mb-2 sm:mb-3'>
                 8h às 20h
               </h3>
-              <p className='text-gray-600'>Horário de funcionamento</p>
+              <p className='text-sm sm:text-base text-gray-600'>
+                Horário de funcionamento
+              </p>
             </CardContent>
           </Card>
 
-          <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
-            <CardContent className='p-8'>
-              <div className='h-16 w-16 mx-auto mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center'>
-                <LocateIcon className='h-8 w-8 text-white' />
+          <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 sm:col-span-2 lg:col-span-1'>
+            <CardContent className='p-4 sm:p-6 lg:p-8'>
+              <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center'>
+                <LocateIcon className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
               </div>
-              <h3 className='text-xl font-semibold text-gray-800 mb-3'>
+              <h3 className='text-lg sm:text-xl font-semibold text-gray-800 mb-2 sm:mb-3'>
                 Centro Esportivo
               </h3>
-              <p className='text-gray-600'>Local principal do evento</p>
+              <p className='text-sm sm:text-base text-gray-600'>
+                Local principal do evento
+              </p>
             </CardContent>
           </Card>
         </div>
 
         {/* Cronograma Principal */}
         <Card className='bg-white/90 backdrop-blur-sm border-0 shadow-2xl'>
-          <CardHeader className='text-center pb-6'>
-            <div className='h-20 w-20 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center'>
-              <CalendarDays className='h-10 w-10 text-white' />
+          <CardHeader className='text-center pb-4 sm:pb-6 px-4 sm:px-6'>
+            <div className='h-16 w-16 sm:h-20 sm:w-20 mx-auto mb-4 sm:mb-6 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center'>
+              <CalendarDays className='h-8 w-8 sm:h-10 sm:w-10 text-white' />
             </div>
-            <CardTitle className='text-3xl text-gray-800'>
+            <CardTitle className='text-2xl sm:text-3xl text-gray-800'>
               Programação Detalhada
             </CardTitle>
-            <CardDescription className='text-lg text-gray-600 max-w-2xl mx-auto'>
+            <CardDescription className='text-base sm:text-lg text-gray-600 max-w-2xl mx-auto'>
               Navegue pelos dias para ver a programação completa de cada
               modalidade
             </CardDescription>
           </CardHeader>
 
-          <CardContent className='p-8'>
+          <CardContent className='p-4 sm:p-6 lg:p-8'>
             {cronogramaDias.length > 0 ? (
               <>
                 {/* Navegação entre dias */}
-                <div className='flex items-center justify-between mb-8'>
+                <div className='flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0 mb-6 sm:mb-8'>
                   <Button
                     onClick={() => setCurrentDayIndex(currentDayIndex - 1)}
                     disabled={currentDayIndex === 0}
                     variant='outline'
-                    className='border-2 border-gray-200 hover:border-blue-300 transition-colors px-6 py-3'
+                    className='border-2 border-gray-200 hover:border-blue-300 transition-colors px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base w-full sm:w-auto'
                   >
-                    <ChevronLeft className='h-5 w-5 mr-2' />
+                    <ChevronLeft className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
                     Dia Anterior
                   </Button>
 
-                  <div className='text-center'>
-                    <h3 className='text-2xl font-bold text-gray-800 mb-2'>
+                  <div className='text-center order-first sm:order-none'>
+                    <h3 className='text-xl sm:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
                       {cronogramaDias[currentDayIndex].titulo}
                     </h3>
-                    <p className='text-gray-600 font-medium'>
+                    <p className='text-sm sm:text-base text-gray-600 font-medium'>
                       {cronogramaDias[currentDayIndex].data}
                     </p>
                   </div>
@@ -280,10 +286,10 @@ export default function Cronograma() {
                     onClick={() => setCurrentDayIndex(currentDayIndex + 1)}
                     disabled={currentDayIndex === cronogramaDias.length - 1}
                     variant='outline'
-                    className='border-2 border-gray-200 hover:border-blue-300 transition-colors px-6 py-3'
+                    className='border-2 border-gray-200 hover:border-blue-300 transition-colors px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base w-full sm:w-auto'
                   >
                     Próximo Dia
-                    <ChevronRight className='h-5 w-5 ml-2' />
+                    <ChevronRight className='h-4 w-4 sm:h-5 sm:w-5 ml-2' />
                   </Button>
                 </div>
 
@@ -295,61 +301,68 @@ export default function Cronograma() {
                         key={index}
                         className='hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-r from-gray-50 to-white shadow-lg hover:shadow-blue-500/10'
                       >
-                        <CardContent className='p-6'>
-                          <div className='flex flex-col lg:flex-row lg:items-center justify-between gap-6'>
-                            {/* Informações principais */}
-                            <div className='flex items-start gap-6 flex-1'>
+                        <CardContent className='p-4 sm:p-6'>
+                          <div className='flex flex-col gap-4 sm:gap-6'>
+                            {/* Header do evento - horário e título */}
+                            <div className='flex items-start gap-4'>
                               {/* Horário e ícone */}
-                              <div className='flex flex-col items-center min-w-[100px]'>
-                                <div className='text-2xl font-bold text-blue-600 mb-2'>
+                              <div className='flex flex-col items-center min-w-[80px] sm:min-w-[100px]'>
+                                <div className='text-xl sm:text-2xl font-bold text-blue-600 mb-1 sm:mb-2'>
                                   {evento.horario}
                                 </div>
-                                <div className='flex items-center gap-2 text-gray-500'>
+                                <div className='flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-gray-500'>
                                   {getTipoIcon(evento.tipo)}
-                                  <span className='text-sm font-medium'>
+                                  <span className='text-xs sm:text-sm font-medium text-center'>
                                     {evento.modalidade}
                                   </span>
                                 </div>
                               </div>
 
-                              {/* Detalhes do evento */}
+                              {/* Título do evento */}
                               <div className='flex-1'>
-                                <h4 className='font-semibold text-xl mb-3 text-gray-800'>
+                                <h4 className='font-semibold text-lg sm:text-xl mb-2 sm:mb-3 text-gray-800'>
                                   {evento.atividade}
                                 </h4>
-
-                                <div className='space-y-2'>
-                                  <div className='flex items-center gap-2 text-gray-600'>
-                                    <MapPin className='h-4 w-4 text-blue-500' />
-                                    <span className='font-medium'>
-                                      {evento.local}
-                                    </span>
-                                  </div>
-
-                                  <div className='flex items-center gap-2 text-gray-600'>
-                                    <Users className='h-4 w-4 text-green-500' />
-                                    <span>{evento.participantes}</span>
-                                  </div>
-
-                                  {evento.resultado && (
-                                    <div className='flex items-center gap-2 text-green-600 font-semibold'>
-                                      <Trophy className='h-4 w-4' />
-                                      🏆 {evento.resultado}
-                                    </div>
-                                  )}
-                                </div>
                               </div>
                             </div>
 
+                            {/* Detalhes do evento */}
+                            <div className='space-y-2 sm:space-y-3'>
+                              <div className='flex items-center gap-2 text-gray-600'>
+                                <MapPin className='h-4 w-4 text-blue-500 flex-shrink-0' />
+                                <span className='font-medium text-sm sm:text-base'>
+                                  {evento.local}
+                                </span>
+                              </div>
+
+                              <div className='flex items-center gap-2 text-gray-600'>
+                                <Users className='h-4 w-4 text-green-500 flex-shrink-0' />
+                                <span className='text-sm sm:text-base'>
+                                  {evento.participantes}
+                                </span>
+                              </div>
+
+                              {evento.resultado && (
+                                <div className='flex items-center gap-2 text-green-600 font-semibold'>
+                                  <Trophy className='h-4 w-4 flex-shrink-0' />
+                                  <span className='text-sm sm:text-base'>
+                                    🏆 {evento.resultado}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+
                             {/* Status e ações */}
-                            <div className='flex flex-col items-end gap-4'>
-                              {getStatusBadge(evento.status)}
+                            <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 pt-2 border-t border-gray-200'>
+                              <div className='flex-shrink-0'>
+                                {getStatusBadge(evento.status)}
+                              </div>
 
                               {evento.tipo === 'congresso' && (
                                 <Button
                                   variant='outline'
                                   size='sm'
-                                  className='border-2 border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors'
+                                  className='border-2 border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors text-xs sm:text-sm'
                                 >
                                   Ver Pauta
                                 </Button>

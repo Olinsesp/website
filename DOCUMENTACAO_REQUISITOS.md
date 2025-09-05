@@ -13,14 +13,17 @@
 2. [Requisitos Funcionais](#2-requisitos-funcionais)
 3. [Requisitos Não Funcionais](#3-requisitos-não-funcionais)
 4. [Requisitos Técnicos](#4-requisitos-técnicos)
+
 ---
 
 ## 1. Visão Geral do Projeto
 
 ### 1.1 Objetivo
+
 Desenvolver e hospedar um sistema completo de gerenciamento para o evento Olinsesp VIII, proporcionando uma plataforma moderna e intuitiva para participantes, organizadores e administradores.
 
 ### 1.2 Escopo
+
 O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as inscrições até a divulgação dos resultados finais, incluindo:
 
 - **Gestão de Inscrições**: Processo completo de cadastro e aprovação
@@ -31,6 +34,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
 - **Dashboard Administrativo**: Painel de controle com relatórios e estatísticas
 
 ### 1.3 Stakeholders
+
 - **Organizadores do Evento**: Administradores principais
 - **Participantes**: Membros das forças de segurança
 - **Visitantes**: Público geral interessado no evento
@@ -43,6 +47,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
 ### 2.1 Sistema de Inscrições (RF-001 a RF-010)
 
 #### RF-001: Formulário de Inscrição
+
 - **Descrição**: Sistema deve permitir cadastro completo de participantes
 - **Critérios de Aceitação**:
   - Campos obrigatórios: nome, email, telefone, CPF, data de nascimento, matrícula, afiliação, tamanho da camiseta
@@ -52,6 +57,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - Confirmação de dados antes do envio
 
 #### RF-002: Validação de Dados
+
 - **Descrição**: Sistema deve validar todos os dados de entrada
 - **Critérios de Aceitação**:
   - Validação de formato de email
@@ -62,6 +68,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - Mensagens de erro claras e específicas
 
 #### RF-003: Gerenciamento de Status
+
 - **Descrição**: Sistema deve controlar status das inscrições
 - **Critérios de Aceitação**:
   - Status: pendente, aprovada, rejeitada
@@ -70,6 +77,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - Histórico de alterações
 
 #### RF-004: Envio de Confirmação
+
 - **Descrição**: Sistema deve enviar confirmação por email
 - **Critérios de Aceitação**:
   - Email automático após inscrição
@@ -78,6 +86,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - Reenvio de confirmação quando necessário
 
 #### RF-005: Controle de Vagas
+
 - **Descrição**: Sistema deve controlar limite de participantes por modalidade
 - **Critérios de Aceitação**:
   - Limite configurável por modalidade
@@ -88,6 +97,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
 ### 2.2 Sistema de Cronograma (RF-011 a RF-015)
 
 #### RF-011: Programação de Eventos
+
 - **Descrição**: Sistema deve permitir criação e edição de eventos
 - **Critérios de Aceitação**:
   - Campos: atividade, data/hora início, data/hora fim, local, modalidade
@@ -96,6 +106,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - Visualização em calendário e lista
 
 #### RF-012: Atualização de Status
+
 - **Descrição**: Sistema deve permitir atualização de status dos eventos
 - **Critérios de Aceitação**:
   - Alteração manual de status
@@ -104,6 +115,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - Histórico de alterações
 
 #### RF-013: Filtros e Busca
+
 - **Descrição**: Sistema deve oferecer filtros avançados
 - **Critérios de Aceitação**:
   - Filtro por data
@@ -115,6 +127,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
 ### 2.3 Sistema de Classificações (RF-016 a RF-020)
 
 #### RF-016: Registro de Resultados
+
 - **Descrição**: Sistema deve permitir registro de resultados
 - **Critérios de Aceitação**:
   - Campos: posição, atleta/equipe, modalidade, categoria, pontuação, tempo, distância
@@ -123,6 +136,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - Observações adicionais
 
 #### RF-017: Quadro de Medalhas
+
 - **Descrição**: Sistema deve gerar quadro de medalhas
 - **Critérios de Aceitação**:
   - Contagem automática de ouro, prata e bronze
@@ -131,6 +145,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - Atualização em tempo real
 
 #### RF-018: Visualização de Resultados
+
 - **Descrição**: Sistema deve exibir resultados de forma clara
 - **Critérios de Aceitação**:
   - Visualização por modalidade
@@ -141,6 +156,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
 ### 2.4 Sistema de Modalidades (RF-021 a RF-025)
 
 #### RF-021: Catálogo de Modalidades
+
 - **Descrição**: Sistema deve manter catálogo completo de modalidades
 - **Critérios de Aceitação**:
   - Campos: nome, descrição, categoria, regras, prêmios, local, horário
@@ -149,6 +165,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - Contador de participantes atuais
 
 #### RF-022: Gerenciamento de Regras
+
 - **Descrição**: Sistema deve permitir edição de regras
 - **Critérios de Aceitação**:
   - Editor de texto rico
@@ -157,6 +174,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - Aprovação de alterações
 
 #### RF-023: Controle de Participantes
+
 - **Descrição**: Sistema deve controlar participantes por modalidade
 - **Critérios de Aceitação**:
   - Lista de participantes inscritos
@@ -167,6 +185,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
 ### 2.5 Sistema de Galeria (RF-026 a RF-030)
 
 #### RF-026: Upload de Mídias
+
 - **Descrição**: Sistema deve permitir upload de fotos e vídeos
 - **Critérios de Aceitação**:
   - Suporte a formatos: JPG, PNG, MP4, MOV
@@ -175,6 +194,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - Preview antes do upload
 
 #### RF-027: Gerenciamento de Mídias
+
 - **Descrição**: Sistema deve organizar mídias por categoria
 - **Critérios de Aceitação**:
   - Categorias: fotos, vídeos, releases
@@ -183,6 +203,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - Exclusão e edição de mídias
 
 #### RF-028: Galeria Pública
+
 - **Descrição**: Sistema deve exibir galeria para visitantes
 - **Critérios de Aceitação**:
   - Visualização otimizada para dispositivos móveis
@@ -193,6 +214,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
 ### 2.6 Dashboard Administrativo (RF-031 a RF-035)
 
 #### RF-031: Relatórios e Estatísticas
+
 - **Descrição**: Sistema deve gerar relatórios detalhados
 - **Critérios de Aceitação**:
   - Gráficos interativos (barras, pizza, linha)
@@ -201,6 +223,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - Atualização em tempo real
 
 #### RF-032: Gerenciamento de Usuários
+
 - **Descrição**: Sistema deve gerenciar usuários administrativos
 - **Critérios de Aceitação**:
   - Criação e edição de usuários
@@ -209,6 +232,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - Desativação de usuários
 
 #### RF-033: Configurações do Sistema
+
 - **Descrição**: Sistema deve permitir configurações gerais
 - **Critérios de Aceitação**:
   - Configuração de datas do evento
@@ -223,6 +247,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
 ### 3.1 Performance (RNF-001 a RNF-005)
 
 #### RNF-001: Tempo de Resposta
+
 - **Descrição**: Sistema deve responder rapidamente às requisições
 - **Critérios**:
   - Páginas carregam em menos de 3 segundos
@@ -231,6 +256,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - Relatórios gerados em menos de 10 segundos
 
 #### RNF-002: Throughput
+
 - **Descrição**: Sistema deve suportar múltiplos usuários simultâneos
 - **Critérios**:
   - Suporte a 1000 usuários simultâneos
@@ -239,6 +265,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - 50 uploads simultâneos
 
 #### RNF-003: Escalabilidade
+
 - **Descrição**: Sistema deve escalar conforme demanda
 - **Critérios**:
   - Auto-scaling horizontal
@@ -249,6 +276,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
 ### 3.2 Disponibilidade (RNF-006 a RNF-010)
 
 #### RNF-006: Uptime
+
 - **Descrição**: Sistema deve estar disponível 24/7
 - **Critérios**:
   - 99.9% de uptime
@@ -257,6 +285,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - Alertas automáticos
 
 #### RNF-007: Recuperação de Desastres
+
 - **Descrição**: Sistema deve se recuperar rapidamente de falhas
 - **Critérios**:
   - RTO (Recovery Time Objective): 1 hora
@@ -267,6 +296,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
 ### 3.3 Usabilidade (RNF-011 a RNF-015)
 
 #### RNF-011: Interface Responsiva
+
 - **Descrição**: Sistema deve funcionar em todos os dispositivos
 - **Critérios**:
   - Compatível com desktop, tablet e mobile
@@ -275,6 +305,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - Testado em navegadores principais
 
 #### RNF-012: Acessibilidade
+
 - **Descrição**: Sistema deve ser acessível a todos os usuários
 - **Critérios**:
   - Conformidade com WCAG 2.1 AA
@@ -285,6 +316,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
 ### 3.4 Segurança (RNF-016 a RNF-020)
 
 #### RNF-016: Autenticação e Autorização
+
 - **Descrição**: Sistema deve controlar acesso adequadamente
 - **Critérios**:
   - Autenticação segura
@@ -293,6 +325,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - Logs de acesso
 
 #### RNF-017: Proteção de Dados
+
 - **Descrição**: Sistema deve proteger dados sensíveis
 - **Critérios**:
   - Criptografia em trânsito (HTTPS)
@@ -307,6 +340,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
 ### 4.1 Stack Tecnológica
 
 #### Frontend
+
 - **Next.js 15**: Framework React com App Router
 - **React 19**: Biblioteca de interface de usuário
 - **TypeScript**: Tipagem estática
@@ -316,5 +350,5 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
 
 ---
 
-*Documento gerado em: Setembro 2025*  
-*Versão: 1.0*  
+_Documento gerado em: Setembro 2025_  
+_Versão: 1.0_

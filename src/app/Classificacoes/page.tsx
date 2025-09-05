@@ -206,70 +206,78 @@ export default function Classificacoes() {
         </div>
 
         {/* Estatísticas */}
-        <div className='grid grid-cols-1 sm:grid-cols-4 gap-8 mb-12'>
+        <div className='grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12'>
           <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
-            <CardContent className='p-8'>
-              <div className='h-16 w-16 mx-auto mb-4 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-2xl flex items-center justify-center'>
-                <Crown className='h-8 w-8 text-white' />
+            <CardContent className='p-4 sm:p-6 lg:p-8'>
+              <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-2xl flex items-center justify-center'>
+                <Crown className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
               </div>
-              <h3 className='text-2xl font-bold text-gray-800 mb-2'>
+              <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
                 {classificacoes?.filter((c) => c.posicao === 1).length || 0}
               </h3>
-              <p className='text-gray-600'>Campeões</p>
+              <p className='text-xs sm:text-sm lg:text-base text-gray-600'>
+                Campeões
+              </p>
             </CardContent>
           </Card>
 
           <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
-            <CardContent className='p-8'>
-              <div className='h-16 w-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center'>
-                <Trophy className='h-8 w-8 text-white' />
+            <CardContent className='p-4 sm:p-6 lg:p-8'>
+              <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center'>
+                <Trophy className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
               </div>
-              <h3 className='text-2xl font-bold text-gray-800 mb-2'>
+              <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
                 {modalidades.length}
               </h3>
-              <p className='text-gray-600'>Modalidades</p>
+              <p className='text-xs sm:text-sm lg:text-base text-gray-600'>
+                Modalidades
+              </p>
             </CardContent>
           </Card>
 
           <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
-            <CardContent className='p-8'>
-              <div className='h-16 w-16 mx-auto mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center'>
-                <Users className='h-8 w-8 text-white' />
+            <CardContent className='p-4 sm:p-6 lg:p-8'>
+              <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center'>
+                <Users className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
               </div>
-              <h3 className='text-2xl font-bold text-gray-800 mb-2'>
+              <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
                 {classificacoes?.length || 0}
               </h3>
-              <p className='text-gray-600'>Classificações</p>
+              <p className='text-xs sm:text-sm lg:text-base text-gray-600'>
+                Classificações
+              </p>
             </CardContent>
           </Card>
 
           <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
-            <CardContent className='p-8'>
-              <div className='h-16 w-16 mx-auto mb-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center'>
-                <TrendingUp className='h-8 w-8 text-white' />
+            <CardContent className='p-4 sm:p-6 lg:p-8'>
+              <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center'>
+                <TrendingUp className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
               </div>
-              <h3 className='text-2xl font-bold text-gray-800 mb-2'>
+              <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
                 {afiliacoes.length}
               </h3>
-              <p className='text-gray-600'>Forças</p>
+              <p className='text-xs sm:text-sm lg:text-base text-gray-600'>
+                Forças
+              </p>
             </CardContent>
           </Card>
         </div>
 
         {/* Filtros */}
-        <Card className='bg-white/80 backdrop-blur-sm border-0 shadow-xl mb-8'>
-          <CardHeader className='pb-4'>
+        <Card className='bg-white/80 backdrop-blur-sm border-0 shadow-xl mb-6 sm:mb-8'>
+          <CardHeader className='pb-3 sm:pb-4 px-4 sm:px-6'>
             <div className='flex items-center gap-2'>
-              <Filter className='h-5 w-5 text-blue-600' />
-              <CardTitle className='text-xl text-gray-800'>
+              <Filter className='h-4 w-4 sm:h-5 sm:w-5 text-blue-600' />
+              <CardTitle className='text-lg sm:text-xl text-gray-800'>
                 Filtros de Busca
               </CardTitle>
             </div>
           </CardHeader>
-          <CardContent className='p-6'>
-            <div className='grid grid-cols-1 sm:grid-cols-3 gap-6'>
+          <CardContent className='p-4 sm:p-6'>
+            <div className='grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6'>
               <div className='space-y-2'>
-                <label className='text-sm font-medium text-gray-700'>
+                <label className='text-xs sm:text-sm font-medium text-gray-700'>
                   Modalidade
                 </label>
                 <Select
@@ -278,7 +286,7 @@ export default function Classificacoes() {
                     setModalidade(val === 'todos' ? null : val)
                   }
                 >
-                  <SelectTrigger className='w-full border-2 border-gray-200 bg-white hover:border-blue-300 transition-colors'>
+                  <SelectTrigger className='w-full border-2 border-gray-200 bg-white hover:border-blue-300 transition-colors text-sm'>
                     <SelectValue placeholder='Todas as modalidades' />
                   </SelectTrigger>
                   <SelectContent>
@@ -293,7 +301,7 @@ export default function Classificacoes() {
               </div>
 
               <div className='space-y-2'>
-                <label className='text-sm font-medium text-gray-700'>
+                <label className='text-xs sm:text-sm font-medium text-gray-700'>
                   Categoria
                 </label>
                 <Select
@@ -302,7 +310,7 @@ export default function Classificacoes() {
                     setCategoria(val === 'todos' ? null : val)
                   }
                 >
-                  <SelectTrigger className='w-full border-2 border-gray-200 bg-white hover:border-blue-300 transition-colors'>
+                  <SelectTrigger className='w-full border-2 border-gray-200 bg-white hover:border-blue-300 transition-colors text-sm'>
                     <SelectValue placeholder='Todas as categorias' />
                   </SelectTrigger>
                   <SelectContent>
@@ -317,7 +325,7 @@ export default function Classificacoes() {
               </div>
 
               <div className='space-y-2'>
-                <label className='text-sm font-medium text-gray-700'>
+                <label className='text-xs sm:text-sm font-medium text-gray-700'>
                   Afiliação
                 </label>
                 <Select
@@ -326,7 +334,7 @@ export default function Classificacoes() {
                     setAfiliacao(val === 'todos' ? null : val)
                   }
                 >
-                  <SelectTrigger className='w-full border-2 border-gray-200 bg-white hover:border-blue-300 transition-colors'>
+                  <SelectTrigger className='w-full border-2 border-gray-200 bg-white hover:border-blue-300 transition-colors text-sm'>
                     <SelectValue placeholder='Todas as afiliações' />
                   </SelectTrigger>
                   <SelectContent>
@@ -352,35 +360,37 @@ export default function Classificacoes() {
           <TabsList className='grid w-full grid-cols-2 bg-gray-200/60 p-1 rounded-lg'>
             <TabsTrigger
               value='atletas'
-              className='py-2.5 text-sm font-semibold leading-5 text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-md transition-all'
+              className='py-2 sm:py-2.5 text-xs sm:text-sm font-semibold leading-5 text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-md transition-all'
             >
-              <Users className='mr-2 h-4 w-4' />
-              Ranking de Atletas
+              <Users className='mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4' />
+              <span className='hidden sm:inline'>Ranking de Atletas</span>
+              <span className='sm:hidden'>Atletas</span>
             </TabsTrigger>
             <TabsTrigger
               value='equipes'
-              className='py-2.5 text-sm font-semibold leading-5 text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-md transition-all'
+              className='py-2 sm:py-2.5 text-xs sm:text-sm font-semibold leading-5 text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-md transition-all'
             >
-              <Shield className='mr-2 h-4 w-4' />
-              Ranking de Equipes
+              <Shield className='mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4' />
+              <span className='hidden sm:inline'>Ranking de Equipes</span>
+              <span className='sm:hidden'>Equipes</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value='atletas' className='mt-8'>
+          <TabsContent value='atletas' className='mt-6 sm:mt-8'>
             <Card className='bg-white/90 backdrop-blur-sm border-0 shadow-2xl'>
-              <CardHeader className='text-center pb-6'>
-                <div className='h-20 w-20 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center'>
-                  <Users className='h-10 w-10 text-white' />
+              <CardHeader className='text-center pb-4 sm:pb-6 px-4 sm:px-6'>
+                <div className='h-16 w-16 sm:h-20 sm:w-20 mx-auto mb-4 sm:mb-6 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center'>
+                  <Users className='h-8 w-8 sm:h-10 sm:w-10 text-white' />
                 </div>
-                <CardTitle className='text-3xl text-gray-800'>
+                <CardTitle className='text-2xl sm:text-3xl text-gray-800'>
                   Ranking dos Atletas
                 </CardTitle>
-                <CardDescription className='text-lg text-gray-600 max-w-2xl mx-auto'>
+                <CardDescription className='text-base sm:text-lg text-gray-600 max-w-2xl mx-auto'>
                   Confira as posições e pontuações dos competidores individuais.
                 </CardDescription>
               </CardHeader>
 
-              <CardContent className='p-8'>
+              <CardContent className='p-4 sm:p-6 lg:p-8'>
                 {atletasFiltrados.length > 0 ? (
                   <div className='space-y-4'>
                     {atletasFiltrados.map((classificacao) => (
@@ -388,72 +398,85 @@ export default function Classificacoes() {
                         key={classificacao.id}
                         className='hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-r from-gray-50 to-white shadow-lg hover:shadow-blue-500/10'
                       >
-                        <CardContent className='p-6'>
-                          <div className='flex flex-col lg:flex-row lg:items-center justify-between gap-6'>
-                            <div className='flex items-center gap-6'>
-                              <div className='flex flex-col items-center min-w-[80px]'>
-                                <div className='text-3xl font-bold text-blue-600 mb-2'>
+                        <CardContent className='p-4 sm:p-6'>
+                          <div className='flex flex-col gap-4 sm:gap-6'>
+                            {/* Header - Posição e Nome */}
+                            <div className='flex items-start gap-4'>
+                              <div className='flex flex-col items-center min-w-[60px] sm:min-w-[80px]'>
+                                <div className='text-2xl sm:text-3xl font-bold text-blue-600 mb-1 sm:mb-2'>
                                   {classificacao.posicao}º
                                 </div>
                                 {getPosicaoBadge(classificacao.posicao)}
                               </div>
                               <div className='flex-1'>
-                                <h4 className='font-semibold text-xl mb-3 text-gray-800'>
+                                <h4 className='font-semibold text-lg sm:text-xl mb-2 sm:mb-3 text-gray-800'>
                                   {classificacao.atleta}
                                 </h4>
-                                <div className='space-y-2'>
-                                  <div className='flex items-center gap-2 text-gray-600'>
-                                    <Target className='h-4 w-4 text-blue-500' />
-                                    <span className='font-medium'>
-                                      {classificacao.modalidade}
-                                    </span>
-                                    <span className='text-gray-400'>•</span>
-                                    <span>{classificacao.categoria}</span>
-                                  </div>
-                                  <div className='flex items-center gap-2 text-gray-600'>
-                                    <Users className='h-4 w-4 text-green-500' />
-                                    <span>{classificacao.afiliacao}</span>
-                                  </div>
-                                  {classificacao.tempo && (
-                                    <div className='flex items-center gap-2 text-gray-600'>
-                                      <Zap className='h-4 w-4 text-orange-500' />
-                                      <span>Tempo: {classificacao.tempo}</span>
-                                    </div>
-                                  )}
-                                  {classificacao.distancia && (
-                                    <div className='flex items-center gap-2 text-gray-600'>
-                                      <Target className='h-4 w-4 text-purple-500' />
-                                      <span>
-                                        Distância: {classificacao.distancia}
-                                      </span>
-                                    </div>
-                                  )}
-                                </div>
                               </div>
                             </div>
-                            <div className='flex flex-col items-end gap-4'>
-                              <div className='text-right'>
+
+                            {/* Detalhes */}
+                            <div className='space-y-2 sm:space-y-3'>
+                              <div className='flex items-center gap-2 text-gray-600'>
+                                <Target className='h-4 w-4 text-blue-500 flex-shrink-0' />
+                                <span className='font-medium text-sm sm:text-base'>
+                                  {classificacao.modalidade}
+                                </span>
+                                <span className='text-gray-400'>•</span>
+                                <span className='text-sm sm:text-base'>
+                                  {classificacao.categoria}
+                                </span>
+                              </div>
+                              <div className='flex items-center gap-2 text-gray-600'>
+                                <Users className='h-4 w-4 text-green-500 flex-shrink-0' />
+                                <span className='text-sm sm:text-base'>
+                                  {classificacao.afiliacao}
+                                </span>
+                              </div>
+                              {classificacao.tempo && (
+                                <div className='flex items-center gap-2 text-gray-600'>
+                                  <Zap className='h-4 w-4 text-orange-500 flex-shrink-0' />
+                                  <span className='text-sm sm:text-base'>
+                                    Tempo: {classificacao.tempo}
+                                  </span>
+                                </div>
+                              )}
+                              {classificacao.distancia && (
+                                <div className='flex items-center gap-2 text-gray-600'>
+                                  <Target className='h-4 w-4 text-purple-500 flex-shrink-0' />
+                                  <span className='text-sm sm:text-base'>
+                                    Distância: {classificacao.distancia}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Pontuação e Ações */}
+                            <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 pt-2 border-t border-gray-200'>
+                              <div className='text-left sm:text-right'>
                                 <div
-                                  className={`text-3xl font-bold ${getPontuacaoColor(classificacao.pontuacao)}`}
+                                  className={`text-2xl sm:text-3xl font-bold ${getPontuacaoColor(classificacao.pontuacao)}`}
                                 >
                                   {classificacao.pontuacao}
                                 </div>
-                                <p className='text-sm text-gray-500'>pontos</p>
+                                <p className='text-xs sm:text-sm text-gray-500'>
+                                  pontos
+                                </p>
                               </div>
                               <div className='flex gap-2'>
                                 <Button
                                   variant='ghost'
                                   size='sm'
-                                  className='h-8 w-8 p-0 hover:bg-gray-100'
+                                  className='h-6 w-6 sm:h-8 sm:w-8 p-0 hover:bg-gray-100'
                                 >
-                                  <Share2 className='h-4 w-4' />
+                                  <Share2 className='h-3 w-3 sm:h-4 sm:w-4' />
                                 </Button>
                               </div>
                             </div>
                           </div>
                           {classificacao.observacoes && (
                             <div className='mt-4 pt-4 border-t border-gray-200'>
-                              <p className='text-sm text-gray-600 italic'>
+                              <p className='text-xs sm:text-sm text-gray-600 italic'>
                                 💡 {classificacao.observacoes}
                               </p>
                             </div>
@@ -573,7 +596,7 @@ export default function Classificacoes() {
         </Tabs>
 
         {/* Botões de Ação */}
-        <div className='flex flex-col sm:flex-row gap-4 justify-center mt-12'>
+        <div className='flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mt-8 sm:mt-12'>
           <Button
             onClick={() =>
               generatePDF(
@@ -581,17 +604,17 @@ export default function Classificacoes() {
                 `classificacoes-${activeTab}`,
               )
             }
-            className='bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-4'
+            className='bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base'
           >
-            <Download className='h-5 w-5 mr-2' />
+            <Download className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
             Exportar PDF
           </Button>
 
           <Button
             variant='outline'
-            className='border-2 border-orange-300 text-orange-600 hover:bg-orange-50 hover:border-orange-400 transition-colors px-8 py-4'
+            className='border-2 border-orange-300 text-orange-600 hover:bg-orange-50 hover:border-orange-400 transition-colors px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base'
           >
-            <Share2 className='h-5 w-5 mr-2' />
+            <Share2 className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
             Compartilhar
           </Button>
         </div>

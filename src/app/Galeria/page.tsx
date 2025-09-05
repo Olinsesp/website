@@ -109,88 +109,99 @@ export default function Galeria() {
         </div>
 
         {/* Estatísticas */}
-        <div className='grid grid-cols-1 sm:grid-cols-3 gap-8 mb-12'>
+        <div className='grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12'>
           <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
-            <CardContent className='p-8'>
-              <div className='h-16 w-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center'>
-                <ImageIcon className='h-8 w-8 text-white' />
+            <CardContent className='p-4 sm:p-6 lg:p-8'>
+              <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center'>
+                <ImageIcon className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
               </div>
-              <h3 className='text-2xl font-bold text-gray-800 mb-2'>
+              <h3 className='text-xl sm:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
                 {fotos.length}+
               </h3>
-              <p className='text-gray-600'>Fotos Exclusivas</p>
+              <p className='text-sm sm:text-base text-gray-600'>
+                Fotos Exclusivas
+              </p>
             </CardContent>
           </Card>
 
           <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
-            <CardContent className='p-8'>
-              <div className='h-16 w-16 mx-auto mb-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center'>
-                <PlayCircle className='h-8 w-8 text-white' />
+            <CardContent className='p-4 sm:p-6 lg:p-8'>
+              <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center'>
+                <PlayCircle className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
               </div>
-              <h3 className='text-2xl font-bold text-gray-800 mb-2'>
+              <h3 className='text-xl sm:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
                 {videos.length}+
               </h3>
-              <p className='text-gray-600'>Vídeos HD</p>
+              <p className='text-sm sm:text-base text-gray-600'>Vídeos HD</p>
             </CardContent>
           </Card>
 
           <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
-            <CardContent className='p-8'>
-              <div className='h-16 w-16 mx-auto mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center'>
-                <FileTextIcon className='h-8 w-8 text-white' />
+            <CardContent className='p-4 sm:p-6 lg:p-8'>
+              <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center'>
+                <FileTextIcon className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
               </div>
-              <h3 className='text-2xl font-bold text-gray-800 mb-2'>
+              <h3 className='text-xl sm:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
                 {releases.length}+
               </h3>
-              <p className='text-gray-600'>Releases</p>
+              <p className='text-sm sm:text-base text-gray-600'>Releases</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Conteúdo Principal */}
         <Card className='bg-white/90 backdrop-blur-sm border-0 shadow-2xl'>
-          <CardHeader className='text-center pb-6'>
-            <div className='h-20 w-20 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center'>
-              <Camera className='h-10 w-10 text-white' />
+          <CardHeader className='text-center pb-4 sm:pb-6 px-4 sm:px-6'>
+            <div className='h-16 w-16 sm:h-20 sm:w-20 mx-auto mb-4 sm:mb-6 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center'>
+              <Camera className='h-8 w-8 sm:h-10 sm:w-10 text-white' />
             </div>
-            <CardTitle className='text-3xl text-gray-800'>
+            <CardTitle className='text-2xl sm:text-3xl text-gray-800'>
               Conteúdo Multimídia
             </CardTitle>
-            <CardDescription className='text-lg text-gray-600 max-w-2xl mx-auto'>
+            <CardDescription className='text-base sm:text-lg text-gray-600 max-w-2xl mx-auto'>
               Explore fotos, vídeos e releases do evento em uma experiência
               visual única
             </CardDescription>
           </CardHeader>
 
-          <CardContent className='p-8'>
+          <CardContent className='p-4 sm:p-6 lg:p-8'>
             <Tabs defaultValue='fotos' className='w-full'>
               <TabsList className='grid w-full grid-cols-1 sm:grid-cols-3 bg-gray-100 p-1 rounded-xl'>
                 <TabsTrigger
                   value='fotos'
-                  className='flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-blue-600 transition-all duration-300'
+                  className='flex items-center justify-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-blue-600 transition-all duration-300 text-sm sm:text-base py-2 sm:py-3'
                 >
                   <ImageIcon className='h-4 w-4' />
-                  Fotos ({fotos.length})
+                  <span className='hidden sm:inline'>Fotos</span>
+                  <span className='sm:hidden'>Fotos</span>
+                  <span className='ml-1'>({fotos.length})</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value='videos'
-                  className='flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-orange-600 transition-all duration-300'
+                  className='flex items-center justify-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-orange-600 transition-all duration-300 text-sm sm:text-base py-2 sm:py-3'
                 >
                   <PlayCircle className='h-4 w-4' />
-                  Vídeos ({videos.length})
+                  <span className='hidden sm:inline'>Vídeos</span>
+                  <span className='sm:hidden'>Vídeos</span>
+                  <span className='ml-1'>({videos.length})</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value='releases'
-                  className='flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-green-600 transition-all duration-300'
+                  className='flex items-center justify-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-green-600 transition-all duration-300 text-sm sm:text-base py-2 sm:py-3'
                 >
                   <FileTextIcon className='h-4 w-4' />
-                  Releases ({releases.length})
+                  <span className='hidden sm:inline'>Releases</span>
+                  <span className='sm:hidden'>Releases</span>
+                  <span className='ml-1'>({releases.length})</span>
                 </TabsTrigger>
               </TabsList>
 
               {/* Fotos */}
-              <TabsContent value='fotos' className='space-y-8 mt-8'>
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
+              <TabsContent
+                value='fotos'
+                className='space-y-6 sm:space-y-8 mt-6 sm:mt-8'
+              >
+                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8'>
                   {fotos.map((foto) => (
                     <Card
                       key={foto.id}
@@ -202,52 +213,52 @@ export default function Galeria() {
                           height={300}
                           src={foto.url}
                           alt={foto.titulo || 'Foto do evento'}
-                          className='w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500'
+                          className='w-full h-48 sm:h-56 object-cover group-hover:scale-110 transition-transform duration-500'
                           onClick={() => setSelectedImage(foto.url)}
                         />
-                        <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4'>
+                        <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-3 sm:pb-4'>
                           <Button
                             variant='secondary'
                             size='sm'
                             onClick={() => setSelectedImage(foto.url)}
-                            className='bg-white/90 text-gray-800 hover:bg-white border-0 shadow-lg'
+                            className='bg-white/90 text-gray-800 hover:bg-white border-0 shadow-lg text-xs sm:text-sm'
                           >
-                            <Eye className='h-4 w-4 mr-2' />
+                            <Eye className='h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2' />
                             Ver Ampliada
                           </Button>
                         </div>
 
                         {foto.destaque && (
-                          <div className='absolute top-3 right-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium'>
+                          <div className='absolute top-2 right-2 sm:top-3 sm:right-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium'>
                             ⭐ Destaque
                           </div>
                         )}
                       </div>
 
-                      <CardContent className='p-6'>
-                        <h4 className='font-semibold text-lg mb-3 text-gray-800'>
+                      <CardContent className='p-4 sm:p-6'>
+                        <h4 className='font-semibold text-base sm:text-lg mb-2 sm:mb-3 text-gray-800'>
                           {foto.titulo || 'Foto do Evento'}
                         </h4>
-                        <div className='flex justify-between items-center text-sm text-gray-500'>
+                        <div className='flex justify-between items-center text-xs sm:text-sm text-gray-500'>
                           <span>
                             {new Date(foto.createdAt).toLocaleDateString(
                               'pt-BR',
                             )}
                           </span>
-                          <div className='flex gap-2'>
+                          <div className='flex gap-1 sm:gap-2'>
                             <Button
                               variant='ghost'
                               size='sm'
-                              className='h-8 w-8 p-0 hover:bg-gray-100'
+                              className='h-6 w-6 sm:h-8 sm:w-8 p-0 hover:bg-gray-100'
                             >
-                              <Download className='h-4 w-4' />
+                              <Download className='h-3 w-3 sm:h-4 sm:w-4' />
                             </Button>
                             <Button
                               variant='ghost'
                               size='sm'
-                              className='h-8 w-8 p-0 hover:bg-gray-100'
+                              className='h-6 w-6 sm:h-8 sm:w-8 p-0 hover:bg-gray-100'
                             >
-                              <Share2 className='h-4 w-4' />
+                              <Share2 className='h-3 w-3 sm:h-4 sm:w-4' />
                             </Button>
                           </div>
                         </div>
@@ -258,8 +269,11 @@ export default function Galeria() {
               </TabsContent>
 
               {/* Vídeos */}
-              <TabsContent value='videos' className='space-y-8 mt-8'>
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
+              <TabsContent
+                value='videos'
+                className='space-y-6 sm:space-y-8 mt-6 sm:mt-8'
+              >
+                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8'>
                   {videos.map((video) => (
                     <Card
                       key={video.id}
@@ -268,20 +282,20 @@ export default function Galeria() {
                       <div className='relative overflow-hidden'>
                         <video
                           controls
-                          className='w-full h-56 object-cover'
+                          className='w-full h-48 sm:h-56 object-cover'
                           src={video.url}
                         />
                         {video.destaque && (
-                          <div className='absolute top-3 right-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium'>
+                          <div className='absolute top-2 right-2 sm:top-3 sm:right-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium'>
                             ⭐ Destaque
                           </div>
                         )}
                       </div>
-                      <CardContent className='p-6'>
-                        <h4 className='font-semibold text-lg mb-3 text-gray-800'>
+                      <CardContent className='p-4 sm:p-6'>
+                        <h4 className='font-semibold text-base sm:text-lg mb-2 sm:mb-3 text-gray-800'>
                           {video.titulo || 'Vídeo do Evento'}
                         </h4>
-                        <div className='flex justify-between items-center text-sm text-gray-500'>
+                        <div className='flex justify-between items-center text-xs sm:text-sm text-gray-500'>
                           <span>
                             {new Date(video.createdAt).toLocaleDateString(
                               'pt-BR',
@@ -290,9 +304,9 @@ export default function Galeria() {
                           <Button
                             variant='ghost'
                             size='sm'
-                            className='h-8 w-8 p-0 hover:bg-gray-100'
+                            className='h-6 w-6 sm:h-8 sm:w-8 p-0 hover:bg-gray-100'
                           >
-                            <Share2 className='h-4 w-4' />
+                            <Share2 className='h-3 w-3 sm:h-4 sm:w-4' />
                           </Button>
                         </div>
                       </CardContent>
@@ -302,23 +316,26 @@ export default function Galeria() {
               </TabsContent>
 
               {/* Releases */}
-              <TabsContent value='releases' className='space-y-8 mt-8'>
-                <div className='space-y-6'>
+              <TabsContent
+                value='releases'
+                className='space-y-6 sm:space-y-8 mt-6 sm:mt-8'
+              >
+                <div className='space-y-4 sm:space-y-6'>
                   {releases.map((release) => (
                     <Card
                       key={release.id}
                       className='hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-r from-gray-50 to-white shadow-lg'
                     >
-                      <CardContent className='p-8'>
-                        <div className='flex items-start justify-between gap-6'>
+                      <CardContent className='p-4 sm:p-6 lg:p-8'>
+                        <div className='flex flex-col sm:flex-row items-start justify-between gap-4 sm:gap-6'>
                           <div className='flex-1'>
-                            <h4 className='text-xl font-semibold mb-4 text-gray-800 hover:text-blue-600 cursor-pointer transition-colors'>
+                            <h4 className='text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-gray-800 hover:text-blue-600 cursor-pointer transition-colors'>
                               {release.titulo}
                             </h4>
-                            <p className='text-gray-600 mb-4 leading-relaxed'>
+                            <p className='text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 leading-relaxed'>
                               {release.url}
                             </p>
-                            <div className='flex items-center gap-4 text-sm text-gray-500'>
+                            <div className='flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500'>
                               <span>
                                 Publicado em:{' '}
                                 {new Date(release.createdAt).toLocaleDateString(
@@ -333,28 +350,28 @@ export default function Galeria() {
                             </div>
                           </div>
 
-                          <div className='flex gap-2'>
+                          <div className='flex flex-col sm:flex-row gap-2 w-full sm:w-auto mt-4 sm:mt-0'>
                             <Button
                               asChild
                               variant='outline'
                               size='sm'
-                              className='border-2 border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors'
+                              className='border-2 border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors text-xs sm:text-sm w-full sm:w-auto'
                             >
                               <a
                                 href={release.url}
                                 target='_blank'
                                 rel='noopener noreferrer'
                               >
-                                <FileTextIcon className='h-4 w-4 mr-2' />
+                                <FileTextIcon className='h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2' />
                                 Ler Mais
                               </a>
                             </Button>
                             <Button
                               variant='ghost'
                               size='sm'
-                              className='h-10 w-10 p-0 hover:bg-gray-100'
+                              className='h-8 w-8 sm:h-10 sm:w-10 p-0 hover:bg-gray-100'
                             >
-                              <Share2 className='h-4 w-4' />
+                              <Share2 className='h-3 w-3 sm:h-4 sm:w-4' />
                             </Button>
                           </div>
                         </div>
@@ -370,7 +387,7 @@ export default function Galeria() {
         {/* Modal para imagem ampliada */}
         {selectedImage && (
           <div
-            className='fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4'
+            className='fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-2 sm:p-4'
             onClick={() => setSelectedImage(null)}
           >
             <div className='relative max-w-4xl max-h-full'>
@@ -384,7 +401,7 @@ export default function Galeria() {
               <Button
                 variant='secondary'
                 size='sm'
-                className='absolute top-4 right-4 bg-white/90 text-gray-800 hover:bg-white border-0'
+                className='absolute top-2 right-2 sm:top-4 sm:right-4 bg-white/90 text-gray-800 hover:bg-white border-0 text-sm sm:text-base'
                 onClick={() => setSelectedImage(null)}
               >
                 ✕
