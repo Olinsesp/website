@@ -118,9 +118,7 @@ export default function Galeria() {
               <h3 className='text-xl sm:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
                 {fotos.length}+
               </h3>
-              <p className='text-sm sm:text-base text-gray-600'>
-                Fotos Exclusivas
-              </p>
+              <p className='text-sm sm:text-base text-gray-600'>Fotos Exclusivas</p>
             </CardContent>
           </Card>
 
@@ -197,10 +195,7 @@ export default function Galeria() {
               </TabsList>
 
               {/* Fotos */}
-              <TabsContent
-                value='fotos'
-                className='space-y-6 sm:space-y-8 mt-6 sm:mt-8'
-              >
+              <TabsContent value='fotos' className='space-y-6 sm:space-y-8 mt-6 sm:mt-8'>
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8'>
                   {fotos.map((foto) => (
                     <Card
@@ -269,10 +264,7 @@ export default function Galeria() {
               </TabsContent>
 
               {/* Vídeos */}
-              <TabsContent
-                value='videos'
-                className='space-y-6 sm:space-y-8 mt-6 sm:mt-8'
-              >
+              <TabsContent value='videos' className='space-y-6 sm:space-y-8 mt-6 sm:mt-8'>
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8'>
                   {videos.map((video) => (
                     <Card
@@ -316,10 +308,7 @@ export default function Galeria() {
               </TabsContent>
 
               {/* Releases */}
-              <TabsContent
-                value='releases'
-                className='space-y-6 sm:space-y-8 mt-6 sm:mt-8'
-              >
+              <TabsContent value='releases' className='space-y-6 sm:space-y-8 mt-6 sm:mt-8'>
                 <div className='space-y-4 sm:space-y-6'>
                   {releases.map((release) => (
                     <Card
