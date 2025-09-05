@@ -36,7 +36,7 @@ const modalidadeSchema = z.object({
     .number()
     .min(1, 'Máximo de participantes deve ser maior que 0'),
   status: z.enum([
-    'aberta',
+    'inscricoes-abertas',
     'inscricoes-fechadas',
     'em-andamento',
     'finalizada',
@@ -51,13 +51,13 @@ interface Modalidade {
   descricao: string;
   categoria: string;
   maxParticipantes: number;
-  status: 'aberta' | 'inscricoes-fechadas' | 'em-andamento' | 'finalizada';
+  status: 'inscricoes-abertas' | 'inscricoes-fechadas' | 'em-andamento' | 'finalizada';
   regras: string[];
   premios: string[];
   dataInicio?: string;
   dataFim?: string;
   local?: string;
-  participantes: number;
+  participantesAtuais: number;
 }
 
 export default function ModalidadesForm() {
@@ -80,7 +80,7 @@ export default function ModalidadesForm() {
       descricao: '',
       categoria: '',
       maxParticipantes: 0,
-      status: 'aberta',
+      status: 'inscricoes-abertas',
     },
   });
 
@@ -177,7 +177,7 @@ export default function ModalidadesForm() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      aberta: { label: 'Aberta', color: 'bg-green-500' },
+      'inscricoes-abertas': { label: 'Inscrições Abertas', color: 'bg-green-500' },
       'inscricoes-fechadas': {
         label: 'Inscrições Fechadas',
         color: 'bg-yellow-500',
@@ -242,7 +242,7 @@ export default function ModalidadesForm() {
                       </span>
                       <span className='flex items-center gap-1'>
                         <Clock className='h-4 w-4' />
-                        {modalidade.participantes}/{modalidade.maxParticipantes}{' '}
+                        {modalidade.participantesAtuais}/{modalidade.maxParticipantes}{' '}
                         participantes
                       </span>
                     </div>
@@ -343,7 +343,7 @@ export default function ModalidadesForm() {
                     <SelectValue placeholder='Selecione o status' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='aberta'>Aberta</SelectItem>
+                    <SelectItem value='inscricoes-abertas'>Inscrições Abertas</SelectItem>
                     <SelectItem value='inscricoes-fechadas'>
                       Inscrições Fechadas
                     </SelectItem>
