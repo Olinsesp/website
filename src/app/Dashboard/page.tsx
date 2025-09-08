@@ -23,7 +23,7 @@ import {
   LabelList,
 } from 'recharts';
 import { generatePDF } from '@/components/pdf-utils';
-import { Loader2, Download, Filter } from 'lucide-react';
+import { Download, Filter } from 'lucide-react';
 
 import { columns, Inscricoes } from './columns';
 import { DataTable } from './data-table';
@@ -36,22 +36,23 @@ import ModalidadesForm from '@/components/admin/ModalidadesForm';
 import GaleriaForm from '@/components/admin/GaleriaForm';
 import CronogramaForm from '@/components/admin/CronogramaForm';
 import InscricoesForm from '@/components/admin/InscricoesForm';
+import QueryStateHandler from '@/components/ui/query-state-handler';
 
 export default function DashboardPage() {
   const [afiliacao, setAfiliacao] = useState<string | null>(null);
   const [modalidade, setModalidade] = useState<string | null>(null);
   const [inscritos, setInscritos] = useState<Inscricoes[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const afiliacaoColors: Record<string, string> = {
-    PMDF: '#1f77b4',
+    PMDF: '#0a3351ff',
     CBMDF: '#ff7f0e',
-    PCDF: '#2ca02c',
+    PCDF: '#0f450fff',
     PRF: '#d62728',
     DEPEN: '#9467bd',
-    'SSP-DF': '#8c564b',
+    'SSP-DF': '#28b3f3ff',
     OUTROS: '#e377c2',
   };
 
@@ -64,7 +65,7 @@ export default function DashboardPage() {
         const data: Inscricoes[] = await res.json();
         setInscritos(data);
       } catch (err: any) {
-        setError(err.message);
+        setError(err);
       } finally {
         setLoading(false);
       }
@@ -102,34 +103,6 @@ export default function DashboardPage() {
     });
     return Array.from(map, ([name, value]) => ({ name, value }));
   }, [inscritosFiltrados, modalidade]);
-
-  if (loading)
-    return (
-      <div className='flex items-center justify-center h-screen bg-gradient-to-br from-blue-50 to-orange-50'>
-        <div className='text-center'>
-          <Loader2 className='inline-block h-12 w-12 animate-spin text-blue-600 mb-4' />
-          <p className='text-lg text-gray-600'>Carregando dashboard...</p>
-        </div>
-      </div>
-    );
-
-  if (error)
-    return (
-      <div className='flex items-center justify-center h-screen bg-gradient-to-br from-red-50 to-pink-50'>
-        <Card className='max-w-md mx-auto text-center'>
-          <CardContent className='p-8'>
-            <div className='text-red-500 text-6xl mb-4'>⚠️</div>
-            <h2 className='text-xl font-semibold text-gray-800 mb-2'>
-              Erro ao carregar
-            </h2>
-            <p className='text-gray-600 mb-4'>{error}</p>
-            <Button onClick={() => window.location.reload()}>
-              Tentar Novamente
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
 
   const renderContent = () => {
     switch (activeTab) {
@@ -332,7 +305,14 @@ export default function DashboardPage() {
         <div className='flex flex-1 flex-col'>
           <div className='@container/main flex flex-1 flex-col gap-2'>
             <div className='flex flex-col gap-4 py-4 md:gap-6 md:py-6'>
-              {renderContent()}
+              <QueryStateHandler
+                isLoading={loading}
+                isError={!!error}
+                error={error}
+                loadingMessage='Carregando dashboard...'
+              >
+                {renderContent()}
+              </QueryStateHandler>
             </div>
           </div>
         </div>

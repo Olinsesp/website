@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/dialog';
 import { Trash2, Edit, Plus, Save } from 'lucide-react';
 import { toast } from 'sonner';
+import QueryStateHandler from '../ui/query-state-handler';
 
 const classificacaoSchema = z.object({
   modalidade: z.string().min(1, 'Modalidade é obrigatória'),
@@ -58,6 +59,7 @@ interface Classificacao {
 export default function ClassificacoesForm() {
   const [classificacoes, setClassificacoes] = useState<Classificacao[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -82,9 +84,12 @@ export default function ClassificacoesForm() {
       if (response.ok) {
         const data = await response.json();
         setClassificacoes(data);
+      } else {
+        throw new Error('Erro ao carregar classificações');
       }
-    } catch {
-      toast.error('Erro ao carregar classificações');
+    } catch (err: any) {
+      setError(err);
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
@@ -182,234 +187,232 @@ export default function ClassificacoesForm() {
     );
   };
 
-  if (loading) {
-    return (
-      <div className='flex items-center justify-center p-8'>
-        <div className='text-center'>
-          <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4'></div>
-          <p>Carregando classificações...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className='space-y-6'>
-      <Card>
-        <CardHeader>
-          <div className='flex items-center justify-between'>
-            <CardTitle>Classificações</CardTitle>
-            <Button onClick={handleAddNew}>
-              <Plus className='h-4 w-4 mr-2' />
-              Nova Classificação
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className='space-y-4'>
-            {classificacoes.map((classificacao) => (
-              <div
-                key={classificacao.id}
-                className='flex items-center justify-between p-4 border rounded-lg'
-              >
-                <div className='flex items-center gap-4'>
-                  {getPosicaoBadge(classificacao.posicao)}
-                  <div>
-                    <h3 className='font-semibold'>
-                      {classificacao.modalidade} - {classificacao.categoria}
-                    </h3>
-                    <p className='text-sm text-gray-600'>
-                      {classificacao.atleta && `${classificacao.atleta} - `}
-                      {classificacao.afiliacao} - {classificacao.pontuacao}{' '}
-                      pontos
-                    </p>
-                    {classificacao.tempo && (
-                      <p className='text-xs text-gray-500'>
-                        Tempo: {classificacao.tempo}
+    <QueryStateHandler
+      isLoading={loading}
+      isError={!!error}
+      error={error}
+      loadingMessage='Carregando classificações...'
+    >
+      <div className='space-y-6'>
+        <Card>
+          <CardHeader>
+            <div className='flex items-center justify-between'>
+              <CardTitle>Classificações</CardTitle>
+              <Button onClick={handleAddNew}>
+                <Plus className='h-4 w-4 mr-2' />
+                Nova Classificação
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className='space-y-4'>
+              {classificacoes.map((classificacao) => (
+                <div
+                  key={classificacao.id}
+                  className='flex items-center justify-between p-4 border rounded-lg'
+                >
+                  <div className='flex items-center gap-4'>
+                    {getPosicaoBadge(classificacao.posicao)}
+                    <div>
+                      <h3 className='font-semibold'>
+                        {classificacao.modalidade} - {classificacao.categoria}
+                      </h3>
+                      <p className='text-sm text-gray-600'>
+                        {classificacao.atleta && `${classificacao.atleta} - `}
+                        {classificacao.afiliacao} - {classificacao.pontuacao}{' '}
+                        pontos
                       </p>
-                    )}
-                    {classificacao.distancia && (
-                      <p className='text-xs text-gray-500'>
-                        Distância: {classificacao.distancia}
-                      </p>
-                    )}
+                      {classificacao.tempo && (
+                        <p className='text-xs text-gray-500'>
+                          Tempo: {classificacao.tempo}
+                        </p>
+                      )}
+                      {classificacao.distancia && (
+                        <p className='text-xs text-gray-500'>
+                          Distância: {classificacao.distancia}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className='flex gap-2'>
+                    <Button
+                      size='sm'
+                      variant='outline'
+                      onClick={() => handleEdit(classificacao)}
+                    >
+                      <Edit className='h-4 w-4' />
+                    </Button>
+                    <Button
+                      size='sm'
+                      variant='destructive'
+                      onClick={() => handleDelete(classificacao.id)}
+                    >
+                      <Trash2 className='h-4 w-4' />
+                    </Button>
                   </div>
                 </div>
-                <div className='flex gap-2'>
-                  <Button
-                    size='sm'
-                    variant='outline'
-                    onClick={() => handleEdit(classificacao)}
+              ))}
+              {classificacoes.length === 0 && (
+                <p className='text-center text-gray-500 py-8'>
+                  Nenhuma classificação cadastrada
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Dialog para Adicionar/Editar */}
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className='sm:max-w-[600px] max-h-[80vh] overflow-y-auto'>
+            <DialogHeader>
+              <DialogTitle>
+                {editingId ? 'Editar Classificação' : 'Nova Classificação'}
+              </DialogTitle>
+              <DialogDescription>
+                {editingId
+                  ? 'Faça as alterações necessárias na classificação.'
+                  : 'Adicione uma nova classificação ao sistema.'}
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div className='space-y-2'>
+                  <Label htmlFor='modalidade'>Modalidade *</Label>
+                  <Input
+                    id='modalidade'
+                    {...register('modalidade')}
+                    placeholder='Ex: Futebol'
+                  />
+                  {errors.modalidade && (
+                    <p className='text-sm text-red-600'>
+                      {errors.modalidade.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className='space-y-2'>
+                  <Label htmlFor='categoria'>Categoria *</Label>
+                  <Input
+                    id='categoria'
+                    {...register('categoria')}
+                    placeholder='Ex: Masculino'
+                  />
+                  {errors.categoria && (
+                    <p className='text-sm text-red-600'>
+                      {errors.categoria.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className='space-y-2'>
+                  <Label htmlFor='posicao'>Posição *</Label>
+                  <Input
+                    id='posicao'
+                    type='number'
+                    {...register('posicao', { valueAsNumber: true })}
+                    placeholder='1'
+                  />
+                  {errors.posicao && (
+                    <p className='text-sm text-red-600'>
+                      {errors.posicao.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className='space-y-2'>
+                  <Label htmlFor='atleta'>Atleta</Label>
+                  <Input
+                    id='atleta'
+                    {...register('atleta')}
+                    placeholder='Nome do atleta (opcional)'
+                  />
+                </div>
+
+                <div className='space-y-2'>
+                  <Label htmlFor='afiliacao'>Afiliação *</Label>
+                  <Select
+                    onValueChange={(value) => setValue('afiliacao', value)}
                   >
-                    <Edit className='h-4 w-4' />
-                  </Button>
-                  <Button
-                    size='sm'
-                    variant='destructive'
-                    onClick={() => handleDelete(classificacao.id)}
-                  >
-                    <Trash2 className='h-4 w-4' />
-                  </Button>
+                    <SelectTrigger>
+                      <SelectValue placeholder='Selecione a afiliação' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='PMDF'>PMDF</SelectItem>
+                      <SelectItem value='CBMDF'>CBMDF</SelectItem>
+                      <SelectItem value='PCDF'>PCDF</SelectItem>
+                      <SelectItem value='PRF'>PRF</SelectItem>
+                      <SelectItem value='DEPEN'>DEPEN</SelectItem>
+                      <SelectItem value='SSP-DF'>SSP-DF</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.afiliacao && (
+                    <p className='text-sm text-red-600'>
+                      {errors.afiliacao.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className='space-y-2'>
+                  <Label htmlFor='pontuacao'>Pontuação *</Label>
+                  <Input
+                    id='pontuacao'
+                    type='number'
+                    {...register('pontuacao', { valueAsNumber: true })}
+                    placeholder='0'
+                  />
+                  {errors.pontuacao && (
+                    <p className='text-sm text-red-600'>
+                      {errors.pontuacao.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className='space-y-2'>
+                  <Label htmlFor='tempo'>Tempo</Label>
+                  <Input
+                    id='tempo'
+                    {...register('tempo')}
+                    placeholder='Ex: 1:23:45'
+                  />
+                </div>
+
+                <div className='space-y-2'>
+                  <Label htmlFor='distancia'>Distância</Label>
+                  <Input
+                    id='distancia'
+                    {...register('distancia')}
+                    placeholder='Ex: 100m'
+                  />
                 </div>
               </div>
-            ))}
-            {classificacoes.length === 0 && (
-              <p className='text-center text-gray-500 py-8'>
-                Nenhuma classificação cadastrada
-              </p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Dialog para Adicionar/Editar */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className='sm:max-w-[600px] max-h-[80vh] overflow-y-auto'>
-          <DialogHeader>
-            <DialogTitle>
-              {editingId ? 'Editar Classificação' : 'Nova Classificação'}
-            </DialogTitle>
-            <DialogDescription>
-              {editingId
-                ? 'Faça as alterações necessárias na classificação.'
-                : 'Adicione uma nova classificação ao sistema.'}
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              <div className='space-y-2'>
-                <Label htmlFor='modalidade'>Modalidade *</Label>
-                <Input
-                  id='modalidade'
-                  {...register('modalidade')}
-                  placeholder='Ex: Futebol'
-                />
-                {errors.modalidade && (
-                  <p className='text-sm text-red-600'>
-                    {errors.modalidade.message}
-                  </p>
-                )}
-              </div>
 
               <div className='space-y-2'>
-                <Label htmlFor='categoria'>Categoria *</Label>
-                <Input
-                  id='categoria'
-                  {...register('categoria')}
-                  placeholder='Ex: Masculino'
-                />
-                {errors.categoria && (
-                  <p className='text-sm text-red-600'>
-                    {errors.categoria.message}
-                  </p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <Label htmlFor='posicao'>Posição *</Label>
-                <Input
-                  id='posicao'
-                  type='number'
-                  {...register('posicao', { valueAsNumber: true })}
-                  placeholder='1'
-                />
-                {errors.posicao && (
-                  <p className='text-sm text-red-600'>
-                    {errors.posicao.message}
-                  </p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <Label htmlFor='atleta'>Atleta</Label>
-                <Input
-                  id='atleta'
-                  {...register('atleta')}
-                  placeholder='Nome do atleta (opcional)'
+                <Label htmlFor='observacoes'>Observações</Label>
+                <Textarea
+                  id='observacoes'
+                  {...register('observacoes')}
+                  placeholder='Observações adicionais...'
+                  rows={3}
                 />
               </div>
-
-              <div className='space-y-2'>
-                <Label htmlFor='afiliacao'>Afiliação *</Label>
-                <Select onValueChange={(value) => setValue('afiliacao', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Selecione a afiliação' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='PMDF'>PMDF</SelectItem>
-                    <SelectItem value='CBMDF'>CBMDF</SelectItem>
-                    <SelectItem value='PCDF'>PCDF</SelectItem>
-                    <SelectItem value='PRF'>PRF</SelectItem>
-                    <SelectItem value='DEPEN'>DEPEN</SelectItem>
-                    <SelectItem value='SSP-DF'>SSP-DF</SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.afiliacao && (
-                  <p className='text-sm text-red-600'>
-                    {errors.afiliacao.message}
-                  </p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <Label htmlFor='pontuacao'>Pontuação *</Label>
-                <Input
-                  id='pontuacao'
-                  type='number'
-                  {...register('pontuacao', { valueAsNumber: true })}
-                  placeholder='0'
-                />
-                {errors.pontuacao && (
-                  <p className='text-sm text-red-600'>
-                    {errors.pontuacao.message}
-                  </p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <Label htmlFor='tempo'>Tempo</Label>
-                <Input
-                  id='tempo'
-                  {...register('tempo')}
-                  placeholder='Ex: 1:23:45'
-                />
-              </div>
-
-              <div className='space-y-2'>
-                <Label htmlFor='distancia'>Distância</Label>
-                <Input
-                  id='distancia'
-                  {...register('distancia')}
-                  placeholder='Ex: 100m'
-                />
-              </div>
-            </div>
-
-            <div className='space-y-2'>
-              <Label htmlFor='observacoes'>Observações</Label>
-              <Textarea
-                id='observacoes'
-                {...register('observacoes')}
-                placeholder='Observações adicionais...'
-                rows={3}
-              />
-            </div>
-            <DialogFooter>
-              <Button type='button' variant='outline' onClick={handleCancel}>
-                Cancelar
-              </Button>
-              <Button type='submit' disabled={isSubmitting}>
-                {isSubmitting ? (
-                  <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
-                ) : (
-                  <Save className='h-4 w-4 mr-2' />
-                )}
-                {editingId ? 'Atualizar' : 'Salvar'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </div>
+              <DialogFooter>
+                <Button type='button' variant='outline' onClick={handleCancel}>
+                  Cancelar
+                </Button>
+                <Button type='submit' disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
+                  ) : (
+                    <Save className='h-4 w-4 mr-2' />
+                  )}
+                  {editingId ? 'Atualizar' : 'Salvar'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </QueryStateHandler>
   );
 }

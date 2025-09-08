@@ -37,6 +37,7 @@ import {
   Star,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import QueryStateHandler from '../ui/query-state-handler';
 
 const midiaSchema = z
   .object({
@@ -77,6 +78,7 @@ interface Midia {
 export default function GaleriaForm() {
   const [midias, setMidias] = useState<Midia[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -110,9 +112,12 @@ export default function GaleriaForm() {
       if (response.ok) {
         const data = await response.json();
         setMidias(data);
+      } else {
+        throw new Error('Erro ao carregar mídias');
       }
-    } catch {
-      toast.error('Erro ao carregar mídias');
+    } catch (err: any) {
+      setError(err);
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
@@ -227,247 +232,245 @@ export default function GaleriaForm() {
     });
   };
 
-  if (loading) {
-    return (
-      <div className='flex items-center justify-center p-8'>
-        <div className='text-center'>
-          <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4'></div>
-          <p>Carregando galeria...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className='space-y-6'>
-      <Card>
-        <CardHeader>
-          <div className='flex items-center justify-between'>
-            <CardTitle>Mídias da Galeria</CardTitle>
-            <Button onClick={handleAddNew}>
-              <Plus className='h-4 w-4 mr-2' />
-              Adicionar Mídia
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className='space-y-4'>
-            {midias.map((midia) => (
-              <div key={midia.id} className='p-4 border rounded-lg space-y-3'>
-                <div className='flex items-start justify-between'>
-                  <div className='space-y-2 flex-1'>
-                    <div className='flex items-center gap-2'>
-                      {getTipoBadge(midia.tipo)}
-                      {midia.destaque && (
-                        <Badge
-                          variant='outline'
-                          className='flex items-center gap-1'
-                        >
-                          <Star className='h-3 w-3 fill-yellow-400 text-yellow-400' />
-                          Destaque
-                        </Badge>
+    <QueryStateHandler
+      isLoading={loading}
+      isError={!!error}
+      error={error}
+      loadingMessage='Carregando galeria...'
+    >
+      <div className='space-y-6'>
+        <Card>
+          <CardHeader>
+            <div className='flex items-center justify-between'>
+              <CardTitle>Mídias da Galeria</CardTitle>
+              <Button onClick={handleAddNew}>
+                <Plus className='h-4 w-4 mr-2' />
+                Adicionar Mídia
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className='space-y-4'>
+              {midias.map((midia) => (
+                <div key={midia.id} className='p-4 border rounded-lg space-y-3'>
+                  <div className='flex items-start justify-between'>
+                    <div className='space-y-2 flex-1'>
+                      <div className='flex items-center gap-2'>
+                        {getTipoBadge(midia.tipo)}
+                        {midia.destaque && (
+                          <Badge
+                            variant='outline'
+                            className='flex items-center gap-1'
+                          >
+                            <Star className='h-3 w-3 fill-yellow-400 text-yellow-400' />
+                            Destaque
+                          </Badge>
+                        )}
+                      </div>
+
+                      {midia.titulo && (
+                        <h3 className='font-semibold'>{midia.titulo}</h3>
+                      )}
+
+                      <div className='space-y-2'>
+                        <p className='text-sm text-gray-600 break-all'>
+                          <strong>URL:</strong> {midia.url}
+                        </p>
+                        <p className='text-xs text-gray-500'>
+                          Adicionado em: {formatDate(midia.createdAt)}
+                        </p>
+                      </div>
+
+                      {/* Preview baseado no tipo */}
+                      {midia.tipo === 'foto' && (
+                        <div className='mt-3'>
+                          <Image
+                            src={midia.url}
+                            alt={midia.titulo || 'Imagem'}
+                            width={200}
+                            height={128}
+                            className='max-w-xs max-h-32 object-cover rounded border'
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display =
+                                'none';
+                            }}
+                          />
+                        </div>
+                      )}
+
+                      {midia.tipo === 'video' && (
+                        <div className='mt-3'>
+                          <video
+                            src={midia.url}
+                            className='max-w-xs max-h-32 rounded border'
+                            controls
+                            onError={(e) => {
+                              (e.target as HTMLVideoElement).style.display =
+                                'none';
+                            }}
+                          >
+                            Seu navegador não suporta vídeos.
+                          </video>
+                        </div>
+                      )}
+
+                      {midia.tipo === 'release' && (
+                        <div className='mt-3 p-3 bg-gray-50 rounded border'>
+                          <p className='text-sm text-gray-600'>
+                            <strong>Release:</strong> {midia.url}
+                          </p>
+                          <a
+                            href={midia.url}
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            className='text-blue-600 hover:text-blue-800 text-sm underline'
+                          >
+                            Abrir release
+                          </a>
+                        </div>
                       )}
                     </div>
 
-                    {midia.titulo && (
-                      <h3 className='font-semibold'>{midia.titulo}</h3>
-                    )}
-
-                    <div className='space-y-2'>
-                      <p className='text-sm text-gray-600 break-all'>
-                        <strong>URL:</strong> {midia.url}
-                      </p>
-                      <p className='text-xs text-gray-500'>
-                        Adicionado em: {formatDate(midia.createdAt)}
-                      </p>
+                    <div className='flex gap-2 ml-4'>
+                      <Button
+                        size='sm'
+                        variant='outline'
+                        onClick={() => handleEdit(midia)}
+                      >
+                        <Edit className='h-4 w-4' />
+                      </Button>
+                      <Button
+                        size='sm'
+                        variant='destructive'
+                        onClick={() => handleDelete(midia.id)}
+                      >
+                        <Trash2 className='h-4 w-4' />
+                      </Button>
                     </div>
-
-                    {/* Preview baseado no tipo */}
-                    {midia.tipo === 'foto' && (
-                      <div className='mt-3'>
-                        <Image
-                          src={midia.url}
-                          alt={midia.titulo || 'Imagem'}
-                          width={200}
-                          height={128}
-                          className='max-w-xs max-h-32 object-cover rounded border'
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display =
-                              'none';
-                          }}
-                        />
-                      </div>
-                    )}
-
-                    {midia.tipo === 'video' && (
-                      <div className='mt-3'>
-                        <video
-                          src={midia.url}
-                          className='max-w-xs max-h-32 rounded border'
-                          controls
-                          onError={(e) => {
-                            (e.target as HTMLVideoElement).style.display =
-                              'none';
-                          }}
-                        >
-                          Seu navegador não suporta vídeos.
-                        </video>
-                      </div>
-                    )}
-
-                    {midia.tipo === 'release' && (
-                      <div className='mt-3 p-3 bg-gray-50 rounded border'>
-                        <p className='text-sm text-gray-600'>
-                          <strong>Release:</strong> {midia.url}
-                        </p>
-                        <a
-                          href={midia.url}
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-blue-600 hover:text-blue-800 text-sm underline'
-                        >
-                          Abrir release
-                        </a>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className='flex gap-2 ml-4'>
-                    <Button
-                      size='sm'
-                      variant='outline'
-                      onClick={() => handleEdit(midia)}
-                    >
-                      <Edit className='h-4 w-4' />
-                    </Button>
-                    <Button
-                      size='sm'
-                      variant='destructive'
-                      onClick={() => handleDelete(midia.id)}
-                    >
-                      <Trash2 className='h-4 w-4' />
-                    </Button>
                   </div>
                 </div>
-              </div>
-            ))}
-            {midias.length === 0 && (
-              <p className='text-center text-gray-500 py-8'>
-                Nenhuma mídia cadastrada
-              </p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Dialog para Adicionar/Editar */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className='sm:max-w-[425px]'>
-          <DialogHeader>
-            <DialogTitle>
-              {editingId ? 'Editar Mídia' : 'Adicionar Mídia'}
-            </DialogTitle>
-            <DialogDescription>
-              {editingId
-                ? 'Faça as alterações necessárias na mídia.'
-                : 'Adicione uma nova mídia à galeria.'}
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
-            <div className='grid gap-4'>
-              <div className='space-y-2'>
-                <Label htmlFor='tipo'>Tipo de Mídia *</Label>
-                <Select
-                  onValueChange={(value) => setValue('tipo', value as any)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder='Selecione o tipo' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='foto'>
-                      <div className='flex items-center gap-2'>
-                        <ImageIcon className='h-4 w-4' />
-                        Foto
-                      </div>
-                    </SelectItem>
-                    <SelectItem value='video'>
-                      <div className='flex items-center gap-2'>
-                        <Video className='h-4 w-4' />
-                        Vídeo
-                      </div>
-                    </SelectItem>
-                    <SelectItem value='release'>
-                      <div className='flex items-center gap-2'>
-                        <FileText className='h-4 w-4' />
-                        Release
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.tipo && (
-                  <p className='text-sm text-red-600'>{errors.tipo.message}</p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <Label htmlFor='url'>
-                  {watch('tipo') === 'release'
-                    ? 'Texto ou URL do Release *'
-                    : 'URL *'}
-                </Label>
-                <Input
-                  id='url'
-                  {...register('url')}
-                  placeholder={
-                    watch('tipo') === 'release'
-                      ? 'Digite o release ou cole o link'
-                      : 'https://exemplo.com/imagem.jpg'
-                  }
-                />
-                {errors.url && (
-                  <p className='text-sm text-red-600'>{errors.url.message}</p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <Label htmlFor='titulo'>Título</Label>
-                <Input
-                  id='titulo'
-                  {...register('titulo')}
-                  placeholder='Título da mídia (opcional)'
-                />
-              </div>
-
-              <div className='flex items-center space-x-2'>
-                <Checkbox
-                  id='destaque'
-                  checked={watchedDestaque}
-                  onCheckedChange={(checked) =>
-                    setValue('destaque', checked as boolean)
-                  }
-                />
-                <Label htmlFor='destaque' className='flex items-center gap-2'>
-                  <Star className='h-4 w-4' />
-                  Destacar na galeria
-                </Label>
-              </div>
+              ))}
+              {midias.length === 0 && (
+                <p className='text-center text-gray-500 py-8'>
+                  Nenhuma mídia cadastrada
+                </p>
+              )}
             </div>
-            <DialogFooter>
-              <Button type='button' variant='outline' onClick={handleCancel}>
-                Cancelar
-              </Button>
-              <Button type='submit' disabled={isSubmitting}>
-                {isSubmitting ? (
-                  <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
-                ) : (
-                  <Save className='h-4 w-4 mr-2' />
-                )}
-                {editingId ? 'Atualizar' : 'Adicionar'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </div>
+          </CardContent>
+        </Card>
+
+        {/* Dialog para Adicionar/Editar */}
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className='sm:max-w-[425px]'>
+            <DialogHeader>
+              <DialogTitle>
+                {editingId ? 'Editar Mídia' : 'Adicionar Mídia'}
+              </DialogTitle>
+              <DialogDescription>
+                {editingId
+                  ? 'Faça as alterações necessárias na mídia.'
+                  : 'Adicione uma nova mídia à galeria.'}
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
+              <div className='grid gap-4'>
+                <div className='space-y-2'>
+                  <Label htmlFor='tipo'>Tipo de Mídia *</Label>
+                  <Select
+                    onValueChange={(value) => setValue('tipo', value as any)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder='Selecione o tipo' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='foto'>
+                        <div className='flex items-center gap-2'>
+                          <ImageIcon className='h-4 w-4' />
+                          Foto
+                        </div>
+                      </SelectItem>
+                      <SelectItem value='video'>
+                        <div className='flex items-center gap-2'>
+                          <Video className='h-4 w-4' />
+                          Vídeo
+                        </div>
+                      </SelectItem>
+                      <SelectItem value='release'>
+                        <div className='flex items-center gap-2'>
+                          <FileText className='h-4 w-4' />
+                          Release
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.tipo && (
+                    <p className='text-sm text-red-600'>
+                      {errors.tipo.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className='space-y-2'>
+                  <Label htmlFor='url'>
+                    {watch('tipo') === 'release'
+                      ? 'Texto ou URL do Release *'
+                      : 'URL *'}
+                  </Label>
+                  <Input
+                    id='url'
+                    {...register('url')}
+                    placeholder={
+                      watch('tipo') === 'release'
+                        ? 'Digite o release ou cole o link'
+                        : 'https://exemplo.com/imagem.jpg'
+                    }
+                  />
+                  {errors.url && (
+                    <p className='text-sm text-red-600'>{errors.url.message}</p>
+                  )}
+                </div>
+
+                <div className='space-y-2'>
+                  <Label htmlFor='titulo'>Título</Label>
+                  <Input
+                    id='titulo'
+                    {...register('titulo')}
+                    placeholder='Título da mídia (opcional)'
+                  />
+                </div>
+
+                <div className='flex items-center space-x-2'>
+                  <Checkbox
+                    id='destaque'
+                    checked={watchedDestaque}
+                    onCheckedChange={(checked) =>
+                      setValue('destaque', checked as boolean)
+                    }
+                  />
+                  <Label htmlFor='destaque' className='flex items-center gap-2'>
+                    <Star className='h-4 w-4' />
+                    Destacar na galeria
+                  </Label>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type='button' variant='outline' onClick={handleCancel}>
+                  Cancelar
+                </Button>
+                <Button type='submit' disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
+                  ) : (
+                    <Save className='h-4 w-4 mr-2' />
+                  )}
+                  {editingId ? 'Atualizar' : 'Adicionar'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </QueryStateHandler>
   );
 }
