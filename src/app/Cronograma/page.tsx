@@ -9,20 +9,15 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
   Calendar,
-  ChevronLeft,
-  ChevronRight,
   Loader2,
-  MapPin,
-  Trophy,
-  Users,
   CalendarDays,
   Timer,
   LocateIcon,
-  Award,
 } from 'lucide-react';
+import DayNavigation from '@/components/cronograma/DayNavigation';
+import EventCard from '@/components/cronograma/EventCard';
 
 interface Evento {
   id: string;
@@ -105,51 +100,6 @@ export default function Cronograma() {
   }, [eventos]);
 
   const [currentDayIndex, setCurrentDayIndex] = useState(0);
-
-  const getStatusBadge = (status: string | undefined) => {
-    switch (status) {
-      case 'finalizado':
-        return (
-          <Badge className='bg-gradient-to-r from-green-500 to-green-600 text-white border-0 px-3 py-1'>
-            <div className='w-2 h-2 bg-white rounded-full mr-2'></div>
-            Finalizado
-          </Badge>
-        );
-      case 'em_andamento':
-        return (
-          <Badge className='bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0 px-3 py-1 animate-pulse'>
-            <div className='w-2 h-2 bg-white rounded-full mr-2'></div>
-            Em Andamento
-          </Badge>
-        );
-      case 'agendado':
-        return (
-          <Badge className='bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 px-3 py-1'>
-            <div className='w-2 h-2 bg-white rounded-full mr-2'></div>
-            Agendado
-          </Badge>
-        );
-      default:
-        return (
-          <Badge variant='outline' className='border-gray-300 text-gray-600'>
-            -
-          </Badge>
-        );
-    }
-  };
-
-  const getTipoIcon = (tipo: string | undefined) => {
-    switch (tipo) {
-      case 'cerimonia':
-        return <Award className='h-5 w-5 text-yellow-500' />;
-      case 'final':
-        return <Trophy className='h-5 w-5 text-yellow-500' />;
-      case 'congresso':
-        return <Users className='h-5 w-5 text-blue-500' />;
-      default:
-        return <Calendar className='h-5 w-5 text-blue-500' />;
-    }
-  };
 
   if (isLoading)
     return (
@@ -262,115 +212,20 @@ export default function Cronograma() {
             {cronogramaDias.length > 0 ? (
               <>
                 {/* Navegação entre dias */}
-                <div className='flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0 mb-6 sm:mb-8'>
-                  <Button
-                    onClick={() => setCurrentDayIndex(currentDayIndex - 1)}
-                    disabled={currentDayIndex === 0}
-                    variant='outline'
-                    className='border-2 border-gray-200 hover:border-blue-300 transition-colors px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base w-full sm:w-auto'
-                  >
-                    <ChevronLeft className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
-                    Dia Anterior
-                  </Button>
-
-                  <div className='text-center order-first sm:order-none'>
-                    <h3 className='text-xl sm:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
-                      {cronogramaDias[currentDayIndex].titulo}
-                    </h3>
-                    <p className='text-sm sm:text-base text-gray-600 font-medium'>
-                      {cronogramaDias[currentDayIndex].data}
-                    </p>
-                  </div>
-
-                  <Button
-                    onClick={() => setCurrentDayIndex(currentDayIndex + 1)}
-                    disabled={currentDayIndex === cronogramaDias.length - 1}
-                    variant='outline'
-                    className='border-2 border-gray-200 hover:border-blue-300 transition-colors px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base w-full sm:w-auto'
-                  >
-                    Próximo Dia
-                    <ChevronRight className='h-4 w-4 sm:h-5 sm:w-5 ml-2' />
-                  </Button>
-                </div>
+                <DayNavigation
+                  title={cronogramaDias[currentDayIndex].titulo}
+                  date={cronogramaDias[currentDayIndex].data}
+                  canPrev={currentDayIndex !== 0}
+                  canNext={currentDayIndex !== cronogramaDias.length - 1}
+                  onPrev={() => setCurrentDayIndex(currentDayIndex - 1)}
+                  onNext={() => setCurrentDayIndex(currentDayIndex + 1)}
+                />
 
                 {/* Lista de eventos */}
                 <div className='space-y-4'>
                   {cronogramaDias[currentDayIndex].eventos.map(
                     (evento, index) => (
-                      <Card
-                        key={index}
-                        className='hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-r from-gray-50 to-white shadow-lg hover:shadow-blue-500/10'
-                      >
-                        <CardContent className='p-4 sm:p-6'>
-                          <div className='flex flex-col gap-4 sm:gap-6'>
-                            {/* Header do evento - horário e título */}
-                            <div className='flex items-start gap-4'>
-                              {/* Horário e ícone */}
-                              <div className='flex flex-col items-center min-w-[80px] sm:min-w-[100px]'>
-                                <div className='text-xl sm:text-2xl font-bold text-blue-600 mb-1 sm:mb-2'>
-                                  {evento.horario}
-                                </div>
-                                <div className='flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-gray-500'>
-                                  {getTipoIcon(evento.tipo)}
-                                  <span className='text-xs sm:text-sm font-medium text-center'>
-                                    {evento.modalidade}
-                                  </span>
-                                </div>
-                              </div>
-
-                              {/* Título do evento */}
-                              <div className='flex-1'>
-                                <h4 className='font-semibold text-lg sm:text-xl mb-2 sm:mb-3 text-gray-800'>
-                                  {evento.atividade}
-                                </h4>
-                              </div>
-                            </div>
-
-                            {/* Detalhes do evento */}
-                            <div className='space-y-2 sm:space-y-3'>
-                              <div className='flex items-center gap-2 text-gray-600'>
-                                <MapPin className='h-4 w-4 text-blue-500 flex-shrink-0' />
-                                <span className='font-medium text-sm sm:text-base'>
-                                  {evento.local}
-                                </span>
-                              </div>
-
-                              <div className='flex items-center gap-2 text-gray-600'>
-                                <Users className='h-4 w-4 text-green-500 flex-shrink-0' />
-                                <span className='text-sm sm:text-base'>
-                                  {evento.participantes}
-                                </span>
-                              </div>
-
-                              {evento.resultado && (
-                                <div className='flex items-center gap-2 text-green-600 font-semibold'>
-                                  <Trophy className='h-4 w-4 flex-shrink-0' />
-                                  <span className='text-sm sm:text-base'>
-                                    🏆 {evento.resultado}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Status e ações */}
-                            <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 pt-2 border-t border-gray-200'>
-                              <div className='flex-shrink-0'>
-                                {getStatusBadge(evento.status)}
-                              </div>
-
-                              {evento.tipo === 'congresso' && (
-                                <Button
-                                  variant='outline'
-                                  size='sm'
-                                  className='border-2 border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors text-xs sm:text-sm'
-                                >
-                                  Ver Pauta
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                      <EventCard key={index} evento={evento} />
                     ),
                   )}
                 </div>

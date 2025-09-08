@@ -19,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   Calendar,
   Users,
@@ -30,6 +29,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import CountdownTimer from '@/components/ui/CountdownTimer';
+import ModalidadesSelector from '@/components/inscricoes/ModalidadesSelector';
 import { useState } from 'react';
 
 const inscricaoSchema = z.object({
@@ -406,39 +406,13 @@ export default function Inscricoes() {
                   Selecione as modalidades que deseja participar:
                 </p>
 
-                <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
-                  {modalidadesOptions.map((modalidade) => (
-                    <div
-                      key={modalidade}
-                      className='flex items-center space-x-3 p-3 rounded-lg border-2 border-gray-200 hover:border-blue-300 transition-colors cursor-pointer group'
-                    >
-                      <Checkbox
-                        id={modalidade}
-                        checked={
-                          watchedModalidades?.includes(modalidade) || false
-                        }
-                        onCheckedChange={(checked) => {
-                          const currentModalidades = watchedModalidades || [];
-                          const newModalidades = checked
-                            ? [...currentModalidades, modalidade]
-                            : currentModalidades.filter(
-                                (m) => m !== modalidade,
-                              );
-                          setValue('modalidades', newModalidades, {
-                            shouldValidate: true,
-                          });
-                        }}
-                        className='border-2 border-gray-300 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500'
-                      />
-                      <Label
-                        htmlFor={modalidade}
-                        className='text-sm font-medium text-gray-700 cursor-pointer group-hover:text-blue-600 transition-colors'
-                      >
-                        {modalidade}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
+                <ModalidadesSelector
+                  options={modalidadesOptions}
+                  selected={watchedModalidades || []}
+                  onChange={(newValues) =>
+                    setValue('modalidades', newValues, { shouldValidate: true })
+                  }
+                />
 
                 {errors.modalidades && (
                   <div className='flex items-center gap-2 text-red-500 text-sm mt-2'>

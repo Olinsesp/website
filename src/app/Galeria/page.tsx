@@ -12,15 +12,16 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Camera,
-  Eye,
   Loader2,
   ImageIcon,
   PlayCircle,
   FileTextIcon,
-  Download,
-  Share2,
 } from 'lucide-react';
-import Image, { StaticImageData } from 'next/image';
+import { StaticImageData } from 'next/image';
+import PhotoCard from '@/components/galeria/PhotoCard';
+import VideoCard from '@/components/galeria/VideoCard';
+import ReleaseCard from '@/components/galeria/ReleaseCard';
+import ImageModal from '@/components/galeria/ImageModal';
 
 interface Midia {
   id: string;
@@ -118,7 +119,9 @@ export default function Galeria() {
               <h3 className='text-xl sm:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
                 {fotos.length}+
               </h3>
-              <p className='text-sm sm:text-base text-gray-600'>Fotos Exclusivas</p>
+              <p className='text-sm sm:text-base text-gray-600'>
+                Fotos Exclusivas
+              </p>
             </CardContent>
           </Card>
 
@@ -195,177 +198,41 @@ export default function Galeria() {
               </TabsList>
 
               {/* Fotos */}
-              <TabsContent value='fotos' className='space-y-6 sm:space-y-8 mt-6 sm:mt-8'>
+              <TabsContent
+                value='fotos'
+                className='space-y-6 sm:space-y-8 mt-6 sm:mt-8'
+              >
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8'>
                   {fotos.map((foto) => (
-                    <Card
+                    <PhotoCard
                       key={foto.id}
-                      className='group cursor-pointer hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-0 shadow-lg overflow-hidden'
-                    >
-                      <div className='relative overflow-hidden'>
-                        <Image
-                          width={500}
-                          height={300}
-                          src={foto.url}
-                          alt={foto.titulo || 'Foto do evento'}
-                          className='w-full h-48 sm:h-56 object-cover group-hover:scale-110 transition-transform duration-500'
-                          onClick={() => setSelectedImage(foto.url)}
-                        />
-                        <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-3 sm:pb-4'>
-                          <Button
-                            variant='secondary'
-                            size='sm'
-                            onClick={() => setSelectedImage(foto.url)}
-                            className='bg-white/90 text-gray-800 hover:bg-white border-0 shadow-lg text-xs sm:text-sm'
-                          >
-                            <Eye className='h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2' />
-                            Ver Ampliada
-                          </Button>
-                        </div>
-
-                        {foto.destaque && (
-                          <div className='absolute top-2 right-2 sm:top-3 sm:right-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium'>
-                            ⭐ Destaque
-                          </div>
-                        )}
-                      </div>
-
-                      <CardContent className='p-4 sm:p-6'>
-                        <h4 className='font-semibold text-base sm:text-lg mb-2 sm:mb-3 text-gray-800'>
-                          {foto.titulo || 'Foto do Evento'}
-                        </h4>
-                        <div className='flex justify-between items-center text-xs sm:text-sm text-gray-500'>
-                          <span>
-                            {new Date(foto.createdAt).toLocaleDateString(
-                              'pt-BR',
-                            )}
-                          </span>
-                          <div className='flex gap-1 sm:gap-2'>
-                            <Button
-                              variant='ghost'
-                              size='sm'
-                              className='h-6 w-6 sm:h-8 sm:w-8 p-0 hover:bg-gray-100'
-                            >
-                              <Download className='h-3 w-3 sm:h-4 sm:w-4' />
-                            </Button>
-                            <Button
-                              variant='ghost'
-                              size='sm'
-                              className='h-6 w-6 sm:h-8 sm:w-8 p-0 hover:bg-gray-100'
-                            >
-                              <Share2 className='h-3 w-3 sm:h-4 sm:w-4' />
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                      foto={foto as any}
+                      onPreview={(src) => setSelectedImage(src)}
+                    />
                   ))}
                 </div>
               </TabsContent>
 
               {/* Vídeos */}
-              <TabsContent value='videos' className='space-y-6 sm:space-y-8 mt-6 sm:mt-8'>
+              <TabsContent
+                value='videos'
+                className='space-y-6 sm:space-y-8 mt-6 sm:mt-8'
+              >
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8'>
                   {videos.map((video) => (
-                    <Card
-                      key={video.id}
-                      className='hover:shadow-2xl transition-all duration-500 border-0 shadow-lg overflow-hidden'
-                    >
-                      <div className='relative overflow-hidden'>
-                        <video
-                          controls
-                          className='w-full h-48 sm:h-56 object-cover'
-                          src={video.url}
-                        />
-                        {video.destaque && (
-                          <div className='absolute top-2 right-2 sm:top-3 sm:right-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium'>
-                            ⭐ Destaque
-                          </div>
-                        )}
-                      </div>
-                      <CardContent className='p-4 sm:p-6'>
-                        <h4 className='font-semibold text-base sm:text-lg mb-2 sm:mb-3 text-gray-800'>
-                          {video.titulo || 'Vídeo do Evento'}
-                        </h4>
-                        <div className='flex justify-between items-center text-xs sm:text-sm text-gray-500'>
-                          <span>
-                            {new Date(video.createdAt).toLocaleDateString(
-                              'pt-BR',
-                            )}
-                          </span>
-                          <Button
-                            variant='ghost'
-                            size='sm'
-                            className='h-6 w-6 sm:h-8 sm:w-8 p-0 hover:bg-gray-100'
-                          >
-                            <Share2 className='h-3 w-3 sm:h-4 sm:w-4' />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <VideoCard key={video.id} video={video as any} />
                   ))}
                 </div>
               </TabsContent>
 
               {/* Releases */}
-              <TabsContent value='releases' className='space-y-6 sm:space-y-8 mt-6 sm:mt-8'>
+              <TabsContent
+                value='releases'
+                className='space-y-6 sm:space-y-8 mt-6 sm:mt-8'
+              >
                 <div className='space-y-4 sm:space-y-6'>
                   {releases.map((release) => (
-                    <Card
-                      key={release.id}
-                      className='hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-r from-gray-50 to-white shadow-lg'
-                    >
-                      <CardContent className='p-4 sm:p-6 lg:p-8'>
-                        <div className='flex flex-col sm:flex-row items-start justify-between gap-4 sm:gap-6'>
-                          <div className='flex-1'>
-                            <h4 className='text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-gray-800 hover:text-blue-600 cursor-pointer transition-colors'>
-                              {release.titulo}
-                            </h4>
-                            <p className='text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 leading-relaxed'>
-                              {release.url}
-                            </p>
-                            <div className='flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500'>
-                              <span>
-                                Publicado em:{' '}
-                                {new Date(release.createdAt).toLocaleDateString(
-                                  'pt-BR',
-                                )}
-                              </span>
-                              {release.destaque && (
-                                <span className='bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium'>
-                                  ⭐ Destaque
-                                </span>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className='flex flex-col sm:flex-row gap-2 w-full sm:w-auto mt-4 sm:mt-0'>
-                            <Button
-                              asChild
-                              variant='outline'
-                              size='sm'
-                              className='border-2 border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors text-xs sm:text-sm w-full sm:w-auto'
-                            >
-                              <a
-                                href={release.url}
-                                target='_blank'
-                                rel='noopener noreferrer'
-                              >
-                                <FileTextIcon className='h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2' />
-                                Ler Mais
-                              </a>
-                            </Button>
-                            <Button
-                              variant='ghost'
-                              size='sm'
-                              className='h-8 w-8 sm:h-10 sm:w-10 p-0 hover:bg-gray-100'
-                            >
-                              <Share2 className='h-3 w-3 sm:h-4 sm:w-4' />
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <ReleaseCard key={release.id} release={release as any} />
                   ))}
                 </div>
               </TabsContent>
@@ -375,28 +242,10 @@ export default function Galeria() {
 
         {/* Modal para imagem ampliada */}
         {selectedImage && (
-          <div
-            className='fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-2 sm:p-4'
-            onClick={() => setSelectedImage(null)}
-          >
-            <div className='relative max-w-4xl max-h-full'>
-              <Image
-                width={1200}
-                height={800}
-                src={selectedImage}
-                alt='Imagem ampliada'
-                className='max-w-full max-h-full object-contain rounded-lg'
-              />
-              <Button
-                variant='secondary'
-                size='sm'
-                className='absolute top-2 right-2 sm:top-4 sm:right-4 bg-white/90 text-gray-800 hover:bg-white border-0 text-sm sm:text-base'
-                onClick={() => setSelectedImage(null)}
-              >
-                ✕
-              </Button>
-            </div>
-          </div>
+          <ImageModal
+            src={selectedImage}
+            onClose={() => setSelectedImage(null)}
+          />
         )}
       </div>
     </div>

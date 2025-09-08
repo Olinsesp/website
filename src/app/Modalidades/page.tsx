@@ -2,7 +2,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
   Trophy,
   Users,
@@ -13,12 +12,12 @@ import {
   Clock,
   Award,
   Star,
-  Zap,
-  Shield,
-  Activity,
   TrendingUp,
   Info,
 } from 'lucide-react';
+import StatusBadge from '@/components/modalidades/StatusBadge';
+import CategoryIcon from '@/components/modalidades/CategoryIcon';
+import getCategoryGradient from '@/components/modalidades/CategoryColor';
 
 interface Modalidade {
   id: string;
@@ -58,75 +57,6 @@ export default function Modalidades() {
     queryKey: ['modalidades'],
     queryFn: fetchModalidades,
   });
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'inscricoes-abertas':
-        return (
-          <Badge className='bg-gradient-to-r from-green-500 to-green-600 text-white border-0 px-3 py-1 animate-pulse'>
-            <div className='w-2 h-2 bg-white rounded-full mr-2'></div>
-            Inscrições Abertas
-          </Badge>
-        );
-      case 'inscricoes-fechadas':
-        return (
-          <Badge className='bg-gradient-to-r from-red-500 to-red-600 text-white border-0 px-3 py-1'>
-            <div className='w-2 h-2 bg-white rounded-full mr-2'></div>
-            Inscrições Fechadas
-          </Badge>
-        );
-      case 'em-andamento':
-        return (
-          <Badge className='bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0 px-3 py-1 animate-pulse'>
-            <div className='w-2 h-2 bg-white rounded-full mr-2'></div>
-            Em Andamento
-          </Badge>
-        );
-      case 'finalizada':
-        return (
-          <Badge className='bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 px-3 py-1'>
-            <div className='w-2 h-2 bg-white rounded-full mr-2'></div>
-            Finalizada
-          </Badge>
-        );
-      default:
-        return (
-          <Badge variant='outline' className='border-gray-300 text-gray-600'>
-            -
-          </Badge>
-        );
-    }
-  };
-
-  const getCategoriaIcon = (categoria?: string) => {
-    switch (categoria?.toLowerCase()) {
-      case 'coletiva':
-        return <Users className='h-5 w-5 text-blue-500' />;
-      case 'individual':
-        return <Target className='h-5 w-5 text-green-500' />;
-      case 'equipe':
-        return <Shield className='h-5 w-5 text-purple-500' />;
-      case 'resistência':
-        return <Zap className='h-5 w-5 text-orange-500' />;
-      default:
-        return <Activity className='h-5 w-5 text-gray-500' />;
-    }
-  };
-
-  const getCategoriaColor = (categoria?: string) => {
-    switch (categoria?.toLowerCase()) {
-      case 'coletiva':
-        return 'from-blue-500 to-blue-600';
-      case 'individual':
-        return 'from-green-500 to-green-600';
-      case 'equipe':
-        return 'from-purple-500 to-purple-600';
-      case 'resistência':
-        return 'from-orange-500 to-orange-600';
-      default:
-        return 'from-gray-500 to-gray-600';
-    }
-  };
 
   if (isLoading)
     return (
@@ -255,9 +185,9 @@ export default function Modalidades() {
                   <div className='flex items-start gap-4 sm:gap-6'>
                     {/* Ícone da Categoria */}
                     <div
-                      className={`h-16 w-16 sm:h-20 sm:w-20 bg-gradient-to-br ${getCategoriaColor(modalidade.categoria)} rounded-2xl flex items-center justify-center flex-shrink-0`}
+                      className={`h-16 w-16 sm:h-20 sm:w-20 bg-gradient-to-br ${getCategoryGradient(modalidade.categoria)} rounded-2xl flex items-center justify-center flex-shrink-0`}
                     >
-                      {getCategoriaIcon(modalidade.categoria)}
+                      <CategoryIcon categoria={modalidade.categoria} />
                       <div className='h-10 w-10 sm:h-12 sm:w-12 text-white' />
                     </div>
 
@@ -267,7 +197,7 @@ export default function Modalidades() {
                         <h2 className='text-2xl sm:text-3xl font-bold text-gray-800'>
                           {modalidade.nome}
                         </h2>
-                        {getStatusBadge(modalidade.status)}
+                        <StatusBadge status={modalidade.status} />
                       </div>
 
                       <p className='text-base sm:text-lg text-gray-600 mb-3 sm:mb-4 leading-relaxed'>
