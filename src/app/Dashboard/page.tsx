@@ -37,6 +37,7 @@ import GaleriaForm from '@/components/admin/GaleriaForm';
 import CronogramaForm from '@/components/admin/CronogramaForm';
 import InscricoesForm from '@/components/admin/InscricoesForm';
 import QueryStateHandler from '@/components/ui/query-state-handler';
+import ConfirmacaoForm from '@/components/admin/ConfirmacaoForm';
 
 export default function DashboardPage() {
   const [afiliacao, setAfiliacao] = useState<string | null>(null);
@@ -116,6 +117,8 @@ export default function DashboardPage() {
         return <CronogramaForm />;
       case 'inscrições':
         return <InscricoesForm />;
+      case 'confirmação':
+        return <ConfirmacaoForm />;
       default:
         return (
           <div className='flex flex-1 flex-col gap-4 p-4 pt-0'>

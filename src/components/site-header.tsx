@@ -27,6 +27,7 @@ export function SiteHeader({ activeTab = 'dashboard' }: SiteHeaderProps) {
       galeria: 'Galeria',
       cronograma: 'Cronograma',
       inscrições: 'Inscrições',
+      confirmação: 'Confirmação',
     };
     return titles[tab] || 'Dashboard';
   };

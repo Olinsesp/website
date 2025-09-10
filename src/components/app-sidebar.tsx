@@ -8,6 +8,7 @@ import {
   Settings,
   Trophy,
   Users,
+  CheckCircle,
 } from 'lucide-react';
 
 import {
@@ -114,6 +115,11 @@ const data = {
           url: '#',
         },
       ],
+    },
+    {
+      title: 'Confirmação',
+      url: '#',
+      icon: CheckCircle,
     },
   ],
 };
