@@ -21,7 +21,7 @@ export const staticCronograma = [
     inicio: new Date('2026-12-15T11:00:00').toISOString(),
     fim: new Date('2026-12-15T12:30:00').toISOString(),
     detalhes: 'Quadra 2',
-    modalidade: 'Voleibol',
+    modalidade: 'Vôlei de Quadra',
   },
   {
     id: '4',
@@ -45,7 +45,7 @@ export const staticCronograma = [
     inicio: new Date('2026-12-17T15:00:00').toISOString(),
     fim: new Date('2026-12-17T16:30:00').toISOString(),
     detalhes: 'Ginásio Principal',
-    modalidade: 'Basquete',
+    modalidade: 'Basquetebol',
   },
   {
     id: '7',

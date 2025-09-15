@@ -46,6 +46,7 @@ const inscricaoSchema = z.object({
   dataNascimento: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: 'Data de nascimento inválida',
   }),
+  sexo: z.string().nonempty('Selecione o sexo.'),
   camiseta: z.string().nonempty('Selecione um tamanho de camiseta.'),
   matricula: z
     .string()
@@ -74,18 +75,23 @@ export default function Inscricoes() {
     },
   });
   const modalidadesOptions = [
-    'Futebol',
-    'Basquete',
-    'Vôlei',
-    'Tênis',
+    'Futsal',
+    'Futebol de Campo',
+    'Basquetebol',
+    'Vôlei de Quadra',
+    'Vôlei de Praia',
+    'Futevôlei',
+    'Beach Tênis',
     'Atletismo',
     'Natação',
-    'Futsal',
-    'Handebol',
     'Tênis de Mesa',
-    'Jiu-jitsu',
-    'Ciclismo',
-    'Corrida',
+    'Triathlon',
+    'Calistenia',
+    'Jiu Jitsu',
+    'Judô',
+    'Cabo de Guerra',
+    'Truco',
+    'Dominó',
     'Xadrez',
   ];
 
@@ -296,7 +302,7 @@ export default function Inscricoes() {
                     <Input
                       id='cpf'
                       {...register('cpf')}
-                      placeholder='000.000.000-00'
+                      placeholder='12345678901'
                       className='border-2 border-gray-200 focus:border-blue-500 transition-colors h-12'
                     />
                     {errors.cpf && (
@@ -329,7 +335,7 @@ export default function Inscricoes() {
                   </div>
                 </div>
 
-                <div className='grid md:grid-cols-3 gap-6'>
+                <div className='grid md:grid-cols-4 gap-6'>
                   <div className='space-y-2'>
                     <Label
                       htmlFor='camiseta'
@@ -357,6 +363,27 @@ export default function Inscricoes() {
                       <div className='flex items-center gap-2 text-red-500 text-sm mt-1'>
                         <AlertCircle className='h-4 w-4' />
                         {errors.camiseta.message}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className='space-y-2'>
+                    <Label htmlFor='sexo' className='text-gray-700 font-medium'>
+                      Sexo *
+                    </Label>
+                    <Select onValueChange={(value) => setValue('sexo', value)}>
+                      <SelectTrigger className='border-2 border-gray-200 focus:border-blue-500 transition-colors h-12'>
+                        <SelectValue placeholder='Selecione o sexo' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value='m'>Masculino</SelectItem>
+                        <SelectItem value='f'>Feminino</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.sexo && (
+                      <div className='flex items-center gap-2 text-red-500 text-sm mt-1'>
+                        <AlertCircle className='h-4 w-4' />
+                        {errors.sexo.message}
                       </div>
                     )}
                   </div>

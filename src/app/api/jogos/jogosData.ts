@@ -8,14 +8,14 @@ export const staticJogos = [
   },
   {
     id: '2',
-    modalidade: 'Voleibol',
+    modalidade: 'Vôlei de Quadra',
     data: new Date('2026-12-15T11:00:00').toISOString(),
     horario: '11:00',
     resultado: 'Equipe C 3 vs 2 Equipe D',
   },
   {
     id: '3',
-    modalidade: 'Basquete',
+    modalidade: 'Basquetebol',
     data: new Date('2026-12-17T15:00:00').toISOString(),
     horario: '15:00',
     resultado: 'Equipe E 88 vs 85 Equipe F',

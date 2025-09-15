@@ -74,12 +74,10 @@ export function generatePDF(
       headStyles: { fillColor: [41, 128, 185], textColor: 255 },
     });
   } else if (type === 'confirmacao') {
-    // Relatório de confirmação de presença por evento
     const title = options?.title ?? 'Relatório de Confirmação';
     doc.setFontSize(18);
     doc.text(title, 14, 20);
 
-    // Exibe informações do evento logo abaixo do título
     let y = 28;
     if (options?.eventInfoLines && options.eventInfoLines.length > 0) {
       doc.setFontSize(12);

@@ -143,7 +143,6 @@ export default function ConfirmacaoForm() {
       else set.add(cpf);
       return { ...prev, [eventoSelecionadoId]: set };
     });
-    // Remove da lista de ausentes se estiver presente
     setAusentesPorEvento((prev) => {
       const set = new Set(prev[eventoSelecionadoId] ?? new Set<string>());
       set.delete(cpf);
@@ -158,7 +157,6 @@ export default function ConfirmacaoForm() {
       else set.add(cpf);
       return { ...prev, [eventoSelecionadoId]: set };
     });
-    // Remove da lista de confirmados se estiver ausente
     setConfirmadosPorEvento((prev) => {
       const set = new Set(prev[eventoSelecionadoId] ?? new Set<string>());
       set.delete(cpf);

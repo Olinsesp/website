@@ -1,7 +1,7 @@
 export const classificacoes = [
   {
     id: '1',
-    modalidade: 'Futsal Masculino',
+    modalidade: 'Futsal',
     categoria: 'Adulto',
     posicao: 1,
     afiliacao: 'PMDF',
@@ -10,7 +10,7 @@ export const classificacoes = [
   },
   {
     id: '2',
-    modalidade: 'Futsal Masculino',
+    modalidade: 'Futsal',
     categoria: 'Adulto',
     posicao: 2,
     afiliacao: 'CBMDF',
@@ -19,7 +19,7 @@ export const classificacoes = [
   },
   {
     id: '3',
-    modalidade: 'Futsal Masculino',
+    modalidade: 'Futsal',
     categoria: 'Adulto',
     posicao: 3,
     afiliacao: 'PCDF',
@@ -28,7 +28,7 @@ export const classificacoes = [
   },
   {
     id: '4',
-    modalidade: 'Vôlei Feminino',
+    modalidade: 'Vôlei de Quadra',
     categoria: 'Adulto',
     posicao: 1,
     afiliacao: 'PMDF',
@@ -37,7 +37,7 @@ export const classificacoes = [
   },
   {
     id: '5',
-    modalidade: 'Vôlei Feminino',
+    modalidade: 'Vôlei de Quadra',
     categoria: 'Adulto',
     posicao: 2,
     afiliacao: 'CBMDF',
@@ -46,7 +46,7 @@ export const classificacoes = [
   },
   {
     id: '6',
-    modalidade: 'Basquete Masculino',
+    modalidade: 'Basquetebol',
     categoria: 'Adulto',
     posicao: 1,
     afiliacao: 'PMDF',
@@ -55,7 +55,7 @@ export const classificacoes = [
   },
   {
     id: '7',
-    modalidade: 'Basquete Masculino',
+    modalidade: 'Basquetebol',
     categoria: 'Adulto',
     posicao: 2,
     afiliacao: 'PCDF',

@@ -121,7 +121,6 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - Filtro por data
   - Filtro por modalidade
   - Filtro por tipo de evento
-  - Busca por texto livre
   - Ordenação por data/hora
 
 ### 2.3 Sistema de Classificações (RF-016 a RF-020)
