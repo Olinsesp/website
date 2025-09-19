@@ -18,6 +18,7 @@ import StatusBadge from '@/components/modalidades/StatusBadge';
 import CategoryIcon from '@/components/modalidades/CategoryIcon';
 import getCategoryGradient from '@/components/modalidades/CategoryColor';
 import QueryStateHandler from '@/components/ui/query-state-handler';
+import Image from 'next/image';
 
 interface Modalidade {
   id: string;
@@ -314,6 +315,13 @@ export default function Modalidades() {
           {/* Call to Action */}
           <Card className='mt-12 sm:mt-16 bg-gradient-to-r from-blue-600 to-orange-500 text-white border-0 shadow-2xl'>
             <CardContent className='p-6 sm:p-8 lg:p-12 text-center'>
+              <Image
+                src={'/LOGO_OLINSESP.png'}
+                alt='Logo'
+                width={250}
+                height={250}
+                className='mx-auto mb-4'
+              />
               <h2 className='text-2xl sm:text-3xl font-bold mb-3 sm:mb-4'>
                 Pronto para a Competição?
               </h2>

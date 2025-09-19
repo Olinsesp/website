@@ -42,14 +42,14 @@ export default function CountdownTimer() {
 
   return (
     <div className='text-center bg-gradient-to-r from-blue-500 to-orange-500 p-6 rounded-lg shadow-lg'>
-      <h3 className='text-lg font-semibold mb-4'>O evento começa em:</h3>
+      <h3 className='text-lg font-semibold mb-4'>As inscrições abrem em:</h3>
       <div className='grid grid-cols-4 gap-2 max-w-md mx-auto'>
         {timeUnits.map((unit) => (
           <Card key={unit.label} className='p-3 bg-gradient-card shadow-card'>
-            <div className='text-2xl font-bold'>
+            <div className='text-2xl text-zinc-600 font-bold'>
               {unit.value.toString().padStart(2, '0')}
             </div>
-            <div className='text-xs uppercase text-gray-800'>{unit.label}</div>
+            <div className='text-xs uppercase text-zinc-600'>{unit.label}</div>
           </Card>
         ))}
       </div>

@@ -34,10 +34,12 @@ export default function Navbar() {
       <div className='container mx-auto px-4'>
         <div className='flex items-center justify-between h-16'>
           <Link href='/' className='flex items-center space-x-2 '>
-            <Image src='/LOGO SSPDF.png' alt='Logo' width={40} height={40} />
-            <span className='text-xl font-bold bg-gradient-to-r from-blue-500 to-orange-500 bg-clip-text text-transparent'>
-              Olinsesp VIII
-            </span>
+            <Image
+              src='/LOGO_OLINSESP.png'
+              alt='Logo'
+              width={165}
+              height={165}
+            />
           </Link>
           <div className='hidden md:flex space-x-2'>
             {navItems.map((item) => {
@@ -53,7 +55,7 @@ export default function Navbar() {
                   <Button
                     variant={isActive ? 'default' : 'secondary'}
                     size='sm'
-                    className={`flex items-center space-x-2 cursor-pointer hover:bg-orange-500 hover:text-white transition-colors`}
+                    className={`flex items-center space-x-2 cursor-pointer hover:bg-blue-500 hover:text-white transition-colors`}
                   >
                     <Icon className='h-4 w-4' />
                     <span>{item.name}</span>
