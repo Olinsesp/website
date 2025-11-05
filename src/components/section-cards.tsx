@@ -47,7 +47,7 @@ export function SectionCards({
         <CardContent>
           <div className='text-2xl font-bold'>{modalidadesCount}</div>
           <CardDescription className='text-xs text-muted-foreground'>
-            Categorias disponíveis
+            Quantidade de modalidades com inscrições
           </CardDescription>
         </CardContent>
       </Card>

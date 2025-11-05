@@ -176,7 +176,7 @@ export default function Inscricoes() {
               <h3 className='text-xl font-semibold text-gray-800 mb-3'>
                 Período de Inscrições
               </h3>
-              <p className='text-gray-600'>01/11/2026 - 30/11/2026</p>
+              <p className='text-gray-600'>22/12/2025 - 06/02/2026</p>
             </CardContent>
           </Card>
 

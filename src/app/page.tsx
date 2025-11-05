@@ -96,12 +96,12 @@ export default function Home() {
     },
     {
       Icon: MapPin,
-      titulo: 'Local',
+      titulo: 'Local de abertura',
       conteudo: (
         <>
-          Centro Esportivo Municipal
+          Centro Esportivo
           <br />
-          Rua dos Esportes, 123
+          Não informado
         </>
       ),
     },

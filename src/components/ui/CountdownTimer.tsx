@@ -9,9 +9,10 @@ export default function CountdownTimer() {
     minutes: number;
     seconds: number;
   }>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
-    const targetDate = new Date('2026-02-15T09:00:00');
+    const targetDate = new Date('2025-12-22T09:00:00');
     const timer = setInterval(() => {
       const now = new Date().getTime();
       const distance = targetDate.getTime() - now;
@@ -26,6 +27,7 @@ export default function CountdownTimer() {
           seconds: Math.floor((distance % (1000 * 60)) / 1000),
         });
       } else {
+        setIsExpired(true);
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
       }
     }, 1000);
@@ -42,17 +44,32 @@ export default function CountdownTimer() {
 
   return (
     <div className='text-center bg-gradient-to-r from-blue-500 to-orange-500 p-6 rounded-lg shadow-lg'>
-      <h3 className='text-lg font-semibold mb-4'>As inscrições abrem em:</h3>
-      <div className='grid grid-cols-4 gap-2 max-w-md mx-auto'>
-        {timeUnits.map((unit) => (
-          <Card key={unit.label} className='p-3 bg-gradient-card shadow-card'>
-            <div className='text-2xl text-zinc-600 font-bold'>
-              {unit.value.toString().padStart(2, '0')}
-            </div>
-            <div className='text-xs uppercase text-zinc-600'>{unit.label}</div>
-          </Card>
-        ))}
-      </div>
+      {!isExpired ? (
+        <>
+          <h3 className='text-lg font-semibold mb-4'>
+            As inscrições abrem em:
+          </h3>
+          <div className='grid grid-cols-4 gap-2 max-w-md mx-auto'>
+            {timeUnits.map((unit) => (
+              <Card
+                key={unit.label}
+                className='p-3 bg-gradient-card shadow-card'
+              >
+                <div className='text-2xl text-zinc-600 font-bold'>
+                  {unit.value.toString().padStart(2, '0')}
+                </div>
+                <div className='text-xs uppercase text-zinc-600'>
+                  {unit.label}
+                </div>
+              </Card>
+            ))}
+          </div>
+        </>
+      ) : (
+        <h3 className='text-2xl font-bold text-white animate-pulse'>
+          🥳 Inscrições Abertas 🎉
+        </h3>
+      )}
     </div>
   );
 }
