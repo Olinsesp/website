@@ -9,7 +9,9 @@ import {
   Trophy,
   Users,
   CheckCircle,
+  LogOut,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import {
   Sidebar,
@@ -134,6 +136,13 @@ export function AppSidebar({
   onTabChange,
   ...props
 }: AppSidebarProps) {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/login');
+  };
+
   return (
     <Sidebar variant='inset' {...props}>
       <SidebarHeader>
@@ -170,18 +179,9 @@ export function AppSidebar({
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size='lg' asChild>
-              <a href='#'>
-                <div className='flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground'>
-                  <div className='size-4 rounded-full bg-gradient-to-r from-blue-500 to-orange-500' />
-                </div>
-                <div className='grid flex-1 text-left text-sm leading-tight'>
-                  <span className='truncate font-semibold'>
-                    {data.user.name}
-                  </span>
-                  <span className='truncate text-xs'>{data.user.email}</span>
-                </div>
-              </a>
+            <SidebarMenuButton onClick={handleLogout}>
+              <LogOut />
+              <span>Sair</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
