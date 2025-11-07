@@ -18,10 +18,9 @@ interface SiteHeaderProps {
   activeTab?: string;
 }
 
-export function SiteHeader({ activeTab = 'dashboard' }: SiteHeaderProps) {
+export function SiteHeader({ activeTab }: SiteHeaderProps) {
   const getBreadcrumbTitle = (tab: string) => {
     const titles: Record<string, string> = {
-      dashboard: 'Dashboard',
       classificações: 'Classificações',
       modalidades: 'Modalidades',
       galeria: 'Galeria',
@@ -29,7 +28,7 @@ export function SiteHeader({ activeTab = 'dashboard' }: SiteHeaderProps) {
       inscrições: 'Inscrições',
       confirmação: 'Confirmação',
     };
-    return titles[tab] || 'Dashboard';
+    return titles[tab];
   };
 
   return (
@@ -44,7 +43,9 @@ export function SiteHeader({ activeTab = 'dashboard' }: SiteHeaderProps) {
             </BreadcrumbItem>
             <BreadcrumbSeparator className='hidden md:block' />
             <BreadcrumbItem>
-              <BreadcrumbPage>{getBreadcrumbTitle(activeTab)}</BreadcrumbPage>
+              <BreadcrumbPage>
+                {getBreadcrumbTitle(activeTab ?? '')}
+              </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

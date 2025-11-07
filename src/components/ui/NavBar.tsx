@@ -8,7 +8,6 @@ import {
   Menu,
   X,
   Trophy,
-  LayoutDashboard,
   Home,
 } from 'lucide-react';
 import Image from 'next/image';
@@ -26,7 +25,6 @@ export default function Navbar() {
     { name: 'Galeria', path: '/Galeria', icon: Camera },
     { name: 'Classificações', path: '/Classificacoes', icon: FileText },
     { name: 'Modalidades', path: '/Modalidades', icon: Trophy },
-    { name: 'Dashboard', path: '/Dashboard', icon: LayoutDashboard },
   ];
 
   return (
