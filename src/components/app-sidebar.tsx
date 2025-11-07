@@ -180,8 +180,10 @@ export function AppSidebar({
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={handleLogout}>
-              <LogOut />
-              <span>Sair</span>
+              <div className='flex flex-row gap-2 p-2 bg-red-500 rounded-md cursor-pointer hover:bg-red-600'>
+                <LogOut className='text-white' size={20} />
+                <span className='text-white'>Sair</span>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
