@@ -19,10 +19,12 @@ export default function LoginPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ username, password }),
       });
 
       if (response.ok) {
+        router.refresh();
         router.push('/Dashboard');
       } else {
         const data = await response.json();
