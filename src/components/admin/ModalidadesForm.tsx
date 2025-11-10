@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -29,6 +29,13 @@ import { Trash2, Edit, Plus, Save, MapPin, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import QueryStateHandler from '../ui/query-state-handler';
 
+const campoExtraSchema = z.object({
+  id: z.string().min(1, 'ID do campo é obrigatório'),
+  label: z.string().min(1, 'Label do campo é obrigatório'),
+  type: z.enum(['text', 'select']),
+  options: z.array(z.string()).optional(),
+});
+
 const modalidadeSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório'),
   descricao: z.string().min(1, 'Descrição é obrigatória'),
@@ -42,9 +49,17 @@ const modalidadeSchema = z.object({
     'em-andamento',
     'finalizada',
   ]),
+  camposExtras: z.array(campoExtraSchema).optional(),
 });
 
 type ModalidadeFormData = z.infer<typeof modalidadeSchema>;
+
+interface CampoExtra {
+  id: string;
+  label: string;
+  type: 'text' | 'select';
+  options?: string[];
+}
 
 interface Modalidade {
   id: string;
@@ -63,6 +78,7 @@ interface Modalidade {
   dataFim?: string;
   local?: string;
   participantesAtuais: number;
+  camposExtras?: CampoExtra[];
 }
 
 export default function ModalidadesForm() {
@@ -78,6 +94,7 @@ export default function ModalidadesForm() {
     handleSubmit,
     reset,
     setValue,
+    control,
     formState: { errors },
   } = useForm<ModalidadeFormData>({
     resolver: zodResolver(modalidadeSchema),
@@ -87,7 +104,13 @@ export default function ModalidadesForm() {
       categoria: '',
       maxParticipantes: 0,
       status: 'inscricoes-abertas',
+      camposExtras: [],
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'camposExtras',
   });
 
   useEffect(() => {
@@ -119,10 +142,21 @@ export default function ModalidadesForm() {
         : '/api/modalidades';
       const method = editingId ? 'PUT' : 'POST';
 
+      const dataToSend = {
+        ...data,
+        camposExtras: data.camposExtras?.map((field: any) => ({
+          ...field,
+          options:
+            typeof field.options === 'string'
+              ? field.options.split('\n').map((opt: string) => opt.trim())
+              : field.options,
+        })),
+      };
+
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(dataToSend),
       });
 
       if (response.ok) {
@@ -150,6 +184,13 @@ export default function ModalidadesForm() {
     setValue('categoria', modalidade.categoria);
     setValue('maxParticipantes', modalidade.maxParticipantes);
     setValue('status', modalidade.status);
+    setValue(
+      'camposExtras',
+      modalidade.camposExtras?.map((ce) => ({
+        ...ce,
+        options: ce.options?.join('\n'),
+      })) as any,
+    );
     setIsDialogOpen(true);
   };
 
@@ -283,7 +324,6 @@ export default function ModalidadesForm() {
           </CardContent>
         </Card>
 
-        {/* Dialog para Adicionar/Editar */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className='sm:max-w-[600px] max-h-[80vh] overflow-y-auto'>
             <DialogHeader>
@@ -383,6 +423,68 @@ export default function ModalidadesForm() {
                     {errors.descricao.message}
                   </p>
                 )}
+              </div>
+
+              <div className='space-y-4'>
+                <Label>Campos Extras</Label>
+                {fields.map((field, index) => (
+                  <div
+                    key={field.id}
+                    className='flex items-center gap-2 p-2 border rounded-lg'
+                  >
+                    <div className='grid grid-cols-2 gap-2 flex-1'>
+                      <Input
+                        {...register(`camposExtras.${index}.id`)}
+                        placeholder='ID do campo (e.g., peso_categoria)'
+                      />
+                      <Input
+                        {...register(`camposExtras.${index}.label`)}
+                        placeholder='Label do campo (e.g., Categoria de Peso)'
+                      />
+                      <Select
+                        onValueChange={(value) =>
+                          setValue(
+                            `camposExtras.${index}.type`,
+                            value as 'text' | 'select',
+                          )
+                        }
+                        defaultValue={field.type}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder='Tipo de campo' />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value='text'>Texto</SelectItem>
+                          <SelectItem value='select'>Seleção</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Textarea
+                        {...register(`camposExtras.${index}.options` as any)}
+                        placeholder='Opções (uma por linha)'
+                        rows={2}
+                      />
+                    </div>
+                    <Button
+                      type='button'
+                      variant='destructive'
+                      size='sm'
+                      onClick={() => remove(index)}
+                    >
+                      <Trash2 className='h-4 w-4' />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type='button'
+                  variant='outline'
+                  size='sm'
+                  onClick={() =>
+                    append({ id: '', label: '', type: 'text', options: [] })
+                  }
+                >
+                  <Plus className='h-4 w-4 mr-2' />
+                  Adicionar Campo Extra
+                </Button>
               </div>
 
               <DialogFooter>

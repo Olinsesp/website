@@ -159,8 +159,9 @@ export default function CronogramaForm() {
     setIsDialogOpen(true);
   };
 
-  const formatTime = (time: string) => {
-    return time.slice(0, 5);
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR');
   };
 
   return (
@@ -206,7 +207,7 @@ export default function CronogramaForm() {
                       <div className='flex items-center gap-4 text-sm text-gray-500'>
                         <span className='flex items-center gap-1'>
                           <Clock className='h-4 w-4' />
-                          {formatTime(evento.inicio)} - {formatTime(evento.fim)}
+                          {formatDate(evento.inicio)} - {formatDate(evento.fim)}
                         </span>
                         {evento.modalidade && (
                           <span className='text-blue-600 font-medium'>

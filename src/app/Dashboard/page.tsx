@@ -27,9 +27,9 @@ import { Download, Filter } from 'lucide-react';
 
 import { columns, Inscricoes } from './columns';
 import { DataTable } from './data-table';
-import { AppSidebar } from '@/components/app-sidebar';
+import { AppSidebar } from '@/app/Dashboard/app-sidebar';
 import { SiteHeader } from '@/app/Dashboard/site-header';
-import { SectionCards } from '@/components/section-cards';
+import { SectionCards } from '@/app/Dashboard/section-cards';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import ClassificacoesForm from '@/components/admin/ClassificacoesForm';
 import ModalidadesForm from '@/components/admin/ModalidadesForm';

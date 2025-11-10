@@ -1,6 +1,5 @@
 'use client';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,11 +27,11 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import CountdownTimer from '@/components/ui/CountdownTimer';
 import ModalidadesSelector from '@/components/inscricoes/ModalidadesSelector';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import CountdownTimer from '@/components/ui/CountdownTimer';
 
-const inscricaoSchema = z.object({
+const baseInscricaoSchema = z.object({
   nome: z
     .string()
     .min(3, { message: 'O nome deve ter pelo menos 3 caracteres.' }),
@@ -46,7 +45,7 @@ const inscricaoSchema = z.object({
   dataNascimento: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: 'Data de nascimento inválida',
   }),
-  sexo: z.string().nonempty('Selecione o sexo.'),
+  sexo: z.enum(['m', 'f']),
   camiseta: z.string().nonempty('Selecione um tamanho de camiseta.'),
   matricula: z
     .string()
@@ -57,10 +56,12 @@ const inscricaoSchema = z.object({
     .min(1, { message: 'Selecione ao menos uma modalidade.' }),
 });
 
-type InscricaoFormData = z.infer<typeof inscricaoSchema>;
+type InscricaoFormData = z.infer<typeof baseInscricaoSchema>;
 
 export default function Inscricoes() {
   const [loading, setLoading] = useState(false);
+  const [modalidades, setModalidades] = useState<any[]>([]);
+
   const {
     register,
     handleSubmit,
@@ -68,34 +69,93 @@ export default function Inscricoes() {
     reset,
     setValue,
     watch,
+    setError,
   } = useForm<InscricaoFormData>({
-    resolver: zodResolver(inscricaoSchema),
     defaultValues: {
       modalidades: [],
     },
   });
-  const modalidadesOptions = [
-    'Futsal',
-    'Futebol de Campo',
-    'Basquetebol',
-    'Vôlei de Quadra',
-    'Vôlei de Praia',
-    'Futevôlei',
-    'Beach Tênis',
-    'Atletismo',
-    'Natação',
-    'Tênis de Mesa',
-    'Triathlon',
-    'Calistenia',
-    'Jiu Jitsu',
-    'Judô',
-    'Cabo de Guerra',
-    'Truco',
-    'Dominó',
-    'Xadrez',
-  ];
+
+  useEffect(() => {
+    const fetchModalidades = async () => {
+      try {
+        const response = await fetch('/api/modalidades');
+        const data = await response.json();
+        setModalidades(data);
+      } catch (error) {
+        console.error('Failed to fetch modalidades:', error);
+      }
+    };
+    fetchModalidades();
+  }, []);
+
+  const watchedModalidades = watch('modalidades');
+  const watchedSexo = watch('sexo');
 
   const onSubmit = async (data: InscricaoFormData) => {
+    const selectedModalities = modalidades.filter((m) =>
+      data.modalidades?.includes(m.nome),
+    );
+    const extraFields = selectedModalities.reduce((acc, m) => {
+      if (m.camposExtras) {
+        const filteredFields = m.camposExtras.filter((field: any) => {
+          if (!data.sexo) return false;
+          const fieldId = field.id.toLowerCase();
+          const fieldLabel = field.label?.toLowerCase() || '';
+
+          // Verifica se o campo é específico para masculino
+          const isMasculinoField =
+            fieldId.includes('masculino') ||
+            fieldId.includes('masculina') ||
+            fieldLabel.includes('masculino') ||
+            fieldLabel.includes('masculina');
+
+          // Verifica se o campo é específico para feminino
+          const isFemininoField =
+            fieldId.includes('feminino') ||
+            fieldId.includes('feminina') ||
+            fieldLabel.includes('feminino') ||
+            fieldLabel.includes('feminina');
+
+          // Se não é específico de gênero, mostra para ambos
+          if (!isMasculinoField && !isFemininoField) return true;
+
+          // Se é campo masculino e sexo selecionado é masculino
+          if (isMasculinoField && data.sexo === 'm') return true;
+
+          // Se é campo feminino e sexo selecionado é feminino
+          if (isFemininoField && data.sexo === 'f') return true;
+
+          return false;
+        });
+        return [...acc, ...filteredFields];
+      }
+      return acc;
+    }, []);
+
+    const dynamicSchema = extraFields.reduce(
+      (schema: z.ZodObject<any, any>, field: { id: string; label: string }) => {
+        return schema.extend({
+          [field.id]: z
+            .string()
+            .nonempty({ message: `'${field.label}' é obrigatório.` }),
+        });
+      },
+      baseInscricaoSchema,
+    );
+
+    const result = dynamicSchema.safeParse(data);
+
+    if (!result.success) {
+      result.error.issues.forEach((error: { path: any[]; message: any }) => {
+        setError(error.path[0] as any, {
+          type: 'manual',
+          message: error.message,
+        });
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await fetch('/api/inscricoes', {
@@ -104,15 +164,15 @@ export default function Inscricoes() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...data,
-          dataNascimento: new Date(data.dataNascimento),
+          ...result.data,
+          dataNascimento: new Date(result.data.dataNascimento),
         }),
       });
 
-      const result = await response.json();
+      const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Falha ao realizar inscrição.');
+        throw new Error(responseData.error || 'Falha ao realizar inscrição.');
       }
 
       const messageSuccess = (
@@ -137,8 +197,6 @@ export default function Inscricoes() {
       setLoading(false);
     }
   };
-
-  const watchedModalidades = watch('modalidades');
 
   return (
     <div className='min-h-screen py-12 bg-gradient-to-br from-blue-50 via-white to-orange-50'>
@@ -371,7 +429,11 @@ export default function Inscricoes() {
                     <Label htmlFor='sexo' className='text-gray-700 font-medium'>
                       Sexo *
                     </Label>
-                    <Select onValueChange={(value) => setValue('sexo', value)}>
+                    <Select
+                      onValueChange={(value) =>
+                        setValue('sexo', value as 'm' | 'f')
+                      }
+                    >
                       <SelectTrigger className='border-2 border-gray-200 focus:border-blue-500 transition-colors h-12'>
                         <SelectValue placeholder='Selecione o sexo' />
                       </SelectTrigger>
@@ -429,23 +491,45 @@ export default function Inscricoes() {
                   </h3>
                 </div>
 
-                <p className='text-gray-600 leading-relaxed'>
-                  Selecione as modalidades que deseja participar:
-                </p>
+                {!watchedSexo ? (
+                  <Card className='bg-blue-50 border-2 border-blue-200'>
+                    <CardContent className='p-6'>
+                      <div className='flex items-center gap-3 text-blue-800'>
+                        <AlertCircle className='h-5 w-5 flex-shrink-0' />
+                        <p className='text-base font-medium'>
+                          Por favor, selecione o sexo primeiro para visualizar
+                          as modalidades disponíveis.
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <>
+                    <p className='text-gray-600 leading-relaxed'>
+                      Selecione as modalidades que deseja participar:
+                    </p>
 
-                <ModalidadesSelector
-                  options={modalidadesOptions}
-                  selected={watchedModalidades || []}
-                  onChange={(newValues) =>
-                    setValue('modalidades', newValues, { shouldValidate: true })
-                  }
-                />
+                    <ModalidadesSelector
+                      options={modalidades}
+                      selected={watchedModalidades || []}
+                      onChange={(newValues) =>
+                        setValue('modalidades', newValues, {
+                          shouldValidate: true,
+                        })
+                      }
+                      register={register}
+                      errors={errors}
+                      setValue={setValue}
+                      sexo={watchedSexo}
+                    />
 
-                {errors.modalidades && (
-                  <div className='flex items-center gap-2 text-red-500 text-sm mt-2'>
-                    <AlertCircle className='h-4 w-4' />
-                    {errors.modalidades.message}
-                  </div>
+                    {errors.modalidades && (
+                      <div className='flex items-center gap-2 text-red-500 text-sm mt-2'>
+                        <AlertCircle className='h-4 w-4' />
+                        {errors.modalidades.message}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 

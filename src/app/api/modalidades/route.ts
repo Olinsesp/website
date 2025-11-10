@@ -54,6 +54,7 @@ export async function POST(req: Request) {
       regras: [],
       premios: [],
       status: 'inscricoes-abertas' as const,
+      camposExtras: [],
       ...validatedData,
     };
 

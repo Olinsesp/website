@@ -3,8 +3,7 @@ export const modalidades = [
   {
     id: '1',
     nome: 'Xadrez',
-    descricao:
-      'Estratégia e concentração no tabuleiro. Um desafio para a mente.',
+    descricao: 'Estratégia e concentração no tabuleiro. Um desafio para a mente.',
     categoria: 'Jogos de Salão',
     maxParticipantes: 50,
     participantesAtuais: 0,
@@ -20,7 +19,14 @@ export const modalidades = [
     ],
     premios: ['Troféu para o campeão', 'Medalhas para os 3 primeiros'],
     status: 'inscricoes-abertas',
-    camposExtras: [],
+    camposExtras: [
+      {
+        id: 'genero',
+        label: 'Gênero',
+        type: 'select',
+        options: ['Masculino', 'Feminino'],
+      },
+    ],
   },
   // Futebol de Salão
   {
@@ -34,21 +40,23 @@ export const modalidades = [
     dataFim: '2025-10-26',
     local: 'Ginásio 1',
     horario: '08:00 - 12:00',
-    regras: [
-      'Categorias: Masculina e Feminina',
-      'Times de 5 jogadores',
-      'Dois tempos de 20 minutos',
-    ],
+    regras: ['Categorias: Masculina e Feminina', 'Times de 5 jogadores', 'Dois tempos de 20 minutos'],
     premios: ['Troféu e medalhas'],
     status: 'inscricoes-abertas',
-    camposExtras: [],
+    camposExtras: [
+      {
+        id: 'genero',
+        label: 'Gênero',
+        type: 'select',
+        options: ['Masculino', 'Feminino'],
+      },
+    ],
   },
   // Futebol de Campo
   {
     id: '3',
     nome: 'Futebol de Campo',
-    descricao:
-      'Disputas emocionantes no gramado. Equipes de 11 jogadores em busca da glória.',
+    descricao: 'Disputas emocionantes no gramado. Equipes de 11 jogadores em busca da glória.',
     categoria: 'Coletiva',
     maxParticipantes: 16,
     participantesAtuais: 0,
@@ -77,8 +85,7 @@ export const modalidades = [
   {
     id: '4',
     nome: 'Jiu-Jitsu',
-    descricao:
-      'A arte suave em ação. Competições por peso e absoluto com os melhores lutadores.',
+    descricao: 'A arte suave em ação. Competições por peso e absoluto com os melhores lutadores.',
     categoria: 'Individual',
     maxParticipantes: 150,
     participantesAtuais: 0,
@@ -98,24 +105,13 @@ export const modalidades = [
         id: 'graduacao_jiujitsu',
         label: 'Graduação (Faixas)',
         type: 'select',
-        options: [
-          'Divisão 1: Faixa Branca',
-          'Divisão 2: Faixas Azul e Roxa',
-          'Divisão 3: Marrom e Preta',
-        ],
+        options: ['Divisão 1: Faixa Branca', 'Divisão 2: Faixas Azul e Roxa', 'Divisão 3: Marrom e Preta'],
       },
       {
         id: 'peso_masculino_jiujitsu',
         label: 'Peso Masculino (sem kimono)',
         type: 'select',
-        options: [
-          'Meio Leve (Até 62 kg)',
-          'Leve (Até 69 kg)',
-          'Meio Médio (Até 77 kg)',
-          'Médio (Até 85 kg)',
-          'Meio Pesado (Até 94 kg)',
-          'Pesado (+94 kg)',
-        ],
+        options: ['Meio Leve (Até 62 kg)', 'Leve (Até 69 kg)', 'Meio Médio (Até 77 kg)', 'Médio (Até 85 kg)', 'Meio Pesado (Até 94 kg)', 'Pesado (+94 kg)'],
       },
       {
         id: 'peso_feminino_jiujitsu',
@@ -141,8 +137,7 @@ export const modalidades = [
   {
     id: '5',
     nome: 'Judô',
-    descricao:
-      'Caminho suave. Projeções, imobilizações e chaves em busca do ippon.',
+    descricao: 'Caminho suave. Projeções, imobilizações e chaves em busca do ippon.',
     categoria: 'Individual',
     maxParticipantes: 100,
     participantesAtuais: 0,
@@ -158,14 +153,7 @@ export const modalidades = [
         id: 'peso_masculino_judo',
         label: 'Peso Masculino',
         type: 'select',
-        options: [
-          'Meio Leve (Até 66 kg)',
-          'Leve (Até 73 kg)',
-          'Meio Médio (Até 81 kg)',
-          'Médio (Até 90 kg)',
-          'Meio Pesado (Até 100 kg)',
-          'Pesado (Acima de 100 kg)',
-        ],
+        options: ['Meio Leve (Até 66 kg)', 'Leve (Até 73 kg)', 'Meio Médio (Até 81 kg)', 'Médio (Até 90 kg)', 'Meio Pesado (Até 100 kg)', 'Pesado (Acima de 100 kg)'],
       },
       {
         id: 'peso_feminino_judo',
@@ -210,24 +198,13 @@ export const modalidades = [
         id: 'divisao_natacao',
         label: 'Divisão',
         type: 'select',
-        options: [
-          'Masculino',
-          'Feminino',
-          'Master (Masculino 45+)',
-          'Master (Feminino 40+)',
-        ],
+        options: ['Masculino', 'Feminino', 'Master (Masculino 45+)', 'Master (Feminino 40+)'],
       },
       {
         id: 'provas_individuais_natacao',
         label: 'Provas Individuais',
         type: 'select',
-        options: [
-          '50m Nado Livre',
-          '50m Nado Borboleta',
-          '50m Nado Peito',
-          '50m Nado Costas',
-          '400m Nado Livre',
-        ],
+        options: ['50m Nado Livre', '50m Nado Borboleta', '50m Nado Peito', '50m Nado Costas', '400m Nado Livre'],
       },
       {
         id: 'provas_revezamento_natacao',
@@ -241,8 +218,7 @@ export const modalidades = [
   {
     id: '7',
     nome: 'Vôlei de Quadra',
-    descricao:
-      'Saques, bloqueios e cortadas. Partidas de vôlei de quadra masculino e feminino.',
+    descricao: 'Saques, bloqueios e cortadas. Partidas de vôlei de quadra masculino e feminino.',
     categoria: 'Coletiva',
     maxParticipantes: 24,
     participantesAtuais: 0,
@@ -258,7 +234,14 @@ export const modalidades = [
     ],
     premios: ['Troféu para equipe campeã', 'Medalhas para os finalistas'],
     status: 'inscricoes-abertas',
-    camposExtras: [],
+    camposExtras: [
+      {
+        id: 'genero',
+        label: 'Gênero',
+        type: 'select',
+        options: ['Masculino', 'Feminino'],
+      },
+    ],
   },
   // Vôlei de Praia
   {
@@ -272,14 +255,17 @@ export const modalidades = [
     dataFim: '2025-10-25',
     local: 'Quadras de areia',
     horario: '10:00 - 15:00',
-    regras: [
-      'Categorias: Masculino e Feminino',
-      'Disputado em duplas',
-      'Melhor de 3 sets',
-    ],
+    regras: ['Categorias: Masculino e Feminino', 'Disputado em duplas', 'Melhor de 3 sets'],
     premios: ['Medalhas para os finalistas'],
     status: 'inscricoes-abertas',
-    camposExtras: [],
+    camposExtras: [
+      {
+        id: 'genero',
+        label: 'Gênero',
+        type: 'select',
+        options: ['Masculino', 'Feminino'],
+      },
+    ],
   },
   // Dominó
   {
@@ -293,14 +279,17 @@ export const modalidades = [
     dataFim: '2025-11-16',
     local: 'Salão de Festas',
     horario: '18:00 - 22:00',
-    regras: [
-      'Categorias: Masculino e Feminino',
-      'Disputado em duplas',
-      'Eliminatória simples',
-    ],
+    regras: ['Categorias: Masculino e Feminino', 'Disputado em duplas', 'Eliminatória simples'],
     premios: ['Troféu para a dupla campeã'],
     status: 'inscricoes-abertas',
-    camposExtras: [],
+    camposExtras: [
+      {
+        id: 'genero',
+        label: 'Gênero',
+        type: 'select',
+        options: ['Masculino', 'Feminino'],
+      },
+    ],
   },
   // Tênis de Mesa
   {
@@ -322,14 +311,20 @@ export const modalidades = [
     ],
     premios: ['Medalhas para os 3 primeiros de cada categoria'],
     status: 'inscricoes-abertas',
-    camposExtras: [],
+    camposExtras: [
+      {
+        id: 'genero',
+        label: 'Gênero',
+        type: 'select',
+        options: ['Masculino', 'Feminino'],
+      },
+    ],
   },
   // Triathlon
   {
     id: '11',
     nome: 'Triathlon',
-    descricao:
-      'Natação, ciclismo e corrida. Um desafio completo para os atletas.',
+    descricao: 'Natação, ciclismo e corrida. Um desafio completo para os atletas.',
     categoria: 'Resistência',
     maxParticipantes: 50,
     participantesAtuais: 0,
@@ -367,14 +362,17 @@ export const modalidades = [
     dataFim: '2025-11-10',
     local: 'Campo de Provas',
     horario: '16:00 - 18:00',
-    regras: [
-      'Categorias: Masculino e Feminino',
-      'Equipes de 8 pessoas',
-      'Melhor de 3 puxadas',
-    ],
+    regras: ['Categorias: Masculino e Feminino', 'Equipes de 8 pessoas', 'Melhor de 3 puxadas'],
     premios: ['Medalhas para a equipe vencedora'],
     status: 'inscricoes-abertas',
-    camposExtras: [],
+    camposExtras: [
+      {
+        id: 'genero',
+        label: 'Gênero',
+        type: 'select',
+        options: ['Masculino', 'Feminino'],
+      },
+    ],
   },
   // Atletismo
   {
@@ -399,26 +397,13 @@ export const modalidades = [
         id: 'divisao_atletismo',
         label: 'Divisão',
         type: 'select',
-        options: [
-          'Masculino',
-          'Feminino',
-          'Master (Masculino 45+)',
-          'Master (Feminino 40+)',
-        ],
+        options: ['Masculino', 'Feminino', 'Master (Masculino 45+)', 'Master (Feminino 40+)'],
       },
       {
         id: 'provas_atletismo',
         label: 'Provas',
         type: 'select',
-        options: [
-          '100m rasos',
-          '200m rasos',
-          '400m rasos',
-          '800m rasos',
-          '1.500m rasos',
-          '5.000m rasos',
-          'Corrida de 10 km',
-        ],
+        options: ['100m rasos', '200m rasos', '400m rasos', '800m rasos', '1.500m rasos', '5.000m rasos', 'Corrida de 10 km'],
       },
     ],
   },
@@ -426,8 +411,7 @@ export const modalidades = [
   {
     id: '14',
     nome: 'Basquetebol',
-    descricao:
-      'Dribles, arremessos e cestas de três pontos. A elite do basquete em quadra.',
+    descricao: 'Dribles, arremessos e cestas de três pontos. A elite do basquete em quadra.',
     categoria: 'Coletiva',
     maxParticipantes: 12,
     participantesAtuais: 0,
@@ -443,7 +427,14 @@ export const modalidades = [
     ],
     premios: ['Troféu e medalhas para os campeões'],
     status: 'inscricoes-abertas',
-    camposExtras: [],
+    camposExtras: [
+      {
+        id: 'genero',
+        label: 'Gênero',
+        type: 'select',
+        options: ['Masculino', 'Feminino'],
+      },
+    ],
   },
   // Beach Tênis
   {
@@ -457,14 +448,17 @@ export const modalidades = [
     dataFim: '2025-10-25',
     local: 'Quadras de areia',
     horario: '10:00 - 15:00',
-    regras: [
-      'Categorias: Masculino e Feminino',
-      'Disputado em duplas',
-      'Regras adaptadas',
-    ],
+    regras: ['Categorias: Masculino e Feminino', 'Disputado em duplas', 'Regras adaptadas'],
     premios: ['Medalhas para os finalistas'],
     status: 'inscricoes-abertas',
-    camposExtras: [],
+    camposExtras: [
+      {
+        id: 'genero',
+        label: 'Gênero',
+        type: 'select',
+        options: ['Masculino', 'Feminino'],
+      },
+    ],
   },
   // Futevôlei
   {
@@ -478,21 +472,23 @@ export const modalidades = [
     dataFim: '2025-10-25',
     local: 'Quadras de areia',
     horario: '10:00 - 15:00',
-    regras: [
-      'Categorias: Masculino e Feminino',
-      'Disputado em duplas',
-      'Regras adaptadas',
-    ],
+    regras: ['Categorias: Masculino e Feminino', 'Disputado em duplas', 'Regras adaptadas'],
     premios: ['Medalhas para os finalistas'],
     status: 'inscricoes-abertas',
-    camposExtras: [],
+    camposExtras: [
+      {
+        id: 'genero',
+        label: 'Gênero',
+        type: 'select',
+        options: ['Masculino', 'Feminino'],
+      },
+    ],
   },
   // Calistenia
   {
     id: '17',
     nome: 'Calistenia',
-    descricao:
-      'Força, equilíbrio e controle corporal usando o peso do próprio corpo.',
+    descricao: 'Força, equilíbrio e controle corporal usando o peso do próprio corpo.',
     categoria: 'Individual',
     maxParticipantes: 40,
     participantesAtuais: 0,
@@ -500,14 +496,17 @@ export const modalidades = [
     dataFim: '2025-11-07',
     local: 'Parque de Calistenia',
     horario: '15:00 - 18:00',
-    regras: [
-      'Categorias: Masculino e Feminino',
-      'Apresentações individuais',
-      'Juízes avaliarão a performance',
-    ],
+    regras: ['Categorias: Masculino e Feminino', 'Apresentações individuais', 'Juízes avaliarão a performance'],
     premios: ['Medalhas para os melhores'],
     status: 'inscricoes-abertas',
-    camposExtras: [],
+    camposExtras: [
+      {
+        id: 'genero',
+        label: 'Gênero',
+        type: 'select',
+        options: ['Masculino', 'Feminino'],
+      },
+    ],
   },
   // Truco
   {
@@ -521,14 +520,17 @@ export const modalidades = [
     dataFim: '2025-11-16',
     local: 'Salão de Festas',
     horario: '18:00 - 22:00',
-    regras: [
-      'Categorias: Masculino e Feminino',
-      'Disputado em duplas',
-      'Regras do truco paulista',
-    ],
+    regras: ['Categorias: Masculino e Feminino', 'Disputado em duplas', 'Regras do truco paulista'],
     premios: ['Troféu para a dupla campeã'],
     status: 'inscricoes-abertas',
-    camposExtras: [],
+    camposExtras: [
+      {
+        id: 'genero',
+        label: 'Gênero',
+        type: 'select',
+        options: ['Masculino', 'Feminino'],
+      },
+    ],
   },
   // Corrida de Orientação
   {
@@ -550,14 +552,7 @@ export const modalidades = [
         id: 'categoria_corrida_orientacao',
         label: 'Categoria (Gênero e Faixa Etária)',
         type: 'select',
-        options: [
-          'Mulheres até 40 anos',
-          'Homens até 40 anos',
-          'Mulheres +40 anos até 59 anos',
-          'Homens +40 anos até 59 anos',
-          'Mulheres +60 anos',
-          'Homens +60 anos',
-        ],
+        options: ['Mulheres até 40 anos', 'Homens até 40 anos', 'Mulheres +40 anos até 59 anos', 'Homens +40 anos até 59 anos', 'Mulheres +60 anos', 'Homens +60 anos'],
       },
       {
         id: 'modelo_corrida_orientacao',

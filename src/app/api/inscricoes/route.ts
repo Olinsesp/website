@@ -2,26 +2,36 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import nodemailer from 'nodemailer';
 import { inscricoes } from './inscriçoesData';
+import { modalidades } from '../modalidades/modalidadesData';
 
-const inscricaoSchema = z.object({
-  nome: z
-    .string()
-    .min(10, { message: 'O nome deve ter pelo menos 10 caracteres.' }),
-  email: z.email({ message: 'Email inválido.' }),
-  cpf: z.string().max(11).min(11, { message: 'CPF deve ter 11 caracteres.' }),
-  dataNascimento: z.coerce.date().refine((date) => !isNaN(date.getTime()), {
-    message: 'Por favor, insira uma data válida.',
-  }),
-  telefone: z.string().min(10, { message: 'Telefone inválido.' }),
-  camiseta: z.string(),
-  afiliacao: z.string(),
-  matricula: z
-    .string()
-    .min(5, { message: 'Matrícula deve ter ao menos 5 caracteres.' }),
-  modalidades: z
-    .array(z.string())
-    .min(1, { message: 'Selecione ao menos uma modalidade.' }),
-});
+const inscricaoSchema = z
+  .object({
+    nome: z
+      .string()
+      .min(3, { message: 'O nome deve ter pelo menos 3 caracteres.' }),
+    email: z.email({ message: 'Email inválido.' }),
+    cpf: z
+      .string()
+      .min(11, { message: 'CPF deve ter 11 caracteres.' })
+      .max(11, { message: 'CPF deve ter 11 caracteres.' })
+      .regex(/^\d+$/, { message: 'CPF deve conter apenas números.' }),
+    dataNascimento: z.coerce.date().refine((date) => !isNaN(date.getTime()), {
+      message: 'Por favor, insira uma data válida.',
+    }),
+    telefone: z.string().min(10, { message: 'Telefone inválido.' }),
+    sexo: z.enum(['m', 'f']),
+    camiseta: z
+      .string()
+      .min(1, { message: 'Selecione um tamanho de camiseta.' }),
+    afiliacao: z.string().optional(),
+    matricula: z
+      .string()
+      .min(5, { message: 'Matrícula deve ter ao menos 5 caracteres.' }),
+    modalidades: z
+      .array(z.string())
+      .min(1, { message: 'Selecione ao menos uma modalidade.' }),
+  })
+  .catchall(z.string()); // Aceita campos extras dinâmicos
 
 export async function GET() {
   try {
@@ -66,13 +76,19 @@ type Inscricao = {
   cpf: string;
   dataNascimento: Date;
   telefone: string;
+  sexo: 'm' | 'f';
   camiseta: string;
-  afiliacao: string;
+  afiliacao?: string;
+  matricula: string;
   modalidades: string[];
+  [key: string]: any; // Campos extras dinâmicos
 };
 
 async function sendEmail(inscricao: Inscricao) {
   if (!process.env.GMAIL_USER || !process.env.GMAIL_PASSWORD) {
+    console.log(
+      'Credenciais de email não configuradas. Email não será enviado.',
+    );
     return;
   }
 
@@ -84,19 +100,250 @@ async function sendEmail(inscricao: Inscricao) {
     },
   });
 
-  await transporter.sendMail({
-    from: `"Organização Olinsesp VIII" <${process.env.GMAIL_USER}>`,
-    to: inscricao.email,
-    subject: 'Confirmação de Inscrição - Olinsesp VIII',
-    html: `
-      <h2>Olá, ${inscricao.nome}!</h2>
-      <p>Sua inscrição para o <strong>Olinsesp VIII</strong> foi realizada com sucesso 🎉</p>
-      <p><strong>Modalidades selecionadas:</strong></p>
-      <ul>
-        ${inscricao.modalidades.map((m) => `<li>${m}</li>`).join('')}
-      </ul>
-      <p>Em breve entraremos em contato com mais informações.<br>
-      Obrigado por participar!</p>
-    `,
-  });
+  // Busca informações detalhadas das modalidades selecionadas
+  const modalidadesSelecionadas = modalidades.filter((m) =>
+    inscricao.modalidades.includes(m.nome),
+  );
+
+  // Formata a data de nascimento
+  const dataNascimentoDate =
+    inscricao.dataNascimento instanceof Date
+      ? inscricao.dataNascimento
+      : new Date(inscricao.dataNascimento);
+  const dataNascimentoFormatada = dataNascimentoDate.toLocaleDateString(
+    'pt-BR',
+    {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    },
+  );
+
+  // Formata o sexo
+  const sexoFormatado = inscricao.sexo === 'm' ? 'Masculino' : 'Feminino';
+
+  // Função para filtrar campos extras por modalidade e sexo
+  const getCamposExtrasPorModalidade = (modalidade: any) => {
+    if (!modalidade.camposExtras) return [];
+
+    return modalidade.camposExtras.filter((field: any) => {
+      const fieldId = field.id.toLowerCase();
+      const fieldLabel = field.label?.toLowerCase() || '';
+
+      const isMasculinoField =
+        fieldId.includes('masculino') ||
+        fieldId.includes('masculina') ||
+        fieldLabel.includes('masculino') ||
+        fieldLabel.includes('masculina');
+
+      const isFemininoField =
+        fieldId.includes('feminino') ||
+        fieldId.includes('feminina') ||
+        fieldLabel.includes('feminino') ||
+        fieldLabel.includes('feminina');
+
+      if (!isMasculinoField && !isFemininoField) return true;
+      if (isMasculinoField && inscricao.sexo === 'm') return true;
+      if (isFemininoField && inscricao.sexo === 'f') return true;
+      return false;
+    });
+  };
+
+  // Gera HTML das modalidades com informações detalhadas
+  const modalidadesHTML = modalidadesSelecionadas
+    .map((modalidade) => {
+      const camposExtras = getCamposExtrasPorModalidade(modalidade);
+      const camposExtrasHTML = camposExtras
+        .filter((field: any) => {
+          // Só mostra campos extras que têm valor preenchido
+          const valor = inscricao[field.id];
+          return valor && String(valor).trim() !== '';
+        })
+        .map((field: any) => {
+          const valor = inscricao[field.id];
+          return `
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;"><strong>${field.label}:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${String(valor)}</td>
+            </tr>
+          `;
+        })
+        .join('');
+
+      const dataInicio = modalidade.dataInicio
+        ? new Date(modalidade.dataInicio).toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+          })
+        : 'A definir';
+      const dataFim = modalidade.dataFim
+        ? new Date(modalidade.dataFim).toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+          })
+        : 'A definir';
+
+      return `
+        <div style="margin-bottom: 30px; padding: 20px; background-color: #f5f5f5; border-radius: 8px; border-left: 4px solid #2563eb;">
+          <h3 style="margin-top: 0; color: #2563eb; font-size: 20px;">${modalidade.nome}</h3>
+          <p style="color: #666; margin: 10px 0;">${modalidade.descricao}</p>
+          
+          <table style="width: 100%; margin: 15px 0; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;"><strong>Local:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${modalidade.local || 'A definir'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;"><strong>Data:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${dataInicio}${modalidade.dataFim && dataInicio !== dataFim ? ` a ${dataFim}` : ''}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;"><strong>Horário:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${modalidade.horario || 'A definir'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;"><strong>Categoria:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${modalidade.categoria || 'N/A'}</td>
+            </tr>
+            ${camposExtrasHTML}
+          </table>
+        </div>
+      `;
+    })
+    .join('');
+
+  const emailHTML = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        .header {
+          background: linear-gradient(135deg, #2563eb 0%, #ea580c 100%);
+          color: white;
+          padding: 30px;
+          text-align: center;
+          border-radius: 8px 8px 0 0;
+        }
+        .content {
+          background-color: #ffffff;
+          padding: 30px;
+          border: 1px solid #e0e0e0;
+          border-radius: 0 0 8px 8px;
+        }
+        .info-section {
+          background-color: #f9fafb;
+          padding: 20px;
+          border-radius: 8px;
+          margin: 20px 0;
+        }
+        .footer {
+          text-align: center;
+          margin-top: 30px;
+          padding-top: 20px;
+          border-top: 1px solid #e0e0e0;
+          color: #666;
+          font-size: 14px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1 style="margin: 0;">Olinsesp VIII</h1>
+        <p style="margin: 10px 0 0 0; font-size: 18px;">Confirmação de Inscrição</p>
+      </div>
+      
+      <div class="content">
+        <h2 style="color: #2563eb;">Olá, ${inscricao.nome}! 🎉</h2>
+        <p>Sua inscrição para o <strong>Olinsesp VIII</strong> foi realizada com sucesso!</p>
+        
+        <div class="info-section">
+          <h3 style="margin-top: 0; color: #2563eb;">Dados da Inscrição</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;"><strong>Nome:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${inscricao.nome}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;"><strong>Email:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${inscricao.email}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;"><strong>CPF:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${inscricao.cpf}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;"><strong>Data de Nascimento:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${dataNascimentoFormatada}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;"><strong>Telefone:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${inscricao.telefone}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;"><strong>Sexo:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${sexoFormatado}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;"><strong>Tamanho da Camiseta:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${inscricao.camiseta.toUpperCase()}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;"><strong>Matrícula:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${inscricao.matricula}</td>
+            </tr>
+            ${
+              inscricao.afiliacao
+                ? `
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;"><strong>Afiliação/Força:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${inscricao.afiliacao}</td>
+            </tr>
+            `
+                : ''
+            }
+          </table>
+        </div>
+
+        <div class="info-section">
+          <h3 style="margin-top: 0; color: #2563eb;">Modalidades Selecionadas</h3>
+          ${modalidadesHTML}
+        </div>
+
+        <p style="margin-top: 30px; padding: 15px; background-color: #e0f2fe; border-left: 4px solid #0284c7; border-radius: 4px;">
+          <strong>📧 Próximos Passos:</strong><br>
+          Em breve entraremos em contato com mais informações sobre o evento, incluindo cronogramas detalhados e instruções importantes.
+        </p>
+      </div>
+      
+      <div class="footer">
+        <p>Obrigado por participar do <strong>Olinsesp VIII</strong>!</p>
+        <p>Organização Olinsesp VIII</p>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from: `"Organização Olinsesp VIII" <${process.env.GMAIL_USER}>`,
+      to: inscricao.email,
+      subject: 'Confirmação de Inscrição - Olinsesp VIII',
+      html: emailHTML,
+    });
+    console.log('Email enviado com sucesso para:', inscricao.email);
+  } catch (error) {
+    console.error('Erro ao enviar email:', error);
+    throw error;
+  }
 }
