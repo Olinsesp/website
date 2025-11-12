@@ -128,10 +128,10 @@ export default function Cronograma() {
                   <Calendar className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl font-semibold text-gray-800 mb-2 sm:mb-3'>
-                  15-17 Dezembro
+                  24/02/2026 a 31/03/2026
                 </h3>
                 <p className='text-sm sm:text-base text-gray-600'>
-                  3 dias de competições intensas
+                  36 dias de competições intensas
                 </p>
               </CardContent>
             </Card>
@@ -145,7 +145,7 @@ export default function Cronograma() {
                   8h às 20h
                 </h3>
                 <p className='text-sm sm:text-base text-gray-600'>
-                  Horário de funcionamento
+                  Horário dos jogos
                 </p>
               </CardContent>
             </Card>

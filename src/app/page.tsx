@@ -92,7 +92,7 @@ export default function Home() {
     {
       Icon: Calendar,
       titulo: 'Período do Evento',
-      conteudo: <>15 a 17 de Fevereiro de 2026</>,
+      conteudo: <>24/02/2026 a 31/03/2026</>,
     },
     {
       Icon: MapPin,
@@ -110,7 +110,7 @@ export default function Home() {
       titulo: 'Horários',
       conteudo: (
         <>
-          Das 8h00 às 18h00
+          Das 8h00 às 21h00
           <br />
           Todos os dias
         </>

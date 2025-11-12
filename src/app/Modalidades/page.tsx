@@ -283,22 +283,6 @@ export default function Modalidades() {
 
                   {/* Botões de Ação */}
                   <div className='flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200'>
-                    {modalidade.status === 'inscricoes-abertas' ? (
-                      <Button className='bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base'>
-                        <Users className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
-                        Inscrever-se
-                      </Button>
-                    ) : (
-                      <Button
-                        variant='outline'
-                        disabled
-                        className='border-2 border-gray-300 text-gray-400 px-6 sm:px-8 py-3 sm:py-4 cursor-not-allowed text-sm sm:text-base'
-                      >
-                        <Info className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
-                        Inscrições Fechadas
-                      </Button>
-                    )}
-
                     <Button
                       variant='outline'
                       className='border-2 border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base'
@@ -333,17 +317,23 @@ export default function Modalidades() {
                 <Button
                   size='lg'
                   className='bg-white text-blue-600 hover:bg-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base'
+                  asChild
                 >
-                  <Users className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
-                  Ver Inscrições
+                  <a href='/Inscricoes'>
+                    <Users className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
+                    Ver Inscrições
+                  </a>
                 </Button>
                 <Button
                   size='lg'
                   variant='ghost'
                   className='border-2 border-white text-white hover:bg-white hover:text-blue-600 transition-all duration-300 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base'
+                  asChild
                 >
-                  <Calendar className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
-                  Ver Cronograma
+                  <a href='/Cronograma'>
+                    <Calendar className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
+                    Ver Cronograma
+                  </a>
                 </Button>
               </div>
             </CardContent>

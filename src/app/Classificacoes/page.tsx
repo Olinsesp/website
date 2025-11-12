@@ -98,11 +98,7 @@ export default function Classificacoes() {
   const quadroMedalhas: MedalRowType[] = useMemo(() => {
     if (!classificacoes) return [];
 
-    const filtradas = classificacoes.filter((c) => {
-      if (modalidade && c.modalidade !== modalidade) return false;
-      if (categoria && c.categoria !== categoria) return false;
-      return true;
-    });
+    const filtradas = classificacoes;
 
     const mapa = new Map<string, MedalRowType>();
     for (const c of filtradas) {
@@ -129,7 +125,7 @@ export default function Classificacoes() {
       if (b.bronze !== a.bronze) return b.bronze - a.bronze;
       return b.total - a.total;
     });
-  }, [classificacoes, modalidade, categoria]);
+  }, [classificacoes]);
 
   const handleTabChange = (value: string) => {
     if (value === 'atletas' || value === 'equipes') {
@@ -221,21 +217,35 @@ export default function Classificacoes() {
             </Card>
           </div>
 
-          {/* Filtros */}
-          <ClassificacoesFilters
-            modalidade={modalidade}
-            categoria={categoria}
-            afiliacao={afiliacao}
-            modalidades={modalidades}
-            categorias={categorias}
-            afiliacoes={afiliacoes}
-            onChangeModalidade={setModalidade}
-            onChangeCategoria={setCategoria}
-            onChangeAfiliacao={setAfiliacao}
-          />
-
           {/* Quadro de Medalhas */}
           <MedalTable rows={quadroMedalhas} />
+
+          {/* Filtros e Botão de Exportar PDF */}
+          <div className='flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mt-8 sm:mt-12'>
+            <ClassificacoesFilters
+              modalidade={modalidade}
+              categoria={categoria}
+              afiliacao={afiliacao}
+              modalidades={modalidades}
+              categorias={categorias}
+              afiliacoes={afiliacoes}
+              onChangeModalidade={setModalidade}
+              onChangeCategoria={setCategoria}
+              onChangeAfiliacao={setAfiliacao}
+            />
+            <Button
+              onClick={() =>
+                generatePDF(
+                  activeTab === 'atletas' ? atletasFiltrados : equipesFiltradas,
+                  `classificacoes-${activeTab}`,
+                )
+              }
+              className='bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base'
+            >
+              <Download className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
+              Exportar PDF
+            </Button>
+          </div>
 
           {/* Classificações Tabs */}
           <Tabs
@@ -343,21 +353,8 @@ export default function Classificacoes() {
             </TabsContent>
           </Tabs>
 
-          {/* Botões de Ação */}
+          {/* Botão de Compartilhar */}
           <div className='flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mt-8 sm:mt-12'>
-            <Button
-              onClick={() =>
-                generatePDF(
-                  activeTab === 'atletas' ? atletasFiltrados : equipesFiltradas,
-                  `classificacoes-${activeTab}`,
-                )
-              }
-              className='bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base'
-            >
-              <Download className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
-              Exportar PDF
-            </Button>
-
             <Button
               variant='outline'
               className='border-2 border-orange-300 text-orange-600 hover:bg-orange-50 hover:border-orange-400 transition-colors px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base'
