@@ -32,7 +32,7 @@ const inscricaoSchema = z
       .array(z.string())
       .min(1, { message: 'Selecione ao menos uma modalidade.' }),
   })
-  .catchall(z.string()); // Aceita campos extras dinâmicos
+  .catchall(z.string());
 
 export async function GET() {
   try {
@@ -83,7 +83,7 @@ type Inscricao = {
   orgaoOrigem: string;
   matricula: string;
   modalidades: string[];
-  [key: string]: any; // Campos extras dinâmicos
+  [key: string]: any;
 };
 
 async function sendEmail(inscricao: Inscricao) {
@@ -107,12 +107,10 @@ async function sendEmail(inscricao: Inscricao) {
     parentCategory: mod.categoria,
   }));
 
-  // Busca informações detalhadas das modalidades selecionadas
   const modalidadesSelecionadas = allFlattenedModalidades.filter((m) =>
     inscricao.modalidades.includes(m.nome),
   );
 
-  // Formata a data de nascimento
   const dataNascimentoDate =
     inscricao.dataNascimento instanceof Date
       ? inscricao.dataNascimento
@@ -126,10 +124,8 @@ async function sendEmail(inscricao: Inscricao) {
     },
   );
 
-  // Formata o sexo
   const sexoFormatado = inscricao.sexo === 'm' ? 'Masculino' : 'Feminino';
 
-  // Função para filtrar campos extras por modalidade e sexo
   const getCamposExtrasPorModalidade = (modalidade: any) => {
     if (!modalidade.campos_extras) return [];
 
@@ -156,13 +152,11 @@ async function sendEmail(inscricao: Inscricao) {
     });
   };
 
-  // Gera HTML das modalidades com informações detalhadas
   const modalidadesHTML = modalidadesSelecionadas
     .map((modalidade) => {
       const camposExtras = getCamposExtrasPorModalidade(modalidade);
       const camposExtrasHTML = camposExtras
         .filter((field: any) => {
-          // Só mostra campos extras que têm valor preenchido
           const valor = inscricao[field.id];
           return valor && String(valor).trim() !== '';
         })

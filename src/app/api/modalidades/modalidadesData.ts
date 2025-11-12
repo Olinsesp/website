@@ -1,5 +1,4 @@
 export const modalidades = [
-  // Xadrez
   {
     id: '1',
     nome: 'Xadrez',
@@ -22,7 +21,6 @@ export const modalidades = [
     status: 'inscricoes-abertas',
     camposExtras: [],
   },
-  // Futebol de Salão
   {
     id: '2',
     nome: 'Futebol de Salão',
@@ -43,7 +41,6 @@ export const modalidades = [
     status: 'inscricoes-abertas',
     camposExtras: [],
   },
-  // Futebol de Campo
   {
     id: '3',
     nome: 'Futebol de Campo',
@@ -73,7 +70,6 @@ export const modalidades = [
       },
     ],
   },
-  // Jiu-Jitsu
   {
     id: '4',
     nome: 'Jiu-Jitsu',
@@ -137,7 +133,6 @@ export const modalidades = [
       },
     ],
   },
-  // Judô
   {
     id: '5',
     nome: 'Judô',
@@ -187,7 +182,6 @@ export const modalidades = [
       },
     ],
   },
-  // Natação
   {
     id: '6',
     nome: 'Natação',
@@ -237,7 +231,6 @@ export const modalidades = [
       },
     ],
   },
-  // Vôlei de Quadra
   {
     id: '7',
     nome: 'Vôlei de Quadra',
@@ -260,7 +253,6 @@ export const modalidades = [
     status: 'inscricoes-abertas',
     camposExtras: [],
   },
-  // Vôlei de Praia
   {
     id: '8',
     nome: 'Vôlei de Praia',
@@ -281,7 +273,6 @@ export const modalidades = [
     status: 'inscricoes-abertas',
     camposExtras: [],
   },
-  // Dominó
   {
     id: '9',
     nome: 'Dominó',
@@ -302,7 +293,6 @@ export const modalidades = [
     status: 'inscricoes-abertas',
     camposExtras: [],
   },
-  // Tênis de Mesa
   {
     id: '10',
     nome: 'Tênis de Mesa',
@@ -324,7 +314,6 @@ export const modalidades = [
     status: 'inscricoes-abertas',
     camposExtras: [],
   },
-  // Triathlon
   {
     id: '11',
     nome: 'Triathlon',
@@ -355,7 +344,6 @@ export const modalidades = [
       },
     ],
   },
-  // Cabo de Guerra
   {
     id: '12',
     nome: 'Cabo de Guerra',
@@ -376,7 +364,6 @@ export const modalidades = [
     status: 'inscricoes-abertas',
     camposExtras: [],
   },
-  // Atletismo
   {
     id: '13',
     nome: 'Atletismo',
@@ -422,7 +409,6 @@ export const modalidades = [
       },
     ],
   },
-  // Basquetebol
   {
     id: '14',
     nome: 'Basquetebol',
@@ -445,7 +431,6 @@ export const modalidades = [
     status: 'inscricoes-abertas',
     camposExtras: [],
   },
-  // Beach Tênis
   {
     id: '15',
     nome: 'Beach Tênis',
@@ -466,7 +451,6 @@ export const modalidades = [
     status: 'inscricoes-abertas',
     camposExtras: [],
   },
-  // Futevôlei
   {
     id: '16',
     nome: 'Futevôlei',
@@ -487,7 +471,6 @@ export const modalidades = [
     status: 'inscricoes-abertas',
     camposExtras: [],
   },
-  // Calistenia
   {
     id: '17',
     nome: 'Calistenia',
@@ -509,7 +492,6 @@ export const modalidades = [
     status: 'inscricoes-abertas',
     camposExtras: [],
   },
-  // Truco
   {
     id: '18',
     nome: 'Truco',
@@ -530,7 +512,6 @@ export const modalidades = [
     status: 'inscricoes-abertas',
     camposExtras: [],
   },
-  // Corrida de Orientação
   {
     id: '19',
     nome: 'Corrida de Orientação',

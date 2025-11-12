@@ -71,36 +71,31 @@ export default function ModalidadesSelector({
         const filteredCamposExtras =
           modalidade.camposExtras?.filter((field) => {
             if (!sexo) {
-              return false; // Não mostra campos extras se não tiver sexo selecionado
+              return false;
             }
             const fieldId = field.id.toLowerCase();
             const fieldLabel = field.label.toLowerCase();
 
-            // Verifica se o campo é específico para masculino
             const isMasculinoField =
               fieldId.includes('masculino') ||
               fieldId.includes('masculina') ||
               fieldLabel.includes('masculino') ||
               fieldLabel.includes('masculina');
 
-            // Verifica se o campo é específico para feminino
             const isFemininoField =
               fieldId.includes('feminino') ||
               fieldId.includes('feminina') ||
               fieldLabel.includes('feminino') ||
               fieldLabel.includes('feminina');
 
-            // Se não é específico de gênero, mostra para ambos
             if (!isMasculinoField && !isFemininoField) {
               return true;
             }
 
-            // Se é campo masculino e sexo selecionado é masculino
             if (isMasculinoField && sexo === 'm') {
               return true;
             }
 
-            // Se é campo feminino e sexo selecionado é feminino
             if (isFemininoField && sexo === 'f') {
               return true;
             }

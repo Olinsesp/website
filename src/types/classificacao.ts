@@ -9,7 +9,6 @@ export interface Classificacao {
   tempo?: string;
   distancia?: string;
   observacoes?: string;
-  // Campos adicionados dinamicamente
   modalidade?: string;
   nome?: string;
   atleta?: string;

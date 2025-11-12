@@ -30,7 +30,6 @@ import {
 } from '@/types/classificacao';
 import QueryStateHandler from '@/components/ui/query-state-handler';
 
-// Definição de tipos para uso local
 interface Inscricao {
   id: string;
   nome: string;
@@ -62,7 +61,7 @@ const fetchModalidades = async (): Promise<Modalidade[]> => {
 export default function Classificacoes() {
   const [modalidade, setModalidade] = useState<string | null>(null);
   const [categoria, setCategoria] = useState<string | null>(null);
-  const [lotacao, setlotacao] = useState<string | null>(null);
+  const [lotacao, setLotacao] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'atletas' | 'equipes'>('atletas');
 
   const {
@@ -104,13 +103,11 @@ export default function Classificacoes() {
     return classificacoesRaw.map((c) => {
       const enriched = { ...c };
 
-      // Adiciona nome da modalidade
       const modalidadeInfo = modalidadesMap.get(c.modalidadeId);
       if (modalidadeInfo) {
         enriched.modalidade = modalidadeInfo.nome;
       }
 
-      // Adiciona dados do atleta (se for classificação individual)
       if (c.inscricaoId) {
         const inscricao = inscricoesMap.get(c.inscricaoId);
         if (inscricao) {
@@ -303,7 +300,7 @@ export default function Classificacoes() {
               lotacoes={lotacoes}
               onChangeModalidade={setModalidade}
               onChangeCategoria={setCategoria}
-              onChangeLotacao={setlotacao}
+              onChangeLotacao={setLotacao}
             />
             <Button
               onClick={() =>
