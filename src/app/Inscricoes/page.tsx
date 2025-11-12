@@ -50,7 +50,8 @@ const baseInscricaoSchema = z.object({
   matricula: z
     .string()
     .min(5, { message: 'Matrícula deve ter ao menos 5 caracteres.' }),
-  afiliacao: z.string().optional(),
+  lotacao: z.string().nonempty({ message: 'Selecione a lotação.' }),
+  orgaoOrigem: z.string().nonempty({ message: 'Selecione o órgão de origem.' }),
   modalidades: z
     .array(z.string())
     .min(1, { message: 'Selecione ao menos uma modalidade.' }),
@@ -467,17 +468,62 @@ export default function Inscricoes() {
 
                   <div className='space-y-2'>
                     <Label
-                      htmlFor='afiliacao'
+                      htmlFor='lotacao'
                       className='text-gray-700 font-medium'
                     >
-                      Afiliação/Força
+                      Lotação *
                     </Label>
-                    <Input
-                      id='afiliacao'
-                      {...register('afiliacao')}
-                      placeholder='Ex: SSP-DF, PMDF, CBMDF, etc.'
-                      className='border-2 border-gray-200 focus:border-blue-500 transition-colors h-12'
-                    />
+                    <Select
+                      onValueChange={(value) => setValue('lotacao', value)}
+                    >
+                      <SelectTrigger className='border-2 border-gray-200 focus:border-blue-500 transition-colors h-12'>
+                        <SelectValue placeholder='Selecione a lotação' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value='PCDF'>PCDF</SelectItem>
+                        <SelectItem value='PMDF'>PMDF</SelectItem>
+                        <SelectItem value='CBMDF'>CBMDF</SelectItem>
+                        <SelectItem value='PF'>PF</SelectItem>
+                        <SelectItem value='PRF'>PRF</SelectItem>
+                        <SelectItem value='DEPEN'>DEPEN</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.lotacao && (
+                      <div className='flex items-center gap-2 text-red-500 text-sm mt-1'>
+                        <AlertCircle className='h-4 w-4' />
+                        {errors.lotacao.message}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className='space-y-2'>
+                    <Label
+                      htmlFor='orgaoOrigem'
+                      className='text-gray-700 font-medium'
+                    >
+                      Órgão de Origem *
+                    </Label>
+                    <Select
+                      onValueChange={(value) => setValue('orgaoOrigem', value)}
+                    >
+                      <SelectTrigger className='border-2 border-gray-200 focus:border-blue-500 transition-colors h-12'>
+                        <SelectValue placeholder='Selecione o órgão' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value='PCDF'>PCDF</SelectItem>
+                        <SelectItem value='PMDF'>PMDF</SelectItem>
+                        <SelectItem value='CBMDF'>CBMDF</SelectItem>
+                        <SelectItem value='PF'>PF</SelectItem>
+                        <SelectItem value='PRF'>PRF</SelectItem>
+                        <SelectItem value='DEPEN'>DEPEN</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.orgaoOrigem && (
+                      <div className='flex items-center gap-2 text-red-500 text-sm mt-1'>
+                        <AlertCircle className='h-4 w-4' />
+                        {errors.orgaoOrigem.message}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

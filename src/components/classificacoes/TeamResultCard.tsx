@@ -25,7 +25,7 @@ export default function TeamResultCard({ classificacao }: Props) {
             </div>
             <div className='flex-1'>
               <h4 className='font-semibold text-xl mb-3 text-gray-800'>
-                {classificacao.afiliacao}
+                {classificacao.lotacao}
               </h4>
               <div className='space-y-2'>
                 <div className='flex items-center gap-2 text-gray-600'>

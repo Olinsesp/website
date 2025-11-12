@@ -50,7 +50,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
 
 - **Descrição**: Sistema deve permitir cadastro completo de participantes
 - **Critérios de Aceitação**:
-  - Campos obrigatórios: nome, email, telefone, CPF, data de nascimento, matrícula, afiliação, tamanho da camiseta
+  - Campos obrigatórios: nome, email, telefone, CPF, data de nascimento, matrícula, lotação, tamanho da camiseta
   - Validação em tempo real de todos os campos
   - Seleção múltipla de modalidades esportivas
   - Validação de CPF com algoritmo de verificação
@@ -139,7 +139,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
 - **Descrição**: Sistema deve gerar quadro de medalhas
 - **Critérios de Aceitação**:
   - Contagem automática de ouro, prata e bronze
-  - Classificação por afiliação
+  - Classificação por lotação
   - Classificação geral
   - Atualização em tempo real
 
@@ -217,7 +217,7 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
 - **Descrição**: Sistema deve gerar relatórios detalhados
 - **Critérios de Aceitação**:
   - Gráficos interativos (barras, pizza, linha)
-  - Filtros por período, afiliação, modalidade
+  - Filtros por período, lotação modalidade
   - Exportação em PDF e Excel
   - Atualização em tempo real
 

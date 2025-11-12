@@ -2,17 +2,28 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { classificacoes } from './classificacoesData';
 
-const classificacaoSchema = z.object({
-  modalidade: z.string().min(1, 'A modalidade é obrigatória.'),
-  categoria: z.string().min(1, 'A categoria é obrigatória.'),
-  posicao: z.number().min(1, 'A posição deve ser maior que 0.'),
-  atleta: z.string().optional(),
-  afiliacao: z.string().min(1, 'A afiliação é obrigatória.'),
-  pontuacao: z.number().min(0, 'A pontuação deve ser maior ou igual a 0.'),
-  tempo: z.string().optional(),
-  distancia: z.string().optional(),
-  observacoes: z.string().optional(),
-});
+const classificacaoSchema = z
+  .object({
+    modalidadeId: z.string().min(1, 'O ID da modalidade é obrigatório.'),
+    categoria: z.string().min(1, 'A categoria é obrigatória.'),
+    posicao: z.number().min(1, 'A posição deve ser maior que 0.'),
+    inscricaoId: z.string().optional(),
+    lotacao: z.string().optional(),
+    pontuacao: z.number().min(0, 'A pontuação deve ser maior ou igual a 0.'),
+    tempo: z.string().optional(),
+    distancia: z.string().optional(),
+    observacoes: z.string().optional(),
+  })
+  .refine(
+    (data) =>
+      (data.inscricaoId && !data.lotacao) ||
+      (!data.inscricaoId && data.lotacao),
+    {
+      message:
+        'Forneça `inscricaoId` para classificação individual ou `lotacao` para classificação de equipe, mas não ambos.',
+      path: ['inscricaoId', 'lotacao'],
+    },
+  );
 
 export async function GET() {
   try {

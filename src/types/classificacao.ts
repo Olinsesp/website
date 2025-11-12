@@ -1,18 +1,22 @@
 export interface Classificacao {
   id: string;
-  modalidade: string;
+  modalidadeId: string;
   categoria: string;
   posicao: number;
-  atleta?: string;
-  afiliacao: string;
+  inscricaoId?: string;
+  lotacao?: string;
   pontuacao: number;
   tempo?: string;
   distancia?: string;
   observacoes?: string;
+  // Campos adicionados dinamicamente
+  modalidade?: string;
+  nome?: string;
+  atleta?: string;
 }
 
 export type MedalRow = {
-  afiliacao: string;
+  lotacao: string;
   ouro: number;
   prata: number;
   bronze: number;

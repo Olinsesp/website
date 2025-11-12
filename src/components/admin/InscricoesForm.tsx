@@ -37,7 +37,8 @@ const inscricaoSchema = z.object({
   dataNascimento: z.string().min(1, 'Data de nascimento é obrigatória'),
   camiseta: z.string().min(1, 'Tamanho da camiseta é obrigatório'),
   matricula: z.string().min(1, 'Matrícula é obrigatória'),
-  afiliacao: z.string().min(1, 'Afiliação é obrigatória'),
+  lotacao: z.string().min(1, 'Lotação é obrigatória'),
+  orgaoOrigem: z.string().min(1, 'Órgão de Origem é obrigatório'),
   modalidades: z
     .array(z.string())
     .min(1, 'Selecione pelo menos uma modalidade'),
@@ -55,7 +56,8 @@ interface Inscricao {
   dataNascimento: string;
   camiseta: string;
   matricula: string;
-  afiliacao: string;
+  lotacao: string;
+  orgaoOrigem: string;
   modalidades: string[];
   status: 'pendente' | 'aprovada' | 'rejeitada';
   createdAt: string;
@@ -86,7 +88,8 @@ export default function InscricoesForm() {
       dataNascimento: '',
       camiseta: '',
       matricula: '',
-      afiliacao: '',
+      lotacao: '',
+      orgaoOrigem: '',
       modalidades: [],
       status: 'pendente',
     },
@@ -156,7 +159,8 @@ export default function InscricoesForm() {
     setValue('dataNascimento', inscricao.dataNascimento);
     setValue('camiseta', inscricao.camiseta);
     setValue('matricula', inscricao.matricula);
-    setValue('afiliacao', inscricao.afiliacao);
+    setValue('lotacao', inscricao.lotacao);
+    setValue('orgaoOrigem', inscricao.orgaoOrigem);
     setValue('modalidades', inscricao.modalidades);
     setValue('status', inscricao.status);
 
@@ -268,7 +272,11 @@ export default function InscricoesForm() {
 
                       <div className='text-sm text-gray-600'>
                         <p>
-                          <strong>Afiliação:</strong> {inscricao.afiliacao}
+                          <strong>Lotação:</strong> {inscricao.lotacao}
+                        </p>
+                        <p>
+                          <strong>Órgão de Origem:</strong>{' '}
+                          {inscricao.orgaoOrigem}
                         </p>
                         <p>
                           <strong>Modalidades:</strong>{' '}
@@ -431,25 +439,47 @@ export default function InscricoesForm() {
                 </div>
 
                 <div className='space-y-2'>
-                  <Label htmlFor='afiliacao'>Afiliação *</Label>
-                  <Select
-                    onValueChange={(value) => setValue('afiliacao', value)}
-                  >
+                  <Label htmlFor='lotacao'>Lotação *</Label>
+                  <Select onValueChange={(value) => setValue('lotacao', value)}>
                     <SelectTrigger>
-                      <SelectValue placeholder='Selecione a afiliação' />
+                      <SelectValue placeholder='Selecione a lotação' />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value='PCDF'>PCDF</SelectItem>
                       <SelectItem value='PMDF'>PMDF</SelectItem>
                       <SelectItem value='CBMDF'>CBMDF</SelectItem>
-                      <SelectItem value='PCDF'>PCDF</SelectItem>
+                      <SelectItem value='PF'>PF</SelectItem>
                       <SelectItem value='PRF'>PRF</SelectItem>
                       <SelectItem value='DEPEN'>DEPEN</SelectItem>
-                      <SelectItem value='SSP-DF'>SSP-DF</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.afiliacao && (
+                  {errors.lotacao && (
                     <p className='text-sm text-red-600'>
-                      {errors.afiliacao.message}
+                      {errors.lotacao.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className='space-y-2'>
+                  <Label htmlFor='orgaoOrigem'>Órgão de Origem *</Label>
+                  <Select
+                    onValueChange={(value) => setValue('orgaoOrigem', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder='Selecione o órgão de origem' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='PCDF'>PCDF</SelectItem>
+                      <SelectItem value='PMDF'>PMDF</SelectItem>
+                      <SelectItem value='CBMDF'>CBMDF</SelectItem>
+                      <SelectItem value='PF'>PF</SelectItem>
+                      <SelectItem value='PRF'>PRF</SelectItem>
+                      <SelectItem value='DEPEN'>DEPEN</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.orgaoOrigem && (
+                    <p className='text-sm text-red-600'>
+                      {errors.orgaoOrigem.message}
                     </p>
                   )}
                 </div>

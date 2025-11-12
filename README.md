@@ -46,7 +46,7 @@ Sistema completo de gerenciamento desenvolvido com [Next.js](https://nextjs.org)
 
 - ✅ Relatórios e estatísticas em tempo real
 - ✅ Gráficos interativos (barras e pizza)
-- ✅ Filtros avançados por afiliação e modalidade
+- ✅ Filtros avançados por lotação e modalidade
 - ✅ Exportação de dados em PDF
 - ✅ Gerenciamento completo de todas as entidades
 

@@ -44,7 +44,7 @@ export default function AthleteResultCard({ classificacao }: Props) {
             <div className='flex items-center gap-2 text-gray-600'>
               <Users className='h-4 w-4 text-green-500 flex-shrink-0' />
               <span className='text-sm sm:text-base'>
-                {classificacao.afiliacao}
+                {classificacao.lotacao}
               </span>
             </div>
             {classificacao.tempo && (

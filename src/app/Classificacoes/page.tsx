@@ -30,35 +30,103 @@ import {
 } from '@/types/classificacao';
 import QueryStateHandler from '@/components/ui/query-state-handler';
 
+// Definição de tipos para uso local
+interface Inscricao {
+  id: string;
+  nome: string;
+  lotacao: string;
+}
+interface Modalidade {
+  id: string;
+  nome: string;
+}
+
 const fetchClassificacoes = async (): Promise<ClassificacaoType[]> => {
   const res = await fetch('/api/classificacoes');
-  if (!res.ok) {
-    throw new Error('Falha ao buscar classificações');
-  }
+  if (!res.ok) throw new Error('Falha ao buscar classificações');
+  return res.json();
+};
+
+const fetchInscricoes = async (): Promise<Inscricao[]> => {
+  const res = await fetch('/api/inscricoes');
+  if (!res.ok) throw new Error('Falha ao buscar inscrições');
+  return res.json();
+};
+
+const fetchModalidades = async (): Promise<Modalidade[]> => {
+  const res = await fetch('/api/modalidades');
+  if (!res.ok) throw new Error('Falha ao buscar modalidades');
   return res.json();
 };
 
 export default function Classificacoes() {
   const [modalidade, setModalidade] = useState<string | null>(null);
   const [categoria, setCategoria] = useState<string | null>(null);
-  const [afiliacao, setAfiliacao] = useState<string | null>(null);
+  const [lotacao, setlotacao] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'atletas' | 'equipes'>('atletas');
 
   const {
-    data: classificacoes,
-    isLoading,
-    isError,
-    error,
+    data: classificacoesRaw,
+    isLoading: isLoadingClassificacoes,
+    isError: isErrorClassificacoes,
+    error: errorClassificacoes,
   } = useQuery<ClassificacaoType[]>({
     queryKey: ['classificacoes'],
     queryFn: fetchClassificacoes,
   });
 
+  const {
+    data: inscricoes,
+    isLoading: isLoadingInscricoes,
+    isError: isErrorInscricoes,
+    error: errorInscricoes,
+  } = useQuery<Inscricao[]>({
+    queryKey: ['inscricoes'],
+    queryFn: fetchInscricoes,
+  });
+
+  const {
+    data: modalidadesData,
+    isLoading: isLoadingModalidades,
+    isError: isErrorModalidades,
+    error: errorModalidades,
+  } = useQuery<Modalidade[]>({
+    queryKey: ['modalidades'],
+    queryFn: fetchModalidades,
+  });
+
+  const classificacoes = useMemo(() => {
+    if (!classificacoesRaw || !inscricoes || !modalidadesData) return [];
+
+    const inscricoesMap = new Map(inscricoes.map((i) => [i.id, i]));
+    const modalidadesMap = new Map(modalidadesData.map((m) => [m.id, m]));
+
+    return classificacoesRaw.map((c) => {
+      const enriched = { ...c };
+
+      // Adiciona nome da modalidade
+      const modalidadeInfo = modalidadesMap.get(c.modalidadeId);
+      if (modalidadeInfo) {
+        enriched.modalidade = modalidadeInfo.nome;
+      }
+
+      // Adiciona dados do atleta (se for classificação individual)
+      if (c.inscricaoId) {
+        const inscricao = inscricoesMap.get(c.inscricaoId);
+        if (inscricao) {
+          enriched.atleta = inscricao.nome;
+          enriched.lotacao = inscricao.lotacao;
+        }
+      }
+      return enriched;
+    });
+  }, [classificacoesRaw, inscricoes, modalidadesData]);
+
   const { atletas, equipes } = useMemo(() => {
     if (!classificacoes) return { atletas: [], equipes: [] };
     return {
-      atletas: classificacoes.filter((c) => c.atleta),
-      equipes: classificacoes.filter((c) => !c.atleta),
+      atletas: classificacoes.filter((c) => c.inscricaoId),
+      equipes: classificacoes.filter((c) => !c.inscricaoId),
     };
   }, [classificacoes]);
 
@@ -66,23 +134,26 @@ export default function Classificacoes() {
     return atletas.filter((c) => {
       if (modalidade && c.modalidade !== modalidade) return false;
       if (categoria && c.categoria !== categoria) return false;
-      if (afiliacao && c.afiliacao !== afiliacao) return false;
+      if (lotacao && c.lotacao !== lotacao) return false;
       return true;
     });
-  }, [atletas, modalidade, categoria, afiliacao]);
+  }, [atletas, modalidade, categoria, lotacao]);
 
   const equipesFiltradas = useMemo(() => {
     return equipes.filter((c) => {
       if (modalidade && c.modalidade !== modalidade) return false;
       if (categoria && c.categoria !== categoria) return false;
-      if (afiliacao && c.afiliacao !== afiliacao) return false;
+      if (lotacao && c.lotacao !== lotacao) return false;
       return true;
     });
-  }, [equipes, modalidade, categoria, afiliacao]);
+  }, [equipes, modalidade, categoria, lotacao]);
 
   const modalidades = useMemo(() => {
     if (!classificacoes) return [];
-    return [...new Set(classificacoes.map((c) => c.modalidade))];
+    const allModalidades = classificacoes
+      .map((c) => c.modalidade)
+      .filter(Boolean);
+    return [...new Set(allModalidades)] as string[];
   }, [classificacoes]);
 
   const categorias = useMemo(() => {
@@ -90,23 +161,22 @@ export default function Classificacoes() {
     return [...new Set(classificacoes.map((c) => c.categoria))];
   }, [classificacoes]);
 
-  const afiliacoes = useMemo(() => {
+  const lotacoes = useMemo(() => {
     if (!classificacoes) return [];
-    return [...new Set(classificacoes.map((c) => c.afiliacao))];
+    const allLotacoes = classificacoes.map((c) => c.lotacao).filter(Boolean);
+    return [...new Set(allLotacoes)] as string[];
   }, [classificacoes]);
 
   const quadroMedalhas: MedalRowType[] = useMemo(() => {
     if (!classificacoes) return [];
 
-    const filtradas = classificacoes;
-
     const mapa = new Map<string, MedalRowType>();
-    for (const c of filtradas) {
-      if (c.posicao > 3) continue;
+    for (const c of classificacoes) {
+      if (c.posicao > 3 || !c.lotacao) continue;
       const atual =
-        mapa.get(c.afiliacao) ||
+        mapa.get(c.lotacao) ||
         ({
-          afiliacao: c.afiliacao,
+          lotacao: c.lotacao,
           ouro: 0,
           prata: 0,
           bronze: 0,
@@ -116,7 +186,7 @@ export default function Classificacoes() {
       if (c.posicao === 2) atual.prata += 1;
       if (c.posicao === 3) atual.bronze += 1;
       atual.total = atual.ouro + atual.prata + atual.bronze;
-      mapa.set(c.afiliacao, atual);
+      mapa.set(c.lotacao, atual);
     }
 
     return Array.from(mapa.values()).sort((a, b) => {
@@ -135,9 +205,11 @@ export default function Classificacoes() {
 
   return (
     <QueryStateHandler
-      isLoading={isLoading}
-      isError={isError}
-      error={error}
+      isLoading={
+        isLoadingClassificacoes || isLoadingInscricoes || isLoadingModalidades
+      }
+      isError={isErrorClassificacoes || isErrorInscricoes || isErrorModalidades}
+      error={errorClassificacoes || errorInscricoes || errorModalidades}
       loadingMessage='Carregando classificações...'
     >
       <div className='min-h-screen py-12 bg-gradient-to-br from-blue-50 via-white to-orange-50'>
@@ -208,7 +280,7 @@ export default function Classificacoes() {
                   <TrendingUp className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
-                  {afiliacoes.length}
+                  {lotacoes.length}
                 </h3>
                 <p className='text-xs sm:text-sm lg:text-base text-gray-600'>
                   Forças
@@ -225,13 +297,13 @@ export default function Classificacoes() {
             <ClassificacoesFilters
               modalidade={modalidade}
               categoria={categoria}
-              afiliacao={afiliacao}
+              lotacao={lotacao}
               modalidades={modalidades}
               categorias={categorias}
-              afiliacoes={afiliacoes}
+              lotacoes={lotacoes}
               onChangeModalidade={setModalidade}
               onChangeCategoria={setCategoria}
-              onChangeAfiliacao={setAfiliacao}
+              onChangeLotacao={setlotacao}
             />
             <Button
               onClick={() =>

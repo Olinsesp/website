@@ -23,7 +23,8 @@ const inscricaoSchema = z
     camiseta: z
       .string()
       .min(1, { message: 'Selecione um tamanho de camiseta.' }),
-    afiliacao: z.string().optional(),
+    lotacao: z.string(),
+    orgaoOrigem: z.string(),
     matricula: z
       .string()
       .min(5, { message: 'Matrícula deve ter ao menos 5 caracteres.' }),
@@ -78,7 +79,8 @@ type Inscricao = {
   telefone: string;
   sexo: 'm' | 'f';
   camiseta: string;
-  afiliacao?: string;
+  lotacao: string;
+  orgaoOrigem: string;
   matricula: string;
   modalidades: string[];
   [key: string]: any; // Campos extras dinâmicos
@@ -100,8 +102,13 @@ async function sendEmail(inscricao: Inscricao) {
     },
   });
 
+  const allFlattenedModalidades = modalidades.map((mod) => ({
+    ...mod,
+    parentCategory: mod.categoria,
+  }));
+
   // Busca informações detalhadas das modalidades selecionadas
-  const modalidadesSelecionadas = modalidades.filter((m) =>
+  const modalidadesSelecionadas = allFlattenedModalidades.filter((m) =>
     inscricao.modalidades.includes(m.nome),
   );
 
@@ -124,9 +131,9 @@ async function sendEmail(inscricao: Inscricao) {
 
   // Função para filtrar campos extras por modalidade e sexo
   const getCamposExtrasPorModalidade = (modalidade: any) => {
-    if (!modalidade.camposExtras) return [];
+    if (!modalidade.campos_extras) return [];
 
-    return modalidade.camposExtras.filter((field: any) => {
+    return modalidade.campos_extras.filter((field: any) => {
       const fieldId = field.id.toLowerCase();
       const fieldLabel = field.label?.toLowerCase() || '';
 
@@ -205,7 +212,7 @@ async function sendEmail(inscricao: Inscricao) {
             </tr>
             <tr>
               <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;"><strong>Categoria:</strong></td>
-              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${modalidade.categoria || 'N/A'}</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${modalidade.parentCategory || 'N/A'}</td>
             </tr>
             ${camposExtrasHTML}
           </table>
@@ -302,16 +309,14 @@ async function sendEmail(inscricao: Inscricao) {
               <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;"><strong>Matrícula:</strong></td>
               <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${inscricao.matricula}</td>
             </tr>
-            ${
-              inscricao.afiliacao
-                ? `
             <tr>
-              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;"><strong>Afiliação/Força:</strong></td>
-              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${inscricao.afiliacao}</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;"><strong>Lotação:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${inscricao.lotacao}</td>
             </tr>
-            `
-                : ''
-            }
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;"><strong>Órgão de Origem:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #e0e0e0;">${inscricao.orgaoOrigem}</td>
+            </tr>
           </table>
         </div>
 

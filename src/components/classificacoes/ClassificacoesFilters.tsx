@@ -14,26 +14,26 @@ import React from 'react';
 type Props = {
   modalidade: string | null;
   categoria: string | null;
-  afiliacao: string | null;
+  lotacao: string | null;
   modalidades: string[];
   categorias: string[];
-  afiliacoes: string[];
+  lotacoes: string[];
   onChangeModalidade: (value: string | null) => void;
   onChangeCategoria: (value: string | null) => void;
-  onChangeAfiliacao: (value: string | null) => void;
+  onChangeLotacao: (value: string | null) => void;
   className?: string;
 };
 
 export function ClassificacoesFilters({
   modalidade,
   categoria,
-  afiliacao,
+  lotacao,
   modalidades,
   categorias,
-  afiliacoes,
+  lotacoes,
   onChangeModalidade,
   onChangeCategoria,
-  onChangeAfiliacao,
+  onChangeLotacao,
   className,
 }: Props) {
   return (
@@ -100,20 +100,20 @@ export function ClassificacoesFilters({
 
           <div className='space-y-2'>
             <label className='text-xs sm:text-sm font-medium text-gray-700'>
-              Afiliação
+              Lotação
             </label>
             <Select
-              value={afiliacao ?? 'todos'}
+              value={lotacao ?? 'todos'}
               onValueChange={(val) =>
-                onChangeAfiliacao(val === 'todos' ? null : val)
+                onChangeLotacao(val === 'todos' ? null : val)
               }
             >
               <SelectTrigger className='w-full border-2 border-gray-200 bg-white hover:border-blue-300 transition-colors text-sm'>
-                <SelectValue placeholder='Todas as afiliações' />
+                <SelectValue placeholder='Todas as lotações' />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='todos'>Todas as Afiliações</SelectItem>
-                {afiliacoes.map((a) => (
+                <SelectItem value='todos'>Todas as lotações</SelectItem>
+                {lotacoes.map((a) => (
                   <SelectItem key={a} value={a}>
                     {a}
                   </SelectItem>

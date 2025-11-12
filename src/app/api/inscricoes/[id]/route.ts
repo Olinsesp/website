@@ -10,7 +10,8 @@ const inscricaoUpdateSchema = z.object({
   email: z.email({ message: 'Email inválido.' }).optional(),
   telefone: z.string().min(10, { message: 'Telefone inválido.' }).optional(),
   camiseta: z.string().optional(),
-  afiliacao: z.string().optional(),
+  lotacao: z.string().optional(),
+  orgaoOrigem: z.string().optional(),
   modalidades: z
     .array(z.string())
     .min(1, { message: 'Selecione ao menos uma modalidade.' })

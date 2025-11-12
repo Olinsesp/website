@@ -39,7 +39,7 @@ type Inscricao = {
   cpf: string;
   telefone: string;
   camiseta: string;
-  afiliacao: string;
+  lotacao: string;
   matricula: string;
   modalidades: string[];
 };
@@ -127,7 +127,7 @@ export default function ConfirmacaoForm() {
         i.nome.toLowerCase().includes(q) ||
         i.email.toLowerCase().includes(q) ||
         i.cpf.includes(q) ||
-        i.afiliacao.toLowerCase().includes(q),
+        i.lotacao.toLowerCase().includes(q),
     );
   }, [eventoSelecionado, inscricoes, busca]);
 
@@ -197,7 +197,7 @@ export default function ConfirmacaoForm() {
 
     const dadosFormatados = dadosParaPDF.map((i) => ({
       nome: i.nome,
-      afiliacao: i.afiliacao,
+      lotacao: i.lotacao,
       email: i.email,
       status: confirmadosSet.has(i.cpf)
         ? 'Presente'
@@ -288,7 +288,7 @@ export default function ConfirmacaoForm() {
               <div className='flex flex-col md:flex-row gap-2 md:items-center mb-4'>
                 <div className='relative w-full md:max-w-sm'>
                   <Input
-                    placeholder='Buscar por nome, CPF, email ou afiliação'
+                    placeholder='Buscar por nome, CPF, email ou Lotação'
                     value={busca}
                     onChange={(e) => setBusca(e.target.value)}
                     className='pl-9'
@@ -356,7 +356,7 @@ export default function ConfirmacaoForm() {
                       <div className='flex-1'>
                         <div className='font-medium'>{i.nome}</div>
                         <div className='text-xs text-muted-foreground'>
-                          CPF {i.cpf} • {i.email} • {i.afiliacao}
+                          CPF {i.cpf} • {i.email} • {i.lotacao}
                         </div>
                         <div className='text-xs text-muted-foreground'>
                           Modalidades: {i.modalidades.join(', ')}

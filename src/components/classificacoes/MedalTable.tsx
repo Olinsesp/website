@@ -24,7 +24,7 @@ export default function MedalTable({ rows }: Props) {
         <div className='flex items-center gap-2'>
           <Medal className='h-4 w-4 sm:h-5 sm:w-5 text-yellow-600' />
           <CardTitle className='text-lg sm:text-xl text-gray-800'>
-            Quadro de Medalhas por Afiliação
+            Quadro de Medalhas por Lotação
           </CardTitle>
         </div>
       </CardHeader>
@@ -34,7 +34,7 @@ export default function MedalTable({ rows }: Props) {
             <TableHeader>
               <TableRow>
                 <TableHead className='w-12 text-center'>#</TableHead>
-                <TableHead>Afiliação</TableHead>
+                <TableHead>Lotação</TableHead>
                 <TableHead className='text-center'>
                   <span className='inline-flex items-center gap-1 text-yellow-700'>
                     <Crown className='h-4 w-4 text-yellow-500' /> Ouro
@@ -55,12 +55,12 @@ export default function MedalTable({ rows }: Props) {
             </TableHeader>
             <TableBody>
               {rows.map((row, idx) => (
-                <TableRow key={row.afiliacao}>
+                <TableRow key={row.lotacao}>
                   <TableCell className='text-center font-semibold text-gray-700'>
                     {idx + 1}
                   </TableCell>
                   <TableCell className='font-medium text-gray-800'>
-                    {row.afiliacao}
+                    {row.lotacao}
                   </TableCell>
                   <TableCell className='text-center text-yellow-700'>
                     {row.ouro}

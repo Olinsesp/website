@@ -3,7 +3,7 @@ import autoTable from 'jspdf-autotable';
 
 type PdfRow = {
   nome: string;
-  afiliacao: string;
+  lotacao: string;
   modalidades: string[];
   email: string;
 };
@@ -13,7 +13,7 @@ type ClassificacaoRow = {
   atleta?: string;
   modalidade: string;
   categoria: string;
-  afiliacao: string;
+  lotacao: string;
   pontuacao: number;
   tempo?: string;
   distancia?: string;
@@ -46,10 +46,10 @@ export function generatePDF(
 
     const tableData = (data as ClassificacaoRow[]).map((row) => [
       row.posicao.toString(),
-      row.atleta || row.afiliacao,
+      row.atleta || row.lotacao,
       row.modalidade,
       row.categoria,
-      row.afiliacao,
+      row.lotacao,
       row.pontuacao.toString(),
       row.tempo || '-',
       row.distancia || '-',
@@ -62,7 +62,7 @@ export function generatePDF(
           isEquipe ? 'Equipe' : 'Atleta',
           'Modalidade',
           'Categoria',
-          'Afiliação',
+          'Lotação',
           'Pontos',
           'Tempo',
           'Distância',
@@ -95,13 +95,13 @@ export function generatePDF(
 
     const tableData = sorted.map((row) => [
       row.nome,
-      row.afiliacao,
+      row.lotacao,
       row.status ?? '-',
       row.email,
     ]);
 
     autoTable(doc, {
-      head: [['Nome', 'Afiliação', 'Status', 'Email']],
+      head: [['Nome', 'Lotação', 'Status', 'Email']],
       body: tableData,
       startY: Math.max(y, 30),
       styles: { fontSize: 12 },
@@ -119,13 +119,13 @@ export function generatePDF(
 
     const tableData = sorted.map((row) => [
       row.nome,
-      row.afiliacao,
+      row.lotacao,
       row.modalidades.join(', '),
       row.email,
     ]);
 
     autoTable(doc, {
-      head: [['Nome', 'Afiliação', 'Modalidades', 'Email']],
+      head: [['Nome', 'Lotação', 'Modalidades', 'Email']],
       body: tableData,
       startY: 30,
       styles: { fontSize: 12 },

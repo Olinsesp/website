@@ -64,7 +64,7 @@ export default function Home() {
   const highlights = [
     {
       icon: Clock,
-      title: '3 Dias',
+      title: '36 Dias',
       description: 'de competições intensas',
       color: 'text-blue-600',
     },
