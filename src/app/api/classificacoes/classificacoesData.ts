@@ -70,7 +70,6 @@ export const classificacoes = [
     inscricaoId: '5',
     pontuacao: 96,
     tempo: '10.45s',
-    distancia: '100m',
     observacoes: 'Recorde do evento',
   },
   {
@@ -81,7 +80,6 @@ export const classificacoes = [
     inscricaoId: '3',
     pontuacao: 93,
     tempo: '25.32s',
-    distancia: '50m',
     observacoes: 'Estilo perfeito',
   },
 ];

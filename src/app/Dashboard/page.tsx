@@ -22,10 +22,10 @@ import {
   Cell,
   LabelList,
 } from 'recharts';
-import { generatePDF } from '@/components/pdf-utils';
+import { generatePDF } from '@/lib/pdf-utils';
 import { Download, Filter } from 'lucide-react';
 
-import { columns, Inscricoes } from './columns';
+import { Inscricoes } from './columns';
 import { DataTable } from './data-table';
 import { AppSidebar } from '@/app/Dashboard/app-sidebar';
 import { SiteHeader } from '@/app/Dashboard/site-header';
@@ -35,6 +35,7 @@ import ModalidadesForm from '@/components/admin/ModalidadesForm';
 import GaleriaForm from '@/components/admin/GaleriaForm';
 import CronogramaForm from '@/components/admin/CronogramaForm';
 import InscricoesForm from '@/components/admin/InscricoesForm';
+import ClassificacoesForm from '@/components/admin/ClassificacoesForm';
 import QueryStateHandler from '@/components/ui/query-state-handler';
 import ConfirmacaoForm from '@/components/admin/ConfirmacaoForm';
 
@@ -57,13 +58,24 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    const fetchInscricoes = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await fetch('/api/inscricoes');
-        if (!res.ok) throw new Error('Falha ao buscar inscrições');
-        const data: Inscricoes[] = await res.json();
-        setInscritos(data);
+        const [inscritosRes] = await Promise.all([fetch('/api/inscricoes')]);
+
+        if (!inscritosRes.ok) throw new Error('Falha ao buscar inscrições');
+
+        const inscritosData = await inscritosRes.json();
+        // Mock status and id for demonstration
+        const inscritosComStatus = inscritosData.map(
+          (item: any, index: number) => ({
+            ...item,
+            id: item.id || `id-${index}`,
+            status: ['Confirmado', 'Pendente', 'Cancelado'][index % 3],
+          }),
+        );
+
+        setInscritos(inscritosComStatus);
       } catch (err: any) {
         setError(err);
       } finally {
@@ -71,7 +83,7 @@ export default function DashboardPage() {
       }
     };
 
-    fetchInscricoes();
+    fetchData();
   }, []);
 
   const inscritosFiltrados = useMemo(() => {
@@ -116,6 +128,8 @@ export default function DashboardPage() {
         return <InscricoesForm />;
       case 'confirmação':
         return <ConfirmacaoForm />;
+      case 'classificações':
+        return <ClassificacoesForm />;
       default:
         return (
           <div className='flex flex-1 flex-col gap-4 p-4 pt-0'>
@@ -137,7 +151,7 @@ export default function DashboardPage() {
                 <div className='flex flex-col lg:flex-row items-start lg:items-end gap-4 w-full'>
                   <div className='space-y-2'>
                     <label className='text-sm font-medium'>
-                      Filtrar por Afiliação
+                      Filtrar por Lotação
                     </label>
                     <Select
                       value={lotacao ?? 'todos'}
@@ -149,9 +163,7 @@ export default function DashboardPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value='todos'>
-                          Todas as Afiliações
-                        </SelectItem>
+                        <SelectItem value='todos'>Todas as Lotações</SelectItem>
                         {[...new Set(inscritos.map((i) => i.lotacao))].map(
                           (a) => (
                             <SelectItem key={a} value={a}>
@@ -213,7 +225,7 @@ export default function DashboardPage() {
             <div className='grid gap-4 md:grid-cols-2'>
               <Card>
                 <CardHeader>
-                  <CardTitle>Inscritos por Afiliação</CardTitle>
+                  <CardTitle>Inscritos por Lotação</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width='100%' height={300}>
@@ -275,7 +287,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <DataTable
-                  columns={columns}
+                  columns={[]}
                   data={inscritosFiltrados.map((i) => ({
                     ...i,
                     modalidades: modalidade

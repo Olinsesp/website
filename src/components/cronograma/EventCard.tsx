@@ -23,7 +23,7 @@ type Props = {
 
 export default function EventCard({ evento }: Props) {
   return (
-    <Card className='hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-r from-gray-50 to-white shadow-lg hover:shadow-blue-500/10'>
+    <Card className='hover:shadow-xl transition-all duration-300 border-0 bg-linear-to-r from-gray-50 to-white shadow-lg hover:shadow-blue-500/10'>
       <CardContent className='p-4 sm:p-6'>
         <div className='flex flex-col gap-4 sm:gap-6'>
           <div className='flex items-start gap-4'>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -25,9 +25,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Trash2, Edit, Plus, Save, MapPin, Clock } from 'lucide-react';
+import { Trash2, Edit, Plus, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import QueryStateHandler from '../ui/query-state-handler';
+import { DataTable } from '@/app/Dashboard/data-table';
+import { ColumnDef } from '@tanstack/react-table';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const campoExtraSchema = z.object({
   id: z.string().min(1, 'ID do campo é obrigatório'),
@@ -81,13 +84,28 @@ interface Modalidade {
   camposExtras?: CampoExtra[];
 }
 
+async function fetchModalidades(): Promise<Modalidade[]> {
+  const response = await fetch('/api/modalidades');
+  if (!response.ok) {
+    throw new Error('Erro ao carregar modalidades');
+  }
+  return response.json();
+}
+
 export default function ModalidadesForm() {
-  const [modalidades, setModalidades] = useState<Modalidade[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const {
+    data: modalidades = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery<Modalidade[], Error>({
+    queryKey: ['modalidades'],
+    queryFn: fetchModalidades,
+  });
 
   const {
     register,
@@ -113,35 +131,14 @@ export default function ModalidadesForm() {
     name: 'camposExtras',
   });
 
-  useEffect(() => {
-    fetchModalidades();
-  }, []);
-
-  const fetchModalidades = async () => {
-    try {
-      const response = await fetch('/api/modalidades');
-      if (response.ok) {
-        const data = await response.json();
-        setModalidades(data);
-      } else {
-        throw new Error('Erro ao carregar modalidades');
-      }
-    } catch (err: any) {
-      setError(err);
-      toast.error(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onSubmit = async (data: ModalidadeFormData) => {
-    setIsSubmitting(true);
-    try {
-      const url = editingId
-        ? `/api/modalidades/${editingId}`
-        : '/api/modalidades';
-      const method = editingId ? 'PUT' : 'POST';
-
+  const mutation = useMutation<
+    Response,
+    Error,
+    { data: ModalidadeFormData; id?: string | null }
+  >({
+    mutationFn: async ({ data, id }) => {
+      const url = id ? `/api/modalidades/${id}` : '/api/modalidades';
+      const method = id ? 'PUT' : 'POST';
       const dataToSend = {
         ...data,
         camposExtras: data.camposExtras?.map((field: any) => ({
@@ -152,29 +149,49 @@ export default function ModalidadesForm() {
               : field.options,
         })),
       };
-
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSend),
       });
-
-      if (response.ok) {
-        toast.success(
-          editingId ? 'Modalidade atualizada!' : 'Modalidade criada!',
-        );
-        fetchModalidades();
-        reset();
-        setEditingId(null);
-        setIsDialogOpen(false);
-      } else {
-        throw new Error('Erro ao salvar');
+      if (!response.ok) {
+        throw new Error('Erro ao salvar modalidade');
       }
-    } catch {
-      toast.error('Erro ao salvar modalidade');
-    } finally {
-      setIsSubmitting(false);
-    }
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['modalidades'] });
+      toast.success(
+        editingId ? 'Modalidade atualizada!' : 'Modalidade criada!',
+      );
+      handleCancel();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const deleteMutation = useMutation<Response, Error, string>({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/modalidades/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Erro ao excluir modalidade');
+      }
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['modalidades'] });
+      toast.success('Modalidade excluída!');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const onSubmit = (data: ModalidadeFormData) => {
+    mutation.mutate({ data, id: editingId });
   };
 
   const handleEdit = (modalidade: Modalidade) => {
@@ -194,23 +211,9 @@ export default function ModalidadesForm() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (!confirm('Tem certeza que deseja excluir esta modalidade?')) return;
-
-    try {
-      const response = await fetch(`/api/modalidades/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        toast.success('Modalidade excluída!');
-        fetchModalidades();
-      } else {
-        throw new Error('Erro ao excluir');
-      }
-    } catch {
-      toast.error('Erro ao excluir modalidade');
-    }
+    deleteMutation.mutate(id);
   };
 
   const handleCancel = () => {
@@ -247,10 +250,61 @@ export default function ModalidadesForm() {
     );
   };
 
+  const columns: ColumnDef<Modalidade>[] = [
+    {
+      accessorKey: 'nome',
+      header: 'Nome',
+    },
+    {
+      accessorKey: 'descricao',
+      header: 'Descrição',
+    },
+    {
+      accessorKey: 'categoria',
+      header: 'Categoria',
+    },
+    {
+      accessorKey: 'participantes',
+      header: 'Participantes',
+      cell: ({ row }) =>
+        `${row.original.participantesAtuais}/${row.original.maxParticipantes}`,
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => getStatusBadge(row.original.status),
+    },
+    {
+      id: 'actions',
+      header: 'Ações',
+      cell: ({ row }) => {
+        const modalidade = row.original;
+        return (
+          <div className='flex gap-2 justify-end'>
+            <Button
+              size='sm'
+              variant='outline'
+              onClick={() => handleEdit(modalidade)}
+            >
+              <Edit className='h-4 w-4' />
+            </Button>
+            <Button
+              size='sm'
+              variant='destructive'
+              onClick={() => handleDelete(modalidade.id)}
+            >
+              <Trash2 className='h-4 w-4' />
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+
   return (
     <QueryStateHandler
-      isLoading={loading}
-      isError={!!error}
+      isLoading={isLoading}
+      isError={isError}
       error={error}
       loadingMessage='Carregando modalidades...'
     >
@@ -266,61 +320,11 @@ export default function ModalidadesForm() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className='space-y-4'>
-              {modalidades.map((modalidade) => (
-                <div
-                  key={modalidade.id}
-                  className='p-4 border rounded-lg space-y-3'
-                >
-                  <div className='flex items-start justify-between'>
-                    <div className='space-y-2 flex-1'>
-                      <div className='flex items-center gap-2'>
-                        <h3 className='font-semibold text-lg'>
-                          {modalidade.nome}
-                        </h3>
-                        {getStatusBadge(modalidade.status)}
-                      </div>
-
-                      <p className='text-gray-600'>{modalidade.descricao}</p>
-
-                      <div className='flex items-center gap-4 text-sm text-gray-500'>
-                        <span className='flex items-center gap-1'>
-                          <MapPin className='h-4 w-4' />
-                          {modalidade.categoria}
-                        </span>
-                        <span className='flex items-center gap-1'>
-                          <Clock className='h-4 w-4' />
-                          {modalidade.participantesAtuais}/
-                          {modalidade.maxParticipantes} participantes
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className='flex gap-2 ml-4'>
-                      <Button
-                        size='sm'
-                        variant='outline'
-                        onClick={() => handleEdit(modalidade)}
-                      >
-                        <Edit className='h-4 w-4' />
-                      </Button>
-                      <Button
-                        size='sm'
-                        variant='destructive'
-                        onClick={() => handleDelete(modalidade.id)}
-                      >
-                        <Trash2 className='h-4 w-4' />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {modalidades.length === 0 && (
-                <p className='text-center text-gray-500 py-8'>
-                  Nenhuma modalidade cadastrada
-                </p>
-              )}
-            </div>
+            <DataTable
+              columns={columns}
+              data={modalidades}
+              filterColumn='nome'
+            />
           </CardContent>
         </Card>
 
@@ -491,8 +495,8 @@ export default function ModalidadesForm() {
                 <Button type='button' variant='outline' onClick={handleCancel}>
                   Cancelar
                 </Button>
-                <Button type='submit' disabled={isSubmitting}>
-                  {isSubmitting ? (
+                <Button type='submit' disabled={mutation.isPending}>
+                  {mutation.isPending ? (
                     <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
                   ) : (
                     <Save className='h-4 w-4 mr-2' />

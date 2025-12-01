@@ -19,7 +19,7 @@ import {
   Shield,
   Crown,
 } from 'lucide-react';
-import { generatePDF } from '@/components/pdf-utils';
+import { generatePDF } from '@/lib/pdf-utils';
 import ClassificacoesFilters from '@/components/classificacoes/ClassificacoesFilters';
 import MedalTable from '@/components/classificacoes/MedalTable';
 import AthleteResultCard from '@/components/classificacoes/AthleteResultCard';
@@ -209,21 +209,21 @@ export default function Classificacoes() {
       error={errorClassificacoes || errorInscricoes || errorModalidades}
       loadingMessage='Carregando classificações...'
     >
-      <div className='min-h-screen py-12 bg-gradient-to-br from-blue-50 via-white to-orange-50'>
+      <div className='min-h-screen py-12'>
         <div className='container mx-auto px-4'>
           {/* Header da Página */}
           <div className='text-center mb-12'>
-            <div className='inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-orange-500 text-white px-6 py-3 rounded-full text-sm font-medium mb-6'>
+            <div className='inline-flex items-center gap-2 bg-linear-to-r from-blue-600 to-orange-500 text-white px-6 py-3 rounded-full text-sm font-medium mb-6'>
               <Trophy className='h-4 w-4' />
               Resultados Atualizados
             </div>
 
-            <h1 className='text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-blue-500 to-orange-500 bg-clip-text text-transparent'>
+            <h1 className='text-4xl md:text-5xl font-bold mb-6 bg-linear-to-r from-blue-600 via-blue-500 to-orange-500 bg-clip-text text-transparent'>
               Classificações
             </h1>
-            <p className='text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed'>
+            <p className='text-2xl md:text-xl font-medium text-gray-950 max-w-3xl mx-auto leading-relaxed'>
               Acompanhe em tempo real os resultados dos atletas e equipes em
-              todas as modalidades do Olinsesp VIII
+              todas as modalidades do VIII Olinsesp
             </p>
           </div>
 
@@ -231,7 +231,7 @@ export default function Classificacoes() {
           <div className='grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12'>
             <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
               <CardContent className='p-4 sm:p-6 lg:p-8'>
-                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-2xl flex items-center justify-center'>
+                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-linear-to-br from-yellow-400 to-yellow-500 rounded-2xl flex items-center justify-center'>
                   <Crown className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
@@ -245,7 +245,7 @@ export default function Classificacoes() {
 
             <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
               <CardContent className='p-4 sm:p-6 lg:p-8'>
-                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center'>
+                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-linear-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center'>
                   <Trophy className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
@@ -259,7 +259,7 @@ export default function Classificacoes() {
 
             <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
               <CardContent className='p-4 sm:p-6 lg:p-8'>
-                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center'>
+                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-linear-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center'>
                   <Users className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
@@ -273,7 +273,7 @@ export default function Classificacoes() {
 
             <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
               <CardContent className='p-4 sm:p-6 lg:p-8'>
-                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center'>
+                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-linear-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center'>
                   <TrendingUp className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
@@ -309,7 +309,7 @@ export default function Classificacoes() {
                   `classificacoes-${activeTab}`,
                 )
               }
-              className='bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base'
+              className='bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base'
             >
               <Download className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
               Exportar PDF
@@ -344,7 +344,7 @@ export default function Classificacoes() {
             <TabsContent value='atletas' className='mt-6 sm:mt-8'>
               <Card className='bg-white/90 backdrop-blur-sm border-0 shadow-2xl'>
                 <CardHeader className='text-center pb-4 sm:pb-6 px-4 sm:px-6'>
-                  <div className='h-16 w-16 sm:h-20 sm:w-20 mx-auto mb-4 sm:mb-6 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center'>
+                  <div className='h-16 w-16 sm:h-20 sm:w-20 mx-auto mb-4 sm:mb-6 bg-linear-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center'>
                     <Users className='h-8 w-8 sm:h-10 sm:w-10 text-white' />
                   </div>
                   <CardTitle className='text-2xl sm:text-3xl text-gray-800'>
@@ -384,7 +384,7 @@ export default function Classificacoes() {
             <TabsContent value='equipes' className='mt-8'>
               <Card className='bg-white/90 backdrop-blur-sm border-0 shadow-2xl'>
                 <CardHeader className='text-center pb-6'>
-                  <div className='h-20 w-20 mx-auto mb-6 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center'>
+                  <div className='h-20 w-20 mx-auto mb-6 bg-linear-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center'>
                     <Shield className='h-10 w-10 text-white' />
                   </div>
                   <CardTitle className='text-3xl text-gray-800'>

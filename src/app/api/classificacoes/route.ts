@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { classificacoes } from './classificacoesData';
+import { modalidades } from '../modalidades/modalidadesData'; // Import modalidades data
+import { inscricoes } from '../inscricoes/inscriçoesData'; // Import inscricoes data
 
 const classificacaoSchema = z
   .object({
@@ -13,21 +15,66 @@ const classificacaoSchema = z
     tempo: z.string().optional(),
     distancia: z.string().optional(),
     observacoes: z.string().optional(),
+    atleta: z.string().optional(), // Added for direct athlete input
   })
   .refine(
     (data) =>
-      (data.inscricaoId && !data.lotacao) ||
-      (!data.inscricaoId && data.lotacao),
+      (data.inscricaoId && !data.lotacao && !data.atleta) ||
+      (!data.inscricaoId && data.lotacao && !data.atleta) ||
+      (!data.inscricaoId && !data.lotacao && data.atleta),
     {
       message:
-        'Forneça `inscricaoId` para classificação individual ou `lotacao` para classificação de equipe, mas não ambos.',
-      path: ['inscricaoId', 'lotacao'],
+        'Forneça `inscricaoId` para individual, `lotacao` para equipe, ou `atleta` diretamente, mas apenas um.',
+      path: ['inscricaoId', 'lotacao', 'atleta'],
     },
   );
 
+// Helper function to enrich a single classification
+function enrichClassificacao(classificacao: any) {
+  const modalidade = modalidades.find(
+    (m) => m.id === classificacao.modalidadeId,
+  );
+  let atletaNome = classificacao.atleta;
+
+  if (!atletaNome && classificacao.inscricaoId) {
+    const inscricao = inscricoes.find(
+      (i) => i.id === classificacao.inscricaoId,
+    );
+    atletaNome = inscricao?.nome;
+  } else if (!atletaNome && classificacao.lotacao) {
+    atletaNome = classificacao.lotacao; // Use lotacao as athlete name for team classifications
+  }
+
+  let sexo = '';
+  if (modalidade?.modalidadesSexo) {
+    if (modalidade.modalidadesSexo.includes('Masculino')) {
+      sexo = 'Masculino';
+    } else if (modalidade.modalidadesSexo.includes('Feminino')) {
+      sexo = 'Feminino';
+    }
+  }
+
+  // Fallback to parsing from categoria if not found in modalidadesSexo
+  if (!sexo) {
+    if (classificacao.categoria.includes('Masculino')) {
+      sexo = 'Masculino';
+    } else if (classificacao.categoria.includes('Feminino')) {
+      sexo = 'Feminino';
+    }
+  }
+
+  return {
+    ...classificacao,
+    modalidade: modalidade?.nome || 'Modalidade Desconhecida',
+    atleta: atletaNome || 'Atleta/Equipe Desconhecido',
+    sexo: sexo || 'N/A',
+  };
+}
+
 export async function GET() {
   try {
-    return NextResponse.json(classificacoes);
+    const enrichedClassificacoes = classificacoes.map(enrichClassificacao);
+    return NextResponse.json(enrichedClassificacoes);
   } catch (error) {
     console.error('Erro ao buscar classificações:', error);
     return NextResponse.json(
@@ -49,7 +96,9 @@ export async function POST(req: Request) {
 
     classificacoes.push(novaClassificacao as any);
 
-    return NextResponse.json(novaClassificacao, { status: 201 });
+    const enrichedNovaClassificacao = enrichClassificacao(novaClassificacao);
+
+    return NextResponse.json(enrichedNovaClassificacao, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

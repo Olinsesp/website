@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -38,6 +38,9 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import QueryStateHandler from '../ui/query-state-handler';
+import { DataTable } from '@/app/Dashboard/data-table';
+import { ColumnDef } from '@tanstack/react-table';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const midiaSchema = z
   .object({
@@ -75,13 +78,28 @@ interface Midia {
   createdAt: string;
 }
 
+async function fetchMidias(): Promise<Midia[]> {
+  const response = await fetch('/api/midias');
+  if (!response.ok) {
+    throw new Error('Erro ao carregar mídias');
+  }
+  return response.json();
+}
+
 export default function GaleriaForm() {
-  const [midias, setMidias] = useState<Midia[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const {
+    data: midias = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery<Midia[], Error>({
+    queryKey: ['midias'],
+    queryFn: fetchMidias,
+  });
 
   const {
     register,
@@ -102,53 +120,55 @@ export default function GaleriaForm() {
 
   const watchedDestaque = watch('destaque');
 
-  useEffect(() => {
-    fetchMidias();
-  }, []);
-
-  const fetchMidias = async () => {
-    try {
-      const response = await fetch('/api/midias');
-      if (response.ok) {
-        const data = await response.json();
-        setMidias(data);
-      } else {
-        throw new Error('Erro ao carregar mídias');
-      }
-    } catch (err: any) {
-      setError(err);
-      toast.error(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onSubmit = async (data: MidiaFormData) => {
-    setIsSubmitting(true);
-    try {
-      const url = editingId ? `/api/midias/${editingId}` : '/api/midias';
-      const method = editingId ? 'PUT' : 'POST';
-
+  const mutation = useMutation<
+    Response,
+    Error,
+    { data: MidiaFormData; id?: string | null }
+  >({
+    mutationFn: async ({ data, id }) => {
+      const url = id ? `/api/midias/${id}` : '/api/midias';
+      const method = id ? 'PUT' : 'POST';
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-
-      if (response.ok) {
-        toast.success(editingId ? 'Mídia atualizada!' : 'Mídia adicionada!');
-        fetchMidias();
-        reset();
-        setEditingId(null);
-        setIsDialogOpen(false);
-      } else {
-        throw new Error('Erro ao salvar');
+      if (!response.ok) {
+        throw new Error('Erro ao salvar mídia');
       }
-    } catch {
-      toast.error('Erro ao salvar mídia');
-    } finally {
-      setIsSubmitting(false);
-    }
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['midias'] });
+      toast.success(editingId ? 'Mídia atualizada!' : 'Mídia adicionada!');
+      handleCancel();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const deleteMutation = useMutation<Response, Error, string>({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/midias/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Erro ao excluir mídia');
+      }
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['midias'] });
+      toast.success('Mídia excluída!');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const onSubmit = (data: MidiaFormData) => {
+    mutation.mutate({ data, id: editingId });
   };
 
   const handleEdit = (midia: Midia) => {
@@ -160,23 +180,9 @@ export default function GaleriaForm() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (!confirm('Tem certeza que deseja excluir esta mídia?')) return;
-
-    try {
-      const response = await fetch(`/api/midias/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        toast.success('Mídia excluída!');
-        fetchMidias();
-      } else {
-        throw new Error('Erro ao excluir');
-      }
-    } catch {
-      toast.error('Erro ao excluir mídia');
-    }
+    deleteMutation.mutate(id);
   };
 
   const handleCancel = () => {
@@ -232,10 +238,116 @@ export default function GaleriaForm() {
     });
   };
 
+  const columns: ColumnDef<Midia>[] = [
+    {
+      id: 'preview',
+      header: 'Preview',
+      cell: ({ row }) => {
+        const midia = row.original;
+        return (
+          <>
+            {midia.tipo === 'foto' && (
+              <Image
+                src={midia.url}
+                alt={midia.titulo || 'Imagem'}
+                width={100}
+                height={64}
+                className='object-cover rounded border'
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            )}
+            {midia.tipo === 'video' && (
+              <video
+                src={midia.url}
+                className='w-24 h-16 rounded border'
+                controls
+                onError={(e) => {
+                  (e.target as HTMLVideoElement).style.display = 'none';
+                }}
+              />
+            )}
+            {midia.tipo === 'release' && (
+              <div className='p-2 bg-gray-50 rounded border'>
+                <FileText className='h-8 w-8 text-gray-500' />
+              </div>
+            )}
+          </>
+        );
+      },
+    },
+    {
+      accessorKey: 'titulo',
+      header: 'Título',
+      cell: ({ row }) => row.original.titulo || 'N/A',
+    },
+    {
+      accessorKey: 'tipo',
+      header: 'Tipo',
+      cell: ({ row }) => getTipoBadge(row.original.tipo),
+    },
+    {
+      accessorKey: 'url',
+      header: 'URL',
+      cell: ({ row }) => (
+        <a
+          href={row.original.url}
+          target='_blank'
+          rel='noopener noreferrer'
+          className='text-blue-500 hover:underline truncate max-w-xs'
+        >
+          {row.original.url}
+        </a>
+      ),
+    },
+    {
+      accessorKey: 'destaque',
+      header: 'Destaque',
+      cell: ({ row }) =>
+        row.original.destaque && (
+          <Badge variant='outline' className='flex items-center gap-1'>
+            <Star className='h-3 w-3 fill-yellow-400 text-yellow-400' />
+            Destaque
+          </Badge>
+        ),
+    },
+    {
+      accessorKey: 'createdAt',
+      header: 'Adicionado em',
+      cell: ({ row }) => formatDate(row.original.createdAt),
+    },
+    {
+      id: 'actions',
+      header: 'Ações',
+      cell: ({ row }) => {
+        const midia = row.original;
+        return (
+          <div className='flex gap-2 justify-end'>
+            <Button
+              size='sm'
+              variant='outline'
+              onClick={() => handleEdit(midia)}
+            >
+              <Edit className='h-4 w-4' />
+            </Button>
+            <Button
+              size='sm'
+              variant='destructive'
+              onClick={() => handleDelete(midia.id)}
+            >
+              <Trash2 className='h-4 w-4' />
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+
   return (
     <QueryStateHandler
-      isLoading={loading}
-      isError={!!error}
+      isLoading={isLoading}
+      isError={isError}
       error={error}
       loadingMessage='Carregando galeria...'
     >
@@ -251,112 +363,7 @@ export default function GaleriaForm() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className='space-y-4'>
-              {midias.map((midia) => (
-                <div key={midia.id} className='p-4 border rounded-lg space-y-3'>
-                  <div className='flex items-start justify-between'>
-                    <div className='space-y-2 flex-1'>
-                      <div className='flex items-center gap-2'>
-                        {getTipoBadge(midia.tipo)}
-                        {midia.destaque && (
-                          <Badge
-                            variant='outline'
-                            className='flex items-center gap-1'
-                          >
-                            <Star className='h-3 w-3 fill-yellow-400 text-yellow-400' />
-                            Destaque
-                          </Badge>
-                        )}
-                      </div>
-
-                      {midia.titulo && (
-                        <h3 className='font-semibold'>{midia.titulo}</h3>
-                      )}
-
-                      <div className='space-y-2'>
-                        <p className='text-sm text-gray-600 break-all'>
-                          <strong>URL:</strong> {midia.url}
-                        </p>
-                        <p className='text-xs text-gray-500'>
-                          Adicionado em: {formatDate(midia.createdAt)}
-                        </p>
-                      </div>
-
-                      {/* Preview baseado no tipo */}
-                      {midia.tipo === 'foto' && (
-                        <div className='mt-3'>
-                          <Image
-                            src={midia.url}
-                            alt={midia.titulo || 'Imagem'}
-                            width={200}
-                            height={128}
-                            className='max-w-xs max-h-32 object-cover rounded border'
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display =
-                                'none';
-                            }}
-                          />
-                        </div>
-                      )}
-
-                      {midia.tipo === 'video' && (
-                        <div className='mt-3'>
-                          <video
-                            src={midia.url}
-                            className='max-w-xs max-h-32 rounded border'
-                            controls
-                            onError={(e) => {
-                              (e.target as HTMLVideoElement).style.display =
-                                'none';
-                            }}
-                          >
-                            Seu navegador não suporta vídeos.
-                          </video>
-                        </div>
-                      )}
-
-                      {midia.tipo === 'release' && (
-                        <div className='mt-3 p-3 bg-gray-50 rounded border'>
-                          <p className='text-sm text-gray-600'>
-                            <strong>Release:</strong> {midia.url}
-                          </p>
-                          <a
-                            href={midia.url}
-                            target='_blank'
-                            rel='noopener noreferrer'
-                            className='text-blue-600 hover:text-blue-800 text-sm underline'
-                          >
-                            Abrir release
-                          </a>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className='flex gap-2 ml-4'>
-                      <Button
-                        size='sm'
-                        variant='outline'
-                        onClick={() => handleEdit(midia)}
-                      >
-                        <Edit className='h-4 w-4' />
-                      </Button>
-                      <Button
-                        size='sm'
-                        variant='destructive'
-                        onClick={() => handleDelete(midia.id)}
-                      >
-                        <Trash2 className='h-4 w-4' />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {midias.length === 0 && (
-                <p className='text-center text-gray-500 py-8'>
-                  Nenhuma mídia cadastrada
-                </p>
-              )}
-            </div>
+            <DataTable columns={columns} data={midias} filterColumn='titulo' />
           </CardContent>
         </Card>
 
@@ -458,8 +465,8 @@ export default function GaleriaForm() {
                 <Button type='button' variant='outline' onClick={handleCancel}>
                   Cancelar
                 </Button>
-                <Button type='submit' disabled={isSubmitting}>
-                  {isSubmitting ? (
+                <Button type='submit' disabled={mutation.isPending}>
+                  {mutation.isPending ? (
                     <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
                   ) : (
                     <Save className='h-4 w-4 mr-2' />

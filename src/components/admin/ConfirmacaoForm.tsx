@@ -14,7 +14,15 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import QueryStateHandler from '@/components/ui/query-state-handler';
-import { generatePDF } from '@/components/pdf-utils';
+import { generatePDF } from '@/lib/pdf-utils';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
   Calendar,
   CheckCircle,
@@ -23,6 +31,7 @@ import {
   Download,
   X,
 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 
 type Evento = {
   id: string;
@@ -43,6 +52,18 @@ type Inscricao = {
   matricula: string;
   modalidades: string[];
 };
+
+async function fetchEventos(): Promise<Evento[]> {
+  const res = await fetch('/api/cronograma');
+  if (!res.ok) throw new Error('Falha ao buscar cronograma');
+  return res.json();
+}
+
+async function fetchInscricoes(): Promise<Inscricao[]> {
+  const res = await fetch('/api/inscricoes');
+  if (!res.ok) throw new Error('Falha ao buscar inscrições');
+  return res.json();
+}
 
 function formatDateTime(iso: string) {
   try {
@@ -73,10 +94,6 @@ function matchesModalidade(eventMod?: string, inscricaoMods: string[] = []) {
 }
 
 export default function ConfirmacaoForm() {
-  const [eventos, setEventos] = useState<Evento[]>([]);
-  const [inscricoes, setInscricoes] = useState<Inscricao[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
   const [eventoSelecionadoId, setEventoSelecionadoId] = useState<string>('');
   const [busca, setBusca] = useState('');
   const [confirmadosPorEvento, setConfirmadosPorEvento] = useState<
@@ -86,29 +103,31 @@ export default function ConfirmacaoForm() {
     Record<string, Set<string>>
   >({});
 
+  const {
+    data: eventos = [],
+    isLoading: isLoadingEventos,
+    isError: isErrorEventos,
+    error: errorEventos,
+  } = useQuery<Evento[], Error>({
+    queryKey: ['cronograma'],
+    queryFn: fetchEventos,
+  });
+
+  const {
+    data: inscricoes = [],
+    isLoading: isLoadingInscricoes,
+    isError: isErrorInscricoes,
+    error: errorInscricoes,
+  } = useQuery<Inscricao[], Error>({
+    queryKey: ['inscricoes'],
+    queryFn: fetchInscricoes,
+  });
+
   useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        const [resCron, resInsc] = await Promise.all([
-          fetch('/api/cronograma'),
-          fetch('/api/inscricoes'),
-        ]);
-        if (!resCron.ok) throw new Error('Falha ao buscar cronograma');
-        if (!resInsc.ok) throw new Error('Falha ao buscar inscrições');
-        const cron: Evento[] = await resCron.json();
-        const insc: Inscricao[] = await resInsc.json();
-        setEventos(cron);
-        setInscricoes(insc);
-        if (cron.length > 0) setEventoSelecionadoId(cron[0].id);
-      } catch (e: any) {
-        setError(e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, []);
+    if (eventos.length > 0 && !eventoSelecionadoId) {
+      setEventoSelecionadoId(eventos[0].id);
+    }
+  }, [eventos, eventoSelecionadoId]);
 
   const eventoSelecionado = useMemo(
     () => eventos.find((e) => e.id === eventoSelecionadoId),
@@ -226,9 +245,9 @@ export default function ConfirmacaoForm() {
   return (
     <div className='flex flex-1 flex-col gap-4 p-4 pt-0'>
       <QueryStateHandler
-        isLoading={loading}
-        isError={!!error}
-        error={error}
+        isLoading={isLoadingEventos || isLoadingInscricoes}
+        isError={isErrorEventos || isErrorInscricoes}
+        error={errorEventos || errorInscricoes}
         loadingMessage='Carregando dados...'
       >
         <div className='grid gap-4 md:grid-cols-3'>
@@ -329,55 +348,82 @@ export default function ConfirmacaoForm() {
               </div>
 
               <ScrollArea className='h-[420px] rounded border'>
-                <div className='divide-y'>
-                  {elegiveis.map((i) => (
-                    <div
-                      key={i.cpf}
-                      className='flex items-center gap-3 p-3 border-b'
-                    >
-                      <div className='flex items-center gap-2'>
-                        <label className='flex items-center gap-2 cursor-pointer'>
-                          <Checkbox
-                            checked={confirmadosSet.has(i.cpf)}
-                            onCheckedChange={() => toggleConfirmado(i.cpf)}
-                          />
-                          <span className='text-sm text-green-600'>
-                            Presente
-                          </span>
-                        </label>
-                        <label className='flex items-center gap-2 cursor-pointer'>
-                          <Checkbox
-                            checked={ausentesSet.has(i.cpf)}
-                            onCheckedChange={() => toggleAusente(i.cpf)}
-                          />
-                          <span className='text-sm text-red-600'>Ausente</span>
-                        </label>
-                      </div>
-                      <div className='flex-1'>
-                        <div className='font-medium'>{i.nome}</div>
-                        <div className='text-xs text-muted-foreground'>
-                          CPF {i.cpf} • {i.email} • {i.lotacao}
-                        </div>
-                        <div className='text-xs text-muted-foreground'>
-                          Modalidades: {i.modalidades.join(', ')}
-                        </div>
-                      </div>
-                      <div className='flex items-center gap-2'>
-                        {confirmadosSet.has(i.cpf) && (
-                          <CheckCircle className='h-4 w-4 text-green-600' />
-                        )}
-                        {ausentesSet.has(i.cpf) && (
-                          <X className='h-4 w-4 text-red-600' />
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {elegiveis.length === 0 && (
-                    <div className='p-6 text-center text-muted-foreground text-sm'>
-                      Nenhum inscrito elegível para este evento.
-                    </div>
-                  )}
-                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Nome</TableHead>
+                      <TableHead>Contato</TableHead>
+                      <TableHead>Modalidades</TableHead>
+                      <TableHead>Confirmado</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {elegiveis.length > 0 ? (
+                      elegiveis.map((i) => (
+                        <TableRow key={i.cpf}>
+                          <TableCell>
+                            <div className='flex items-center gap-2'>
+                              <label className='flex items-center gap-2 cursor-pointer'>
+                                <Checkbox
+                                  checked={confirmadosSet.has(i.cpf)}
+                                  onCheckedChange={() =>
+                                    toggleConfirmado(i.cpf)
+                                  }
+                                />
+                                <span className='text-sm text-green-600'>
+                                  P
+                                </span>
+                              </label>
+                              <label className='flex items-center gap-2 cursor-pointer'>
+                                <Checkbox
+                                  checked={ausentesSet.has(i.cpf)}
+                                  onCheckedChange={() => toggleAusente(i.cpf)}
+                                />
+                                <span className='text-sm text-red-600'>A</span>
+                              </label>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className='font-medium'>{i.nome}</div>
+                            <div className='text-xs text-muted-foreground'>
+                              CPF {i.cpf}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className='text-xs text-muted-foreground'>
+                              {i.email}
+                            </div>
+                            <div className='text-xs text-muted-foreground'>
+                              {i.lotacao}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className='text-xs text-muted-foreground'>
+                              {i.modalidades.join(', ')}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className='flex items-center gap-2'>
+                              {confirmadosSet.has(i.cpf) && (
+                                <CheckCircle className='h-4 w-4 text-green-600' />
+                              )}
+                              {ausentesSet.has(i.cpf) && (
+                                <X className='h-4 w-4 text-red-600' />
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={5} className='h-24 text-center'>
+                          Nenhum inscrito elegível para este evento.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
               </ScrollArea>
             </CardContent>
           </Card>

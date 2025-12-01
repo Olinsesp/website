@@ -12,6 +12,7 @@ export interface Classificacao {
   modalidade?: string;
   nome?: string;
   atleta?: string;
+  sexo?: string;
 }
 
 export type MedalRow = {

@@ -57,7 +57,11 @@ export default function Navbar() {
                   <Button
                     variant={isActive ? 'default' : 'secondary'}
                     size='sm'
-                    className={`flex items-center space-x-2 cursor-pointer hover:bg-blue-500 hover:text-white transition-colors`}
+                    className={`flex items-center space-x-2 cursor-pointer transition-colors ${
+                      isActive
+                        ? 'bg-blue-500 text-white'
+                        : 'hover:bg-blue-500 hover:text-white'
+                    }`}
                   >
                     <Icon className='h-4 w-4' />
                     <span>{item.name}</span>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -25,13 +25,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Trash2, Edit, Plus, Save, Mail, Phone } from 'lucide-react';
+import { Trash2, Edit, Plus, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import QueryStateHandler from '../ui/query-state-handler';
+import { DataTable } from '@/app/Dashboard/data-table';
+import { ColumnDef } from '@tanstack/react-table';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const inscricaoSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório'),
-  email: z.email('Email inválido'),
+  email: z.string().email('Email inválido'),
   telefone: z.string().min(1, 'Telefone é obrigatório'),
   cpf: z.string().min(11, 'CPF deve ter 11 dígitos'),
   dataNascimento: z.string().min(1, 'Data de nascimento é obrigatória'),
@@ -63,13 +66,28 @@ interface Inscricao {
   createdAt: string;
 }
 
+async function fetchInscricoes(): Promise<Inscricao[]> {
+  const response = await fetch('/api/inscricoes');
+  if (!response.ok) {
+    throw new Error('Erro ao carregar inscrições');
+  }
+  return response.json();
+}
+
 export default function InscricoesForm() {
-  const [inscricoes, setInscricoes] = useState<Inscricao[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const {
+    data: inscricoes = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery<Inscricao[], Error>({
+    queryKey: ['inscricoes'],
+    queryFn: fetchInscricoes,
+  });
 
   const {
     register,
@@ -97,57 +115,55 @@ export default function InscricoesForm() {
 
   const watchedModalidades = watch('modalidades');
 
-  useEffect(() => {
-    fetchInscricoes();
-  }, []);
-
-  const fetchInscricoes = async () => {
-    try {
-      const response = await fetch('/api/inscricoes');
-      if (response.ok) {
-        const data = await response.json();
-        setInscricoes(data);
-      } else {
-        throw new Error('Erro ao carregar inscrições');
-      }
-    } catch (err: any) {
-      setError(err);
-      toast.error(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onSubmit = async (data: InscricaoFormData) => {
-    setIsSubmitting(true);
-    try {
-      const url = editingId
-        ? `/api/inscricoes/${editingId}`
-        : '/api/inscricoes';
-      const method = editingId ? 'PUT' : 'POST';
-
+  const mutation = useMutation<
+    Response,
+    Error,
+    { data: InscricaoFormData; id?: string | null }
+  >({
+    mutationFn: async ({ data, id }) => {
+      const url = id ? `/api/inscricoes/${id}` : '/api/inscricoes';
+      const method = id ? 'PUT' : 'POST';
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-
-      if (response.ok) {
-        toast.success(
-          editingId ? 'Inscrição atualizada!' : 'Inscrição criada!',
-        );
-        fetchInscricoes();
-        reset();
-        setEditingId(null);
-        setIsDialogOpen(false);
-      } else {
-        throw new Error('Erro ao salvar');
+      if (!response.ok) {
+        throw new Error('Erro ao salvar inscrição');
       }
-    } catch {
-      toast.error('Erro ao salvar inscrição');
-    } finally {
-      setIsSubmitting(false);
-    }
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['inscricoes'] });
+      toast.success(editingId ? 'Inscrição atualizada!' : 'Inscrição criada!');
+      handleCancel();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const deleteMutation = useMutation<Response, Error, string>({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/inscricoes/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Erro ao excluir inscrição');
+      }
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['inscricoes'] });
+      toast.success('Inscrição excluída!');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const onSubmit = (data: InscricaoFormData) => {
+    mutation.mutate({ data, id: editingId });
   };
 
   const handleEdit = (inscricao: Inscricao) => {
@@ -167,23 +183,9 @@ export default function InscricoesForm() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (!confirm('Tem certeza que deseja excluir esta inscrição?')) return;
-
-    try {
-      const response = await fetch(`/api/inscricoes/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        toast.success('Inscrição excluída!');
-        fetchInscricoes();
-      } else {
-        throw new Error('Erro ao excluir');
-      }
-    } catch {
-      toast.error('Erro ao excluir inscrição');
-    }
+    deleteMutation.mutate(id);
   };
 
   const handleCancel = () => {
@@ -225,10 +227,69 @@ export default function InscricoesForm() {
     return new Date(dateString).toLocaleDateString('pt-BR');
   };
 
+  const columns: ColumnDef<Inscricao>[] = [
+    {
+      accessorKey: 'nome',
+      header: 'Nome',
+    },
+    {
+      accessorKey: 'email',
+      header: 'Email',
+    },
+    {
+      accessorKey: 'telefone',
+      header: 'Telefone',
+    },
+    {
+      accessorKey: 'lotacao',
+      header: 'Lotação',
+    },
+    {
+      accessorKey: 'modalidades',
+      header: 'Modalidades',
+      cell: ({ row }) => row.original.modalidades.join(', '),
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => getStatusBadge(row.original.status),
+    },
+    {
+      accessorKey: 'createdAt',
+      header: 'Inscrito em',
+      cell: ({ row }) => formatDate(row.original.createdAt),
+    },
+    {
+      id: 'actions',
+      header: 'Ações',
+      cell: ({ row }) => {
+        const inscricao = row.original;
+        return (
+          <div className='flex gap-2 justify-end'>
+            <Button
+              size='sm'
+              variant='outline'
+              onClick={() => handleEdit(inscricao)}
+            >
+              <Edit className='h-4 w-4' />
+            </Button>
+            <Button
+              size='sm'
+              variant='destructive'
+              onClick={() => handleDelete(inscricao.id)}
+            >
+              <Trash2 className='h-4 w-4' />
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+
   return (
     <QueryStateHandler
-      isLoading={loading}
-      isError={!!error}
+      isLoading={isLoading}
+      isError={isError}
       error={error}
       loadingMessage='Carregando inscrições...'
     >
@@ -244,76 +305,11 @@ export default function InscricoesForm() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className='space-y-4'>
-              {inscricoes.map((inscricao) => (
-                <div
-                  key={inscricao.id}
-                  className='p-4 border rounded-lg space-y-3'
-                >
-                  <div className='flex items-start justify-between'>
-                    <div className='space-y-2 flex-1'>
-                      <div className='flex items-center gap-2'>
-                        <h3 className='font-semibold text-lg'>
-                          {inscricao.nome}
-                        </h3>
-                        {getStatusBadge(inscricao.status)}
-                      </div>
-
-                      <div className='flex items-center gap-4 text-sm text-gray-500'>
-                        <span className='flex items-center gap-1'>
-                          <Mail className='h-4 w-4' />
-                          {inscricao.email}
-                        </span>
-                        <span className='flex items-center gap-1'>
-                          <Phone className='h-4 w-4' />
-                          {inscricao.telefone}
-                        </span>
-                      </div>
-
-                      <div className='text-sm text-gray-600'>
-                        <p>
-                          <strong>Lotação:</strong> {inscricao.lotacao}
-                        </p>
-                        <p>
-                          <strong>Órgão de Origem:</strong>{' '}
-                          {inscricao.orgaoOrigem}
-                        </p>
-                        <p>
-                          <strong>Modalidades:</strong>{' '}
-                          {inscricao.modalidades.join(', ')}
-                        </p>
-                        <p>
-                          <strong>Inscrito em:</strong>{' '}
-                          {formatDate(inscricao.createdAt)}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className='flex gap-2 ml-4'>
-                      <Button
-                        size='sm'
-                        variant='outline'
-                        onClick={() => handleEdit(inscricao)}
-                      >
-                        <Edit className='h-4 w-4' />
-                      </Button>
-                      <Button
-                        size='sm'
-                        variant='destructive'
-                        onClick={() => handleDelete(inscricao.id)}
-                      >
-                        <Trash2 className='h-4 w-4' />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {inscricoes.length === 0 && (
-                <p className='text-center text-gray-500 py-8'>
-                  Nenhuma inscrição cadastrada
-                </p>
-              )}
-            </div>
+            <DataTable
+              columns={columns}
+              data={inscricoes}
+              filterColumn='nome'
+            />
           </CardContent>
         </Card>
 
@@ -550,8 +546,8 @@ export default function InscricoesForm() {
                 <Button type='button' variant='outline' onClick={handleCancel}>
                   Cancelar
                 </Button>
-                <Button type='submit' disabled={isSubmitting}>
-                  {isSubmitting ? (
+                <Button type='submit' disabled={mutation.isPending}>
+                  {mutation.isPending ? (
                     <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
                   ) : (
                     <Save className='h-4 w-4 mr-2' />

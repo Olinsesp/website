@@ -13,7 +13,7 @@ type Props = {
 
 export default function TeamResultCard({ classificacao }: Props) {
   return (
-    <Card className='hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-r from-gray-50 to-white shadow-lg hover:shadow-purple-500/10'>
+    <Card className='hover:shadow-xl transition-all duration-300 border-0 bg-linear-to-r from-gray-50 to-white shadow-lg hover:shadow-purple-500/10'>
       <CardContent className='p-6'>
         <div className='flex flex-col lg:flex-row lg:items-center justify-between gap-6'>
           <div className='flex items-center gap-6'>

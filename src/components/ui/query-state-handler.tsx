@@ -20,7 +20,7 @@ export default function QueryStateHandler({
 }: QueryStateHandlerProps) {
   if (isLoading) {
     return (
-      <div className='flex items-center justify-center h-screen bg-gradient-to-br from-blue-50 to-orange-50'>
+      <div className='flex items-center justify-center h-screen bg-linear-to-br from-blue-50 to-orange-50'>
         <div className='text-center'>
           <Loader2 className='inline-block h-12 w-12 animate-spin text-blue-600 mb-4' />
           <p>{loadingMessage}</p>

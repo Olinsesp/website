@@ -14,7 +14,7 @@ export type Release = {
 
 export default function ReleaseCard({ release }: { release: Release }) {
   return (
-    <Card className='hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-r from-gray-50 to-white shadow-lg'>
+    <Card className='hover:shadow-xl transition-all duration-300 border-0 bg-linear-to-r from-gray-50 to-white shadow-lg'>
       <CardContent className='p-4 sm:p-6 lg:p-8'>
         <div className='flex flex-col sm:flex-row items-start justify-between gap-4 sm:gap-6'>
           <div className='flex-1'>
@@ -30,7 +30,7 @@ export default function ReleaseCard({ release }: { release: Release }) {
                 {new Date(release.createdAt).toLocaleDateString('pt-BR')}
               </span>
               {release.destaque && (
-                <span className='bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium'>
+                <span className='bg-linear-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium'>
                   ⭐ Destaque
                 </span>
               )}

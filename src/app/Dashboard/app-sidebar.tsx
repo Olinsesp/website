@@ -151,7 +151,7 @@ export function AppSidebar({
             <Trophy className='size-4' />
           </div>
           <div className='grid flex-1 text-left text-sm leading-tight'>
-            <span className='truncate font-semibold'>Olinsesp VIII</span>
+            <span className='truncate font-semibold'>VIII Olinsesp</span>
             <span className='truncate text-xs'>Dashboard Admin</span>
           </div>
         </div>

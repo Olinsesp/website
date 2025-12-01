@@ -6,6 +6,10 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   flexRender,
+  getSortedRowModel,
+  SortingState,
+  getFilteredRowModel,
+  ColumnFiltersState,
 } from '@tanstack/react-table';
 import {
   Table,
@@ -16,34 +20,65 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import React from 'react';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  filterColumn?: string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  filterColumn,
 }: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  );
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      sorting,
+      columnFilters,
+    },
   });
 
   return (
     <div className='space-y-4'>
-      <div className='overflow-hidden rounded-xl border border-zinc-300 shadow-sm'>
-        <Table className='text-sm'>
-          <TableHeader className='bg-zinc-100'>
+      {filterColumn && (
+        <div className='flex items-center'>
+          <Input
+            placeholder={`Filtrar por ${filterColumn}...`}
+            value={
+              (table.getColumn(filterColumn)?.getFilterValue() as string) ?? ''
+            }
+            onChange={(event) =>
+              table.getColumn(filterColumn)?.setFilterValue(event.target.value)
+            }
+            className='max-w-sm'
+          />
+        </div>
+      )}
+      <div className='overflow-hidden rounded-lg border shadow-sm'>
+        <Table>
+          <TableHeader className='bg-muted/50'>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className='border-b border-zinc-300 px-3 py-2 font-semibold text-zinc-700'
+                    className='px-4 py-3 font-semibold'
                   >
                     {header.isPlaceholder
                       ? null
@@ -61,13 +96,11 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  className='hover:bg-zinc-50 transition-colors'
+                  data-state={row.getIsSelected() && 'selected'}
+                  className='hover:bg-muted/50'
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      className='border-b border-zinc-200 px-3 py-2'
-                    >
+                    <TableCell key={cell.id} className='px-4 py-3'>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),
@@ -80,7 +113,7 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className='h-24 text-center text-zinc-500'
+                  className='h-24 text-center'
                 >
                   Nenhum resultado.
                 </TableCell>

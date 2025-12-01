@@ -14,7 +14,7 @@ export default function NotFound() {
   });
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-orange-50'>
+    <div className='min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 via-white to-orange-50'>
       <div className='text-center max-w-2xl mx-auto p-8'>
         <Card className='bg-white/80 backdrop-blur-sm border-0 shadow-2xl'>
           <CardContent className='p-12'>
@@ -38,7 +38,7 @@ export default function NotFound() {
               <Link href='/'>
                 <Button
                   size='lg'
-                  className='w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300'
+                  className='w-full bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300'
                 >
                   <Home className='mr-2 h-5 w-5' />
                   Voltar ao Início

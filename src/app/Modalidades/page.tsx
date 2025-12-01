@@ -66,20 +66,20 @@ export default function Modalidades() {
       error={error}
       loadingMessage='Carregando modalidades...'
     >
-      <div className='min-h-screen py-12 bg-gradient-to-br from-blue-50 via-white to-orange-50'>
+      <div className='min-h-screen py-12'>
         <div className='container mx-auto px-4'>
           {/* Header da Página */}
           <div className='text-center mb-12'>
-            <div className='inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-orange-500 text-white px-6 py-3 rounded-full text-sm font-medium mb-6'>
+            <div className='inline-flex items-center gap-2 bg-linear-to-r from-blue-600 to-orange-500 text-white px-6 py-3 rounded-full text-sm font-medium mb-6'>
               <Trophy className='h-4 w-4' />
               Modalidades Disponíveis
             </div>
 
-            <h1 className='text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-blue-500 to-orange-500 bg-clip-text text-transparent'>
+            <h1 className='text-4xl md:text-5xl font-bold mb-6 bg-linear-to-r from-blue-600 via-blue-500 to-orange-500 bg-clip-text text-transparent'>
               Modalidades Esportivas
             </h1>
-            <p className='text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed'>
-              Descubra todas as modalidades disponíveis no Olinsesp VIII e
+            <p className='text-2xl md:text-xl font-medium text-gray-950 max-w-3xl mx-auto leading-relaxed'>
+              Descubra todas as modalidades disponíveis no VIII Olinsesp e
               escolha as que melhor se adequam ao seu perfil
             </p>
           </div>
@@ -88,7 +88,7 @@ export default function Modalidades() {
           <div className='grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12'>
             <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
               <CardContent className='p-4 sm:p-6 lg:p-8'>
-                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center'>
+                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-linear-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center'>
                   <Trophy className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
@@ -102,7 +102,7 @@ export default function Modalidades() {
 
             <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
               <CardContent className='p-4 sm:p-6 lg:p-8'>
-                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center'>
+                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-linear-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center'>
                   <Users className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
@@ -119,7 +119,7 @@ export default function Modalidades() {
 
             <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
               <CardContent className='p-4 sm:p-6 lg:p-8'>
-                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center'>
+                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-linear-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center'>
                   <TrendingUp className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
@@ -137,7 +137,7 @@ export default function Modalidades() {
 
             <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
               <CardContent className='p-4 sm:p-6 lg:p-8'>
-                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center'>
+                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-linear-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center'>
                   <Award className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
@@ -166,9 +166,9 @@ export default function Modalidades() {
                     <div className='flex items-start gap-4 sm:gap-6'>
                       {/* Ícone da Categoria */}
                       <div
-                        className={`h-16 w-16 sm:h-20 sm:w-20 bg-gradient-to-br ${getCategoryGradient(
+                        className={`h-16 w-16 sm:h-20 sm:w-20 bg-linear-to-br ${getCategoryGradient(
                           modalidade.categoria,
-                        )} rounded-2xl flex items-center justify-center flex-shrink-0`}
+                        )} rounded-2xl flex items-center justify-center shrink-0`}
                       >
                         <CategoryIcon categoria={modalidade.categoria} />
                         <div className='h-10 w-10 sm:h-12 sm:w-12 text-white' />
@@ -189,7 +189,7 @@ export default function Modalidades() {
 
                         <div className='flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500'>
                           <div className='flex items-center gap-2'>
-                            <Calendar className='h-3 w-3 sm:h-4 sm:w-4 text-blue-500 flex-shrink-0' />
+                            <Calendar className='h-3 w-3 sm:h-4 sm:w-4 text-blue-500 shrink-0' />
                             <span>
                               {new Date(
                                 modalidade.dataInicio,
@@ -202,12 +202,12 @@ export default function Modalidades() {
                           </div>
 
                           <div className='flex items-center gap-2'>
-                            <MapPin className='h-3 w-3 sm:h-4 sm:w-4 text-green-500 flex-shrink-0' />
+                            <MapPin className='h-3 w-3 sm:h-4 sm:w-4 text-green-500 shrink-0' />
                             <span>{modalidade.local}</span>
                           </div>
 
                           <div className='flex items-center gap-2'>
-                            <Clock className='h-3 w-3 sm:h-4 sm:w-4 text-orange-500 flex-shrink-0' />
+                            <Clock className='h-3 w-3 sm:h-4 sm:w-4 text-orange-500 shrink-0' />
                             <span>{modalidade.horario}</span>
                           </div>
                         </div>
@@ -230,7 +230,7 @@ export default function Modalidades() {
 
                       <div className='w-full sm:w-48 bg-gray-200 rounded-full h-2'>
                         <div
-                          className='bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full transition-all duration-500'
+                          className='bg-linear-to-r from-blue-500 to-green-500 h-2 rounded-full transition-all duration-500'
                           style={{
                             width: `${(modalidade.participantesAtuais / modalidade.maxParticipantes) * 100}%`,
                           }}
@@ -254,7 +254,7 @@ export default function Modalidades() {
                             key={index}
                             className='flex items-start gap-2 text-gray-600 text-sm sm:text-base'
                           >
-                            <div className='w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0'></div>
+                            <div className='w-2 h-2 bg-blue-500 rounded-full mt-2 shrink-0'></div>
                             <span>{regra}</span>
                           </li>
                         ))}
@@ -273,7 +273,7 @@ export default function Modalidades() {
                             key={index}
                             className='flex items-start gap-2 text-gray-600 text-sm sm:text-base'
                           >
-                            <div className='w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0'></div>
+                            <div className='w-2 h-2 bg-yellow-500 rounded-full mt-2 shrink-0'></div>
                             <span>{premio}</span>
                           </li>
                         ))}
@@ -297,7 +297,7 @@ export default function Modalidades() {
           </div>
 
           {/* Call to Action */}
-          <Card className='mt-12 sm:mt-16 bg-gradient-to-r from-blue-600 to-orange-500 text-white border-0 shadow-2xl'>
+          <Card className='mt-12 sm:mt-16 bg-linear-to-r from-blue-600 to-orange-500 text-white border-0 shadow-2xl'>
             <CardContent className='p-6 sm:p-8 lg:p-12 text-center'>
               <Image
                 src={'/LOGO_OLINSESP.png'}

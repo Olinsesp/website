@@ -21,6 +21,7 @@ interface SiteHeaderProps {
 export function SiteHeader({ activeTab }: SiteHeaderProps) {
   const getBreadcrumbTitle = (tab: string) => {
     const titles: Record<string, string> = {
+      dashboard: 'Dashboard',
       classificações: 'Classificações',
       modalidades: 'Modalidades',
       galeria: 'Galeria',
@@ -39,7 +40,7 @@ export function SiteHeader({ activeTab }: SiteHeaderProps) {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem className='hidden md:block'>
-              <BreadcrumbLink href='#'>Olinsesp VIII</BreadcrumbLink>
+              <BreadcrumbLink href='#'>VIII Olinsesp</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator className='hidden md:block' />
             <BreadcrumbItem>

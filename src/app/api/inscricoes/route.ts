@@ -260,13 +260,13 @@ async function sendEmail(inscricao: Inscricao) {
     </head>
     <body>
       <div class="header">
-        <h1 style="margin: 0;">Olinsesp VIII</h1>
+        <h1 style="margin: 0;">VIII Olinsesp</h1>
         <p style="margin: 10px 0 0 0; font-size: 18px;">Confirmação de Inscrição</p>
       </div>
       
       <div class="content">
         <h2 style="color: #2563eb;">Olá, ${inscricao.nome}! 🎉</h2>
-        <p>Sua inscrição para o <strong>Olinsesp VIII</strong> foi realizada com sucesso!</p>
+        <p>Sua inscrição para o <strong>VIII Olinsesp</strong> foi realizada com sucesso!</p>
         
         <div class="info-section">
           <h3 style="margin-top: 0; color: #2563eb;">Dados da Inscrição</h3>
@@ -326,8 +326,8 @@ async function sendEmail(inscricao: Inscricao) {
       </div>
       
       <div class="footer">
-        <p>Obrigado por participar do <strong>Olinsesp VIII</strong>!</p>
-        <p>Organização Olinsesp VIII</p>
+        <p>Obrigado por participar do <strong>VIII Olinsesp</strong>!</p>
+        <p>Organização VIII Olinsesp</p>
       </div>
     </body>
     </html>
@@ -335,9 +335,9 @@ async function sendEmail(inscricao: Inscricao) {
 
   try {
     await transporter.sendMail({
-      from: `"Organização Olinsesp VIII" <${process.env.GMAIL_USER}>`,
+      from: `"Organização VIII Olinsesp" <${process.env.GMAIL_USER}>`,
       to: inscricao.email,
-      subject: 'Confirmação de Inscrição - Olinsesp VIII',
+      subject: 'Confirmação de Inscrição - VIII Olinsesp',
       html: emailHTML,
     });
     console.log('Email enviado com sucesso para:', inscricao.email);

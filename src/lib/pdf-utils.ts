@@ -65,7 +65,6 @@ export function generatePDF(
           'Lotação',
           'Pontos',
           'Tempo',
-          'Distância',
         ],
       ],
       body: tableData,

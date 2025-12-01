@@ -43,7 +43,7 @@ export default function CountdownTimer() {
   ];
 
   return (
-    <div className='text-center bg-gradient-to-r from-blue-500 to-orange-500 p-6 rounded-lg shadow-lg'>
+    <div className='text-center bg-linear-to-r from-blue-500 to-orange-500 p-6 rounded-lg shadow-lg'>
       {!isExpired ? (
         <>
           <h3 className='text-lg font-semibold mb-4'>

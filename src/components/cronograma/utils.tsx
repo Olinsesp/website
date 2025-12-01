@@ -7,21 +7,21 @@ export const getStatusBadge = (status: string | undefined) => {
   switch (status) {
     case 'finalizado':
       return (
-        <Badge className='bg-gradient-to-r from-green-500 to-green-600 text-white border-0 px-3 py-1'>
+        <Badge className='bg-linear-to-r from-green-500 to-green-600 text-white border-0 px-3 py-1'>
           <div className='w-2 h-2 bg-white rounded-full mr-2'></div>
           Finalizado
         </Badge>
       );
     case 'em_andamento':
       return (
-        <Badge className='bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0 px-3 py-1 animate-pulse'>
+        <Badge className='bg-linear-to-r from-yellow-500 to-orange-500 text-white border-0 px-3 py-1 animate-pulse'>
           <div className='w-2 h-2 bg-white rounded-full mr-2'></div>
           Em Andamento
         </Badge>
       );
     case 'agendado':
       return (
-        <Badge className='bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 px-3 py-1'>
+        <Badge className='bg-linear-to-r from-blue-500 to-blue-600 text-white border-0 px-3 py-1'>
           <div className='w-2 h-2 bg-white rounded-full mr-2'></div>
           Agendado
         </Badge>

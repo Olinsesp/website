@@ -21,7 +21,7 @@ const modalidadeSchema = z.object({
   status: z
     .enum([
       'inscricoes-abertas',
-      'inscricoes-fechadas',
+      'inscricoes-encerradas',
       'em-andamento',
       'finalizada',
     ])

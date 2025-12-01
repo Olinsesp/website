@@ -18,7 +18,7 @@ export const staticMidias = [
   {
     id: '4',
     tipo: 'release',
-    url: 'Resultados do primeiro dia de competições da Olinsesp VIII.',
+    url: 'Resultados do primeiro dia de competições da VIII Olinsesp.',
     titulo: 'Balanço do Dia 1',
     destaque: false,
     createdAt: new Date('2026-12-16T09:00:00').toISOString(),

@@ -22,7 +22,7 @@ export default function VideoCard({ video }: { video: Video }) {
           src={video.url}
         />
         {video.destaque && (
-          <div className='absolute top-2 right-2 sm:top-3 sm:right-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium'>
+          <div className='absolute top-2 right-2 sm:top-3 sm:right-3 bg-linear-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium'>
             ⭐ Destaque
           </div>
         )}

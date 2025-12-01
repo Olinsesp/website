@@ -1,9 +1,9 @@
-# 📋 Documentação de Requisitos - Olinsesp VIII
+# 📋 Documentação de Requisitos - VIII Olinsesp
 
 > **Sistema de Gerenciamento de Eventos Esportivos**  
 > **Versão:** 1.0  
 > **Data:** Setembro 2025  
-> **Projeto:** Olinsesp VIII - O maior evento esportivo de integração das forças de segurança
+> **Projeto:** VIII Olinsesp - O maior evento esportivo de integração das forças de segurança
 
 ---
 
@@ -20,7 +20,7 @@
 
 ### 1.1 Objetivo
 
-Desenvolver e hospedar um sistema completo de gerenciamento para o evento Olinsesp VIII, proporcionando uma plataforma moderna e intuitiva para participantes, organizadores e administradores.
+Desenvolver e hospedar um sistema completo de gerenciamento para o evento VIII Olinsesp, proporcionando uma plataforma moderna e intuitiva para participantes, organizadores e administradores.
 
 ### 1.2 Escopo
 

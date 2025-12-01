@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -18,9 +18,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Trash2, Edit, Plus, Save, Calendar, Clock } from 'lucide-react';
+import { Trash2, Edit, Plus, Save, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import QueryStateHandler from '../ui/query-state-handler';
+import { DataTable } from '@/app/Dashboard/data-table';
+import { ColumnDef } from '@tanstack/react-table';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const eventoSchema = z.object({
   atividade: z.string().min(1, 'Atividade é obrigatória'),
@@ -42,13 +45,28 @@ interface Evento {
   dia: string;
 }
 
+async function fetchEventos(): Promise<Evento[]> {
+  const response = await fetch('/api/cronograma');
+  if (!response.ok) {
+    throw new Error('Erro ao carregar cronograma');
+  }
+  return response.json();
+}
+
 export default function CronogramaForm() {
-  const [eventos, setEventos] = useState<Evento[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const {
+    data: eventos = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery<Evento[], Error>({
+    queryKey: ['cronograma'],
+    queryFn: fetchEventos,
+  });
 
   const {
     register,
@@ -67,55 +85,55 @@ export default function CronogramaForm() {
     },
   });
 
-  useEffect(() => {
-    fetchEventos();
-  }, []);
-
-  const fetchEventos = async () => {
-    try {
-      const response = await fetch('/api/cronograma');
-      if (response.ok) {
-        const data = await response.json();
-        setEventos(data);
-      } else {
-        throw new Error('Erro ao carregar cronograma');
-      }
-    } catch (err: any) {
-      setError(err);
-      toast.error(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onSubmit = async (data: EventoFormData) => {
-    setIsSubmitting(true);
-    try {
-      const url = editingId
-        ? `/api/cronograma/${editingId}`
-        : '/api/cronograma';
-      const method = editingId ? 'PUT' : 'POST';
-
+  const mutation = useMutation<
+    Response,
+    Error,
+    { data: EventoFormData; id?: string | null }
+  >({
+    mutationFn: async ({ data, id }) => {
+      const url = id ? `/api/cronograma/${id}` : '/api/cronograma';
+      const method = id ? 'PUT' : 'POST';
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-
-      if (response.ok) {
-        toast.success(editingId ? 'Evento atualizado!' : 'Evento criado!');
-        fetchEventos();
-        reset();
-        setEditingId(null);
-        setIsDialogOpen(false);
-      } else {
-        throw new Error('Erro ao salvar');
+      if (!response.ok) {
+        throw new Error('Erro ao salvar evento');
       }
-    } catch {
-      toast.error('Erro ao salvar evento');
-    } finally {
-      setIsSubmitting(false);
-    }
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cronograma'] });
+      toast.success(editingId ? 'Evento atualizado!' : 'Evento criado!');
+      handleCancel();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const deleteMutation = useMutation<Response, Error, string>({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/cronograma/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Erro ao excluir evento');
+      }
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cronograma'] });
+      toast.success('Evento excluído!');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const onSubmit = (data: EventoFormData) => {
+    mutation.mutate({ data, id: editingId });
   };
 
   const handleEdit = (evento: Evento) => {
@@ -128,23 +146,9 @@ export default function CronogramaForm() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (!confirm('Tem certeza que deseja excluir este evento?')) return;
-
-    try {
-      const response = await fetch(`/api/cronograma/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        toast.success('Evento excluído!');
-        fetchEventos();
-      } else {
-        throw new Error('Erro ao excluir');
-      }
-    } catch {
-      toast.error('Erro ao excluir evento');
-    }
+    deleteMutation.mutate(id);
   };
 
   const handleCancel = () => {
@@ -164,10 +168,72 @@ export default function CronogramaForm() {
     return date.toLocaleDateString('pt-BR');
   };
 
+  const columns: ColumnDef<Evento>[] = [
+    {
+      accessorKey: 'atividade',
+      header: 'Atividade',
+    },
+    {
+      accessorKey: 'modalidade',
+      header: 'Modalidade',
+      cell: ({ row }) => row.original.modalidade || 'N/A',
+    },
+    {
+      accessorKey: 'inicio',
+      header: 'Início',
+      cell: ({ row }) => formatDate(row.original.inicio),
+    },
+    {
+      accessorKey: 'fim',
+      header: 'Fim',
+      cell: ({ row }) => formatDate(row.original.fim),
+    },
+    {
+      accessorKey: 'dia',
+      header: 'Dia',
+      cell: ({ row }) => (
+        <Badge variant='outline' className='flex items-center gap-1'>
+          <Calendar className='h-3 w-3' />
+          {row.original.dia}
+        </Badge>
+      ),
+    },
+    {
+      accessorKey: 'detalhes',
+      header: 'Detalhes',
+      cell: ({ row }) => row.original.detalhes || 'N/A',
+    },
+    {
+      id: 'actions',
+      header: 'Ações',
+      cell: ({ row }) => {
+        const evento = row.original;
+        return (
+          <div className='flex gap-2 justify-end'>
+            <Button
+              size='sm'
+              variant='outline'
+              onClick={() => handleEdit(evento)}
+            >
+              <Edit className='h-4 w-4' />
+            </Button>
+            <Button
+              size='sm'
+              variant='destructive'
+              onClick={() => handleDelete(evento.id)}
+            >
+              <Trash2 className='h-4 w-4' />
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+
   return (
     <QueryStateHandler
-      isLoading={loading}
-      isError={!!error}
+      isLoading={isLoading}
+      isError={isError}
       error={error}
       loadingMessage='Carregando cronograma...'
     >
@@ -183,71 +249,11 @@ export default function CronogramaForm() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className='space-y-4'>
-              {eventos.map((evento) => (
-                <div
-                  key={evento.id}
-                  className='p-4 border rounded-lg space-y-3'
-                >
-                  <div className='flex items-start justify-between'>
-                    <div className='space-y-2 flex-1'>
-                      <div className='flex items-center gap-2'>
-                        <h3 className='font-semibold text-lg'>
-                          {evento.atividade}
-                        </h3>
-                        <Badge
-                          variant='outline'
-                          className='flex items-center gap-1'
-                        >
-                          <Calendar className='h-3 w-3' />
-                          {evento.dia}
-                        </Badge>
-                      </div>
-
-                      <div className='flex items-center gap-4 text-sm text-gray-500'>
-                        <span className='flex items-center gap-1'>
-                          <Clock className='h-4 w-4' />
-                          {formatDate(evento.inicio)} - {formatDate(evento.fim)}
-                        </span>
-                        {evento.modalidade && (
-                          <span className='text-blue-600 font-medium'>
-                            {evento.modalidade}
-                          </span>
-                        )}
-                      </div>
-
-                      {evento.detalhes && (
-                        <p className='text-gray-600 text-sm'>
-                          {evento.detalhes}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className='flex gap-2 ml-4'>
-                      <Button
-                        size='sm'
-                        variant='outline'
-                        onClick={() => handleEdit(evento)}
-                      >
-                        <Edit className='h-4 w-4' />
-                      </Button>
-                      <Button
-                        size='sm'
-                        variant='destructive'
-                        onClick={() => handleDelete(evento.id)}
-                      >
-                        <Trash2 className='h-4 w-4' />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {eventos.length === 0 && (
-                <p className='text-center text-gray-500 py-8'>
-                  Nenhum evento cadastrado
-                </p>
-              )}
-            </div>
+            <DataTable
+              columns={columns}
+              data={eventos}
+              filterColumn='atividade'
+            />
           </CardContent>
         </Card>
 
@@ -322,8 +328,8 @@ export default function CronogramaForm() {
                 <Button type='button' variant='outline' onClick={handleCancel}>
                   Cancelar
                 </Button>
-                <Button type='submit' disabled={isSubmitting}>
-                  {isSubmitting ? (
+                <Button type='submit' disabled={mutation.isPending}>
+                  {mutation.isPending ? (
                     <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
                   ) : (
                     <Save className='h-4 w-4 mr-2' />

@@ -1,8 +1,8 @@
-# 🏆 Olinsesp VIII - Sistema de Gerenciamento
+# 🏆 VIII Olinsesp - Sistema de Gerenciamento
 
 > **O maior evento esportivo de integração das forças de segurança**
 
-Sistema completo de gerenciamento desenvolvido com [Next.js](https://nextjs.org) para o evento Olinsesp VIII, oferecendo uma plataforma moderna e intuitiva para participantes e organizadores.
+Sistema completo de gerenciamento desenvolvido com [Next.js](https://nextjs.org) para o evento VIII Olinsesp, oferecendo uma plataforma moderna e intuitiva para participantes e organizadores.
 
 ## 🚀 Funcionalidades Implementadas
 
@@ -279,11 +279,11 @@ Modifique os arquivos em `src/app/api/` para:
 
 ## 📄 Licença e Uso
 
-Este projeto é um **sistema interno** desenvolvido para demonstração e uso no evento Olinsesp VIII.
+Este projeto é um **sistema interno** desenvolvido para demonstração e uso no evento VIII Olinsesp.
 
 ---
 
-## 🏆 **Olinsesp VIII - 2026**
+## 🏆 **VIII Olinsesp - 2026**
 
 **O maior evento esportivo de integração das forças de segurança**
 

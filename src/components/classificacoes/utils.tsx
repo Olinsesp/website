@@ -7,21 +7,21 @@ export const getPosicaoBadge = (posicao: number) => {
   switch (posicao) {
     case 1:
       return (
-        <Badge className='bg-gradient-to-r from-yellow-400 to-yellow-500 text-white border-0 px-3 py-1 text-sm font-bold'>
+        <Badge className='bg-linear-to-r from-yellow-400 to-yellow-500 text-white border-0 px-3 py-1 text-sm font-bold'>
           <Crown className='h-3 w-3 mr-1' />
           1º Lugar
         </Badge>
       );
     case 2:
       return (
-        <Badge className='bg-gradient-to-r from-gray-300 to-gray-400 text-white border-0 px-3 py-1 text-sm font-bold'>
+        <Badge className='bg-linear-to-r from-gray-300 to-gray-400 text-white border-0 px-3 py-1 text-sm font-bold'>
           <Medal className='h-3 w-3 mr-1' />
           2º Lugar
         </Badge>
       );
     case 3:
       return (
-        <Badge className='bg-gradient-to-r from-orange-400 to-orange-500 text-white border-0 px-3 py-1 text-sm font-bold'>
+        <Badge className='bg-linear-to-r from-orange-400 to-orange-500 text-white border-0 px-3 py-1 text-sm font-bold'>
           <Award className='h-3 w-3 mr-1' />
           3º Lugar
         </Badge>
