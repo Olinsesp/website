@@ -2,11 +2,11 @@ import { NextResponse } from 'next/server';
 import { inscricoes } from '../../inscriçoesData';
 
 export async function GET(
-  request: Request,
-  { params }: { params: { modalidadeName: string } },
+  _request: Request,
+  { params }: { params: Promise<{ modalidadeName: string }> },
 ) {
   try {
-    const { modalidadeName } = params;
+    const { modalidadeName } = await params;
 
     const filteredInscricoes = inscricoes.filter((inscricao) =>
       inscricao.modalidades.includes(modalidadeName),
