@@ -128,14 +128,17 @@ export default function Inscricoes() {
             <CheckCircle className='h-4 w-4' />
             Inscrições Abertas
           </div>
-          <h1 className='text-4xl md:text-5xl font-bold mb-6 bg-azul-olinsesp bg-clip-text text-transparent'>
-            Inscrições VIII Olinsesp
-          </h1>
-          <p className='text-2xl md:text-xl font-medium text-gray-950 mb-8 max-w-3xl mx-auto leading-relaxed'>
-            Faça parte do maior evento esportivo da região! Junte-se a centenas
-            de atletas das forças de segurança em uma competição única.
-          </p>
-          <Card className='max-w-md mx-auto mb-8 bg-azul-olinsesp text-white border-0 shadow-2xl'>
+          <div className='backdrop-blur-xl rounded-2xl p-6  border border-white/20 shadow-2xl'>
+            <h1 className='text-4xl md:text-5xl font-extrabold mb-6 bg-azul-olinsesp bg-clip-text text-transparent'>
+              Inscrições VIII Olinsesp
+            </h1>
+            <p className='text-2xl md:text-xl font-extrabold text-gray-950 mb-8 max-w-3xl mx-auto leading-relaxed'>
+              Faça parte do maior evento esportivo da região! Junte-se a
+              centenas de atletas das forças de segurança em uma competição
+              única.
+            </p>
+          </div>
+          <Card className='max-w-md mx-auto mb-8 bg-azul-olinsesp text-white border-0 shadow-2xl mt-8'>
             <CardContent className='p-6'>
               <CountdownTimer />
             </CardContent>

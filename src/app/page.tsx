@@ -39,7 +39,7 @@ export default function Home() {
         'Confira os horários de todas as modalidades e não perca nenhum jogo.',
       link: '/Cronograma',
       variant: 'default' as const,
-      color: 'bg-laranja-olinsesp',
+      color: 'bg-azul-olinsesp',
     },
     {
       icon: Camera,
@@ -48,7 +48,7 @@ export default function Home() {
         'Reviva os melhores momentos através de fotos e vídeos exclusivos.',
       link: '/Galeria',
       variant: 'default' as const,
-      color: 'bg-verde-olinsesp',
+      color: 'bg-azul-olinsesp',
     },
     {
       icon: FileText,
@@ -57,7 +57,7 @@ export default function Home() {
         'Acompanhe as pontuações e veja quem está liderando em cada modalidade.',
       link: '/Classificacoes',
       variant: 'default' as const,
-      color: 'bg-rosa-olinsesp',
+      color: 'bg-azul-olinsesp',
     },
   ];
 
@@ -72,19 +72,19 @@ export default function Home() {
       icon: Trophy,
       title: '15+',
       description: 'modalidades esportivas',
-      color: 'text-laranja-olinsesp',
+      color: 'text-azul-olinsesp',
     },
     {
       icon: Users,
       title: '500+',
       description: 'atletas participantes',
-      color: 'text-verde-olinsesp',
+      color: 'text-azul-olinsesp',
     },
     {
       icon: MapPin,
       title: 'Centro',
       description: 'Esportivo',
-      color: 'text-rosa-olinsesp',
+      color: 'text-azul-olinsesp',
     },
   ];
 
@@ -142,10 +142,10 @@ export default function Home() {
               <Button
                 variant='secondary'
                 size='lg'
-                className='text-lg px-8 py-4 bg-azul-olinsesp hover:bg-azul-olinsesp text-white border-0 cursor-pointer transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-azul-olinsesp'
+                className='text-lg px-8 py-4 bg-verde-olinsesp hover:bg-verde-olinsesp text-white border-0 cursor-pointer transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-azul-olinsesp'
               >
                 <Users className='mr-2 h-5 w-5' />
-                Inscrever-se Agora
+                Inscrições Abertas
                 <ArrowRight className='ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform' />
               </Button>
             </Link>
@@ -171,11 +171,11 @@ export default function Home() {
       {/* Event Highlights */}
       <section className='py-20'>
         <div className='container mx-auto px-4'>
-          <div className='text-center mb-16'>
-            <h2 className='text-4xl md:text-5xl font-bold mb-6 bg-azul-olinsesp bg-clip-text text-transparent'>
+          <div className='text-center mb-16 text-white backdrop-blur-xl rounded-2xl p-6  border border-white/20 shadow-2xl'>
+            <h2 className='text-4xl md:text-5xl font-extrabold mb-6 bg-azul-olinsesp bg-clip-text text-transparent'>
               Destaques do Evento
             </h2>
-            <p className='text-2xl font-medium text-gray-950 max-w-2xl mx-auto'>
+            <p className='text-2xl font-extrabold text-black max-w-2xl mx-auto'>
               Uma experiência única que reúne as principais forças de segurança
               em um evento esportivo de excelência
             </p>
@@ -212,11 +212,11 @@ export default function Home() {
       {/* Features Grid */}
       <section className='py-20'>
         <div className='container mx-auto px-4'>
-          <div className='text-center mb-16'>
-            <h2 className='text-4xl md:text-5xl font-bold mb-6 bg-azul-olinsesp bg-clip-text text-transparent'>
+          <div className='text-center mb-16 backdrop-blur-xl rounded-2xl p-6  border border-white/20 shadow-2xl'>
+            <h2 className='text-4xl md:text-5xl font-extrabold mb-6 bg-azul-olinsesp bg-clip-text text-transparent'>
               Explore o Evento
             </h2>
-            <p className='text-2xl font-medium text-gray-950 max-w-3xl mx-auto'>
+            <p className='text-2xl font-extrabold text-gray-950 max-w-3xl mx-auto'>
               Descubra todas as funcionalidades e recursos disponíveis para
               tornar sua experiência no VIII Olinsesp inesquecível
             </p>
@@ -266,6 +266,13 @@ export default function Home() {
       {/* Quick Info */}
       <section className='py-20 text-white bg-azul-olinsesp relative overflow-hidden'>
         <div className='container mx-auto px-4 text-center relative z-10'>
+          <Image
+            src={'/OLINSESP_HORIZONTAL_MONOCROMATICA.png'}
+            alt='Logo'
+            width={250}
+            height={250}
+            className='mx-auto mb-4'
+          />
           <h2 className='text-4xl md:text-5xl font-bold mb-12'>
             Informações Importantes
           </h2>

@@ -110,21 +110,22 @@ export default function Cronograma() {
               <CalendarDays className='h-4 w-4' />
               Programação Atualizada
             </div>
-
-            <h1 className='text-4xl md:text-5xl font-bold mb-6 bg-azul-olinsesp bg-clip-text text-transparent'>
-              Cronograma do Evento
-            </h1>
-            <p className='text-2xl md:text-xl font-medium text-gray-950 max-w-3xl mx-auto leading-relaxed'>
-              Confira os horários de todas as modalidades e não perca nenhum
-              momento desta competição única!
-            </p>
+            <div className='backdrop-blur-xl rounded-2xl p-6  border border-white/20 shadow-2xl'>
+              <h1 className='text-4xl md:text-5xl font-extrabold mb-6 bg-azul-olinsesp bg-clip-text text-transparent'>
+                Cronograma do Evento
+              </h1>
+              <p className='text-2xl md:text-xl font-extrabold text-gray-950 max-w-3xl mx-auto leading-relaxed'>
+                Confira os horários de todas as modalidades e não perca nenhum
+                momento desta competição única!
+              </p>
+            </div>
           </div>
 
           {/* Cards Informativos */}
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12'>
             <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
               <CardContent className='p-4 sm:p-6 lg:p-8'>
-                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-linear-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center'>
+                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-azul-olinsesp rounded-2xl flex items-center justify-center'>
                   <Calendar className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl font-semibold text-gray-800 mb-2 sm:mb-3'>
@@ -138,7 +139,7 @@ export default function Cronograma() {
 
             <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
               <CardContent className='p-4 sm:p-6 lg:p-8'>
-                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-linear-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center'>
+                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-azul-olinsesp rounded-2xl flex items-center justify-center'>
                   <Timer className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl font-semibold text-gray-800 mb-2 sm:mb-3'>
@@ -152,7 +153,7 @@ export default function Cronograma() {
 
             <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 sm:col-span-2 lg:col-span-1'>
               <CardContent className='p-4 sm:p-6 lg:p-8'>
-                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-linear-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center'>
+                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-azul-olinsesp rounded-2xl flex items-center justify-center'>
                   <LocateIcon className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl font-semibold text-gray-800 mb-2 sm:mb-3'>

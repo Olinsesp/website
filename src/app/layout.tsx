@@ -29,7 +29,7 @@ export default function RootLayout({
           <Tooltip>
             <Toaster />
             <div className='min-h-screen relative'>
-              <div className="absolute inset-0 bg-[url('/bgimage.jpeg')] bg-repeat opacity-35 pointer-events-none"></div>
+              <div className="absolute inset-0 bg-[url('/bgimage.jpeg')] bg-repeat opacity-60 pointer-events-none"></div>
               <div className='relative'>
                 <Navbar />
                 {children}
