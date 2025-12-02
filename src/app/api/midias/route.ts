@@ -9,13 +9,48 @@ const midiaSchema = z.object({
   destaque: z.boolean(),
 });
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const midias = staticMidias.sort(
+    const { searchParams } = new URL(request.url);
+    const tipo = searchParams.get('tipo'); // 'foto', 'video', 'release'
+    const incluirEstatisticas = searchParams.get('estatisticas') !== 'false'; // default true
+    const separarPorTipo = searchParams.get('separar') === 'true';
+
+    let midias = staticMidias.sort(
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
-    return NextResponse.json(midias);
+
+    // Filtrar por tipo se especificado
+    if (tipo && ['foto', 'video', 'release'].includes(tipo)) {
+      midias = midias.filter((m) => m.tipo === tipo);
+    }
+
+    // Preparar resposta
+    const response: any = {};
+
+    if (separarPorTipo) {
+      // Separar por tipo
+      response.fotos = midias.filter((m) => m.tipo === 'foto');
+      response.videos = midias.filter((m) => m.tipo === 'video');
+      response.releases = midias.filter((m) => m.tipo === 'release');
+    } else {
+      // Retornar lista única
+      response.dados = midias;
+    }
+
+    // Adicionar estatísticas se solicitado
+    if (incluirEstatisticas) {
+      const todasMidias = staticMidias;
+      response.estatisticas = {
+        totalFotos: todasMidias.filter((m) => m.tipo === 'foto').length,
+        totalVideos: todasMidias.filter((m) => m.tipo === 'video').length,
+        totalReleases: todasMidias.filter((m) => m.tipo === 'release').length,
+        total: todasMidias.length,
+      };
+    }
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Erro ao buscar mídias:', error);
     return NextResponse.json(

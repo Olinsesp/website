@@ -41,6 +41,7 @@ export default function Navbar() {
               alt='Logo'
               width={165}
               height={165}
+              priority
             />
           </Link>
           <div className='hidden md:flex space-x-2'>

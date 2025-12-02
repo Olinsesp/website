@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { Midia } from '@/types/midia';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -69,21 +70,13 @@ const midiaSchema = z
 
 type MidiaFormData = z.infer<typeof midiaSchema>;
 
-interface Midia {
-  id: string;
-  tipo: string;
-  url: string;
-  titulo?: string | null;
-  destaque: boolean;
-  createdAt: string;
-}
-
 async function fetchMidias(): Promise<Midia[]> {
-  const response = await fetch('/api/midias');
+  const response = await fetch('/api/midias?separar=false&estatisticas=false');
   if (!response.ok) {
     throw new Error('Erro ao carregar mídias');
   }
-  return response.json();
+  const data = await response.json();
+  return data.dados || data; // Compatibilidade com formato antigo
 }
 
 export default function GaleriaForm() {

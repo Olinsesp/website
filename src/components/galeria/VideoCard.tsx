@@ -3,14 +3,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-export type Video = {
-  id: string;
-  url: string;
-  titulo?: string | null;
-  destaque: boolean;
-  createdAt: string;
-};
+import { Video } from '@/types/midia';
 
 export default function VideoCard({ video }: { video: Video }) {
   return (

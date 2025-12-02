@@ -50,14 +50,16 @@ type ClassificacaoFormData = z.output<typeof classificacaoSchema>;
 
 /* ------------------------------- fetchers ------------------------------- */
 async function fetchClassificacoes(): Promise<Classificacao[]> {
-  const res = await fetch('/api/classificacoes');
+  const res = await fetch('/api/classificacoes?estatisticas=false');
   if (!res.ok) throw new Error('Erro ao carregar classificações');
-  return res.json();
+  const data = await res.json();
+  return data.dados || data; // Compatibilidade com formato antigo
 }
 async function fetchModalidades(): Promise<Modalidade[]> {
-  const res = await fetch('/api/modalidades');
+  const res = await fetch('/api/modalidades?estatisticas=false');
   if (!res.ok) throw new Error('Erro ao carregar modalidades');
-  return res.json();
+  const data = await res.json();
+  return data.dados || data; // Compatibilidade com formato antigo
 }
 
 /* ------------------------- Helper small components ---------------------- */

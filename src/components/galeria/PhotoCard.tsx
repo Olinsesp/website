@@ -4,14 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, Eye, Share2 } from 'lucide-react';
 import Image, { StaticImageData } from 'next/image';
-
-export type Foto = {
-  id: string;
-  url: string | StaticImageData;
-  titulo?: string | null;
-  destaque: boolean;
-  createdAt: string;
-};
+import { Foto } from '@/types/midia';
 
 type Props = {
   foto: Foto;

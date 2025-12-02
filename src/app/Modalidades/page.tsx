@@ -19,29 +19,13 @@ import CategoryIcon from '@/components/modalidades/CategoryIcon';
 import getCategoryGradient from '@/components/modalidades/CategoryColor';
 import QueryStateHandler from '@/components/ui/query-state-handler';
 import Image from 'next/image';
+import { ModalidadesResponse } from '@/types/api';
 
-interface Modalidade {
-  id: string;
-  nome: string;
-  descricao: string;
-  categoria: string;
-  maxParticipantes: number;
-  participantesAtuais: number;
-  dataInicio: string;
-  dataFim: string;
-  local: string;
-  horario: string;
-  regras: string[];
-  premios: string[];
-  status:
-    | 'inscricoes-abertas'
-    | 'inscricoes-fechadas'
-    | 'em-andamento'
-    | 'finalizada';
-}
+const fetchModalidades = async (): Promise<ModalidadesResponse> => {
+  const params = new URLSearchParams();
+  params.append('estatisticas', 'true');
 
-const fetchModalidades = async (): Promise<Modalidade[]> => {
-  const res = await fetch('/api/modalidades');
+  const res = await fetch(`/api/modalidades?${params.toString()}`);
   if (!res.ok) {
     throw new Error('Falha ao buscar modalidades');
   }
@@ -50,14 +34,17 @@ const fetchModalidades = async (): Promise<Modalidade[]> => {
 
 export default function Modalidades() {
   const {
-    data: modalidades,
+    data: modalidadesData,
     isLoading,
     isError,
     error,
-  } = useQuery<Modalidade[]>({
+  } = useQuery<ModalidadesResponse>({
     queryKey: ['modalidades'],
     queryFn: fetchModalidades,
   });
+
+  const modalidades = modalidadesData?.dados || [];
+  const estatisticas = modalidadesData?.estatisticas;
 
   return (
     <QueryStateHandler
@@ -74,14 +61,15 @@ export default function Modalidades() {
               <Trophy className='h-4 w-4' />
               Modalidades Disponíveis
             </div>
-
-            <h1 className='text-4xl md:text-5xl font-bold mb-6 bg-azul-olinsesp bg-clip-text text-transparent'>
-              Modalidades Esportivas
-            </h1>
-            <p className='text-2xl md:text-xl font-medium text-gray-950 max-w-3xl mx-auto leading-relaxed'>
-              Descubra todas as modalidades disponíveis no VIII Olinsesp e
-              escolha as que melhor se adequam ao seu perfil
-            </p>
+            <div className='backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-2xl'>
+              <h1 className='text-4xl md:text-5xl font-extrabold mb-6 bg-azul-olinsesp bg-clip-text text-transparent'>
+                Modalidades Esportivas
+              </h1>
+              <p className='text-2xl md:text-xl font-extrabold text-gray-950 max-w-3xl mx-auto leading-relaxed'>
+                Descubra todas as modalidades disponíveis no VIII Olinsesp e
+                escolha as que melhor se adequam ao seu perfil
+              </p>
+            </div>
           </div>
 
           {/* Estatísticas */}
@@ -92,7 +80,7 @@ export default function Modalidades() {
                   <Trophy className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
-                  {modalidades?.length || 0}
+                  {estatisticas?.totalModalidades || 0}
                 </h3>
                 <p className='text-xs sm:text-sm lg:text-base text-gray-600'>
                   Modalidades
@@ -102,14 +90,11 @@ export default function Modalidades() {
 
             <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
               <CardContent className='p-4 sm:p-6 lg:p-8'>
-                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-verde-olinsesp rounded-2xl flex items-center justify-center'>
+                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-azul-olinsesp rounded-2xl flex items-center justify-center'>
                   <Users className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
-                  {modalidades?.reduce(
-                    (acc, m) => acc + m.maxParticipantes,
-                    0,
-                  ) || 0}
+                  {estatisticas?.totalVagas || 0}
                 </h3>
                 <p className='text-xs sm:text-sm lg:text-base text-gray-600'>
                   Vagas Totais
@@ -119,15 +104,11 @@ export default function Modalidades() {
 
             <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
               <CardContent className='p-4 sm:p-6 lg:p-8'>
-                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-laranja-olinsesp rounded-2xl flex items-center justify-center'>
+                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-azul-olinsesp rounded-2xl flex items-center justify-center'>
                   <TrendingUp className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
-                  {modalidades?.reduce((total, m) => {
-                    const vagasDisponiveis =
-                      m.maxParticipantes - m.participantesAtuais;
-                    return total + Math.max(0, vagasDisponiveis);
-                  }, 0) || 0}
+                  {estatisticas?.vagasDisponiveis || 0}
                 </h3>
                 <p className='text-xs sm:text-sm lg:text-base text-gray-600'>
                   Vagas Disponíveis
@@ -137,14 +118,11 @@ export default function Modalidades() {
 
             <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
               <CardContent className='p-4 sm:p-6 lg:p-8'>
-                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-rosa-olinsesp rounded-2xl flex items-center justify-center'>
+                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-azul-olinsesp rounded-2xl flex items-center justify-center'>
                   <Award className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
-                  {modalidades?.reduce(
-                    (acc, m) => acc + (m.premios?.length || 0),
-                    0,
-                  ) || 0}
+                  {estatisticas?.totalPremios || 0}
                 </h3>
                 <p className='text-xs sm:text-sm lg:text-base text-gray-600'>
                   Prêmios
@@ -155,7 +133,7 @@ export default function Modalidades() {
 
           {/* Lista de Modalidades */}
           <div className='space-y-6 sm:space-y-8'>
-            {modalidades?.map((modalidade) => (
+            {modalidades.map((modalidade) => (
               <Card
                 key={modalidade.id}
                 className='bg-white/90 backdrop-blur-sm border-0 shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-1 overflow-hidden'

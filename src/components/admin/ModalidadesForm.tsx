@@ -57,39 +57,22 @@ const modalidadeSchema = z.object({
 
 type ModalidadeFormData = z.infer<typeof modalidadeSchema>;
 
-interface CampoExtra {
+import { Modalidade } from '@/types/modalidade';
+
+export interface CampoExtra {
   id: string;
   label: string;
   type: 'text' | 'select';
   options?: string[];
 }
 
-interface Modalidade {
-  id: string;
-  nome: string;
-  descricao: string;
-  categoria: string;
-  maxParticipantes: number;
-  status:
-    | 'inscricoes-abertas'
-    | 'inscricoes-fechadas'
-    | 'em-andamento'
-    | 'finalizada';
-  regras: string[];
-  premios: string[];
-  dataInicio?: string;
-  dataFim?: string;
-  local?: string;
-  participantesAtuais: number;
-  camposExtras?: CampoExtra[];
-}
-
 async function fetchModalidades(): Promise<Modalidade[]> {
-  const response = await fetch('/api/modalidades');
+  const response = await fetch('/api/modalidades?estatisticas=false');
   if (!response.ok) {
     throw new Error('Erro ao carregar modalidades');
   }
-  return response.json();
+  const data = await response.json();
+  return data.dados || data;
 }
 
 export default function ModalidadesForm() {
@@ -200,13 +183,18 @@ export default function ModalidadesForm() {
     setValue('descricao', modalidade.descricao);
     setValue('categoria', modalidade.categoria);
     setValue('maxParticipantes', modalidade.maxParticipantes);
-    setValue('status', modalidade.status);
+    setValue(
+      'status',
+      modalidade.status === 'inscricoes-encerradas'
+        ? 'inscricoes-fechadas'
+        : (modalidade.status as any),
+    );
     setValue(
       'camposExtras',
-      modalidade.camposExtras?.map((ce) => ({
+      (modalidade as any).camposExtras?.map((ce: any) => ({
         ...ce,
         options: ce.options?.join('\n'),
-      })) as any,
+      })) || [],
     );
     setIsDialogOpen(true);
   };

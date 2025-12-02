@@ -3,6 +3,7 @@ import { z } from 'zod';
 import nodemailer from 'nodemailer';
 import { inscricoes } from './inscriçoesData';
 import { modalidades } from '../modalidades/modalidadesData';
+import { Inscricao } from '@/types/inscricao';
 
 const inscricaoSchema = z
   .object({
@@ -71,22 +72,11 @@ export async function POST(req: Request) {
   }
 }
 
-type Inscricao = {
-  nome: string;
-  email: string;
-  cpf: string;
-  dataNascimento: Date;
-  telefone: string;
-  sexo: 'm' | 'f';
-  camiseta: string;
-  lotacao: string;
-  orgaoOrigem: string;
-  matricula: string;
-  modalidades: string[];
-  [key: string]: any;
-};
-
-async function sendEmail(inscricao: Inscricao) {
+async function sendEmail(
+  inscricao: Omit<Inscricao, 'id' | 'status' | 'createdAt'> & {
+    sexo: 'm' | 'f';
+  },
+) {
   if (!process.env.GMAIL_USER || !process.env.GMAIL_PASSWORD) {
     console.log(
       'Credenciais de email não configuradas. Email não será enviado.',

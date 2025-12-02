@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -18,12 +17,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Trash2, Edit, Plus, Save, Calendar } from 'lucide-react';
+import { Trash2, Edit, Plus, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import QueryStateHandler from '../ui/query-state-handler';
 import { DataTable } from '@/app/Dashboard/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Evento } from '@/types/cronograma';
 
 const eventoSchema = z.object({
   atividade: z.string().min(1, 'Atividade é obrigatória'),
@@ -35,22 +35,15 @@ const eventoSchema = z.object({
 
 type EventoFormData = z.infer<typeof eventoSchema>;
 
-interface Evento {
-  id: string;
-  atividade: string;
-  inicio: string;
-  fim: string;
-  detalhes?: string;
-  modalidade?: string;
-  dia: string;
-}
-
 async function fetchEventos(): Promise<Evento[]> {
-  const response = await fetch('/api/cronograma');
+  const response = await fetch(
+    '/api/cronograma?agruparPorDia=false&formatar=false',
+  );
   if (!response.ok) {
     throw new Error('Erro ao carregar cronograma');
   }
-  return response.json();
+  const data = await response.json();
+  return data.dados || data; // Compatibilidade com formato antigo
 }
 
 export default function CronogramaForm() {
@@ -187,16 +180,6 @@ export default function CronogramaForm() {
       accessorKey: 'fim',
       header: 'Fim',
       cell: ({ row }) => formatDate(row.original.fim),
-    },
-    {
-      accessorKey: 'dia',
-      header: 'Dia',
-      cell: ({ row }) => (
-        <Badge variant='outline' className='flex items-center gap-1'>
-          <Calendar className='h-3 w-3' />
-          {row.original.dia}
-        </Badge>
-      ),
     },
     {
       accessorKey: 'detalhes',

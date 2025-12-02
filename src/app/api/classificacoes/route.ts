@@ -34,12 +34,16 @@ function enrichClassificacao(classificacao: any) {
     (m) => m.id === classificacao.modalidadeId,
   );
   let atletaNome = classificacao.atleta;
+  let lotacaoEnriquecida = classificacao.lotacao;
 
   if (!atletaNome && classificacao.inscricaoId) {
     const inscricao = inscricoes.find(
       (i) => i.id === classificacao.inscricaoId,
     );
-    atletaNome = inscricao?.nome;
+    if (inscricao) {
+      atletaNome = inscricao.nome;
+      lotacaoEnriquecida = inscricao.lotacao;
+    }
   } else if (!atletaNome && classificacao.lotacao) {
     atletaNome = classificacao.lotacao;
   }
@@ -65,14 +69,143 @@ function enrichClassificacao(classificacao: any) {
     ...classificacao,
     modalidade: modalidade?.nome || 'Modalidade Desconhecida',
     atleta: atletaNome || 'Atleta/Equipe Desconhecido',
+    lotacao: lotacaoEnriquecida || classificacao.lotacao,
     sexo: sexo || 'N/A',
   };
 }
 
-export async function GET() {
+function calcularQuadroMedalhas(classificacoesEnriquecidas: any[]) {
+  const mapa = new Map<
+    string,
+    {
+      lotacao: string;
+      ouro: number;
+      prata: number;
+      bronze: number;
+      total: number;
+    }
+  >();
+
+  for (const c of classificacoesEnriquecidas) {
+    if (c.posicao > 3 || !c.lotacao) continue;
+
+    const atual = mapa.get(c.lotacao) || {
+      lotacao: c.lotacao,
+      ouro: 0,
+      prata: 0,
+      bronze: 0,
+      total: 0,
+    };
+
+    if (c.posicao === 1) atual.ouro += 1;
+    if (c.posicao === 2) atual.prata += 1;
+    if (c.posicao === 3) atual.bronze += 1;
+    atual.total = atual.ouro + atual.prata + atual.bronze;
+    mapa.set(c.lotacao, atual);
+  }
+
+  return Array.from(mapa.values()).sort((a, b) => {
+    if (b.ouro !== a.ouro) return b.ouro - a.ouro;
+    if (b.prata !== a.prata) return b.prata - a.prata;
+    if (b.bronze !== a.bronze) return b.bronze - a.bronze;
+    return b.total - a.total;
+  });
+}
+
+function calcularEstatisticas(classificacoesEnriquecidas: any[]) {
+  const modalidadesUnicas = new Set(
+    classificacoesEnriquecidas.map((c) => c.modalidade).filter(Boolean),
+  );
+  const lotacoesUnicas = new Set(
+    classificacoesEnriquecidas.map((c) => c.lotacao).filter(Boolean),
+  );
+  const categoriasUnicas = new Set(
+    classificacoesEnriquecidas.map((c) => c.categoria),
+  );
+
+  return {
+    totalClassificacoes: classificacoesEnriquecidas.length,
+    totalCampeoes: classificacoesEnriquecidas.filter((c) => c.posicao === 1)
+      .length,
+    totalModalidades: modalidadesUnicas.size,
+    totalLotacoes: lotacoesUnicas.size,
+    modalidades: Array.from(modalidadesUnicas) as string[],
+    categorias: Array.from(categoriasUnicas) as string[],
+    lotacoes: Array.from(lotacoesUnicas) as string[],
+  };
+}
+
+export async function GET(request: Request) {
   try {
-    const enrichedClassificacoes = classificacoes.map(enrichClassificacao);
-    return NextResponse.json(enrichedClassificacoes);
+    const { searchParams } = new URL(request.url);
+    const tipo = searchParams.get('tipo'); // 'atletas' ou 'equipes'
+    const modalidade = searchParams.get('modalidade');
+    const categoria = searchParams.get('categoria');
+    const lotacao = searchParams.get('lotacao');
+    const incluirMedalhas = searchParams.get('medalhas') === 'true';
+    const incluirEstatisticas = searchParams.get('estatisticas') !== 'false'; // default true
+    const incluirFiltros = searchParams.get('filtros') === 'true';
+
+    // Enriquecer todas as classificações
+    let enrichedClassificacoes = classificacoes.map(enrichClassificacao);
+
+    // Separar atletas e equipes
+    const atletas = enrichedClassificacoes.filter((c) => c.inscricaoId);
+    const equipes = enrichedClassificacoes.filter((c) => !c.inscricaoId);
+
+    // Aplicar filtro de tipo
+    if (tipo === 'atletas') {
+      enrichedClassificacoes = atletas;
+    } else if (tipo === 'equipes') {
+      enrichedClassificacoes = equipes;
+    }
+
+    // Aplicar filtros
+    if (modalidade) {
+      enrichedClassificacoes = enrichedClassificacoes.filter(
+        (c) => c.modalidade === modalidade,
+      );
+    }
+    if (categoria) {
+      enrichedClassificacoes = enrichedClassificacoes.filter(
+        (c) => c.categoria === categoria,
+      );
+    }
+    if (lotacao) {
+      enrichedClassificacoes = enrichedClassificacoes.filter(
+        (c) => c.lotacao === lotacao,
+      );
+    }
+
+    // Preparar resposta
+    const response: any = {
+      dados: enrichedClassificacoes,
+    };
+
+    // Adicionar estatísticas se solicitado
+    if (incluirEstatisticas) {
+      const todasClassificacoes = classificacoes.map(enrichClassificacao);
+      response.estatisticas = calcularEstatisticas(todasClassificacoes);
+    }
+
+    // Adicionar quadro de medalhas se solicitado
+    if (incluirMedalhas) {
+      const todasClassificacoes = classificacoes.map(enrichClassificacao);
+      response.quadroMedalhas = calcularQuadroMedalhas(todasClassificacoes);
+    }
+
+    // Adicionar listas de filtros se solicitado
+    if (incluirFiltros) {
+      const todasClassificacoes = classificacoes.map(enrichClassificacao);
+      const estatisticas = calcularEstatisticas(todasClassificacoes);
+      response.filtros = {
+        modalidades: estatisticas.modalidades,
+        categorias: estatisticas.categorias,
+        lotacoes: estatisticas.lotacoes,
+      };
+    }
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Erro ao buscar classificações:', error);
     return NextResponse.json(

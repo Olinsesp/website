@@ -11,18 +11,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
+import { InscricoesTable } from '@/types/inscricao';
 
-export type Inscricoes = {
-  id: string;
-  nome: string;
-  email: string;
-  lotacao: string;
-  orgaoOrigem: string;
-  modalidades: string[];
-  status: 'Pendente' | 'Confirmado' | 'Cancelado';
-};
-
-export const columns: ColumnDef<Inscricoes>[] = [
+export const columns: ColumnDef<InscricoesTable>[] = [
   {
     accessorKey: 'nome',
     header: ({ column }) => {

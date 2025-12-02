@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Card,
@@ -12,32 +12,14 @@ import { Calendar, CalendarDays, Timer, LocateIcon } from 'lucide-react';
 import DayNavigation from '@/components/cronograma/DayNavigation';
 import EventCard from '@/components/cronograma/EventCard';
 import QueryStateHandler from '@/components/ui/query-state-handler';
+import { CronogramaResponse } from '@/types/cronograma';
 
-interface Evento {
-  id: string;
-  atividade: string;
-  inicio: string;
-  fim: string;
-  detalhes?: string | null;
-  horario?: string;
-  tipo?: string;
-  local?: string;
-  status?: 'agendado' | 'em_andamento' | 'finalizado';
-  participantes?: string;
-  modalidade?: string;
-  resultado?: string;
-}
+const fetchCronograma = async (): Promise<CronogramaResponse> => {
+  const params = new URLSearchParams();
+  params.append('agruparPorDia', 'true');
+  params.append('formatar', 'true');
 
-interface DiaCronograma {
-  id: string;
-  data: string;
-  titulo: string;
-  descricao: string;
-  eventos: Evento[];
-}
-
-const fetchCronograma = async (): Promise<Evento[]> => {
-  const res = await fetch('/api/cronograma');
+  const res = await fetch(`/api/cronograma?${params.toString()}`);
   if (!res.ok) {
     throw new Error('Falha ao buscar dados do cronograma');
   }
@@ -46,52 +28,16 @@ const fetchCronograma = async (): Promise<Evento[]> => {
 
 export default function Cronograma() {
   const {
-    data: eventos,
+    data: cronogramaData,
     isLoading,
     isError,
     error,
-  } = useQuery<Evento[]>({
+  } = useQuery<CronogramaResponse>({
     queryKey: ['cronograma'],
     queryFn: fetchCronograma,
   });
 
-  const cronogramaDias = useMemo(() => {
-    if (!eventos) return [];
-
-    const groupedByDay = eventos.reduce(
-      (acc, evento) => {
-        const data = new Date(evento.inicio).toLocaleDateString('pt-BR', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        });
-        if (!acc[data]) {
-          acc[data] = {
-            id: `dia-${Object.keys(acc).length + 1}`,
-            data,
-            titulo: `Dia ${Object.keys(acc).length + 1}`,
-            descricao: `Eventos do dia ${data}`,
-            eventos: [],
-          };
-        }
-        acc[data].eventos.push({
-          ...evento,
-          horario: new Date(evento.inicio).toLocaleTimeString('pt-BR', {
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
-          tipo: evento.atividade.includes('Cerimônia') ? 'cerimonia' : 'jogo',
-          local: evento.detalhes || 'A definir',
-          status: 'agendado',
-          participantes: 'Consulte detalhes',
-        });
-        return acc;
-      },
-      {} as Record<string, DiaCronograma>,
-    );
-
-    return Object.values(groupedByDay);
-  }, [eventos]);
+  const cronogramaDias = cronogramaData?.dias || [];
 
   const [currentDayIndex, setCurrentDayIndex] = useState(0);
 

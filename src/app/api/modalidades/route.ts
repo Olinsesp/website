@@ -28,9 +28,46 @@ const modalidadeSchema = z.object({
     .optional(),
 });
 
-export async function GET() {
+function calcularEstatisticasModalidades(modalidadesData: any[]) {
+  const totalVagas = modalidadesData.reduce(
+    (acc, m) => acc + (m.maxParticipantes || 0),
+    0,
+  );
+
+  const vagasDisponiveis = modalidadesData.reduce((total, m) => {
+    const vagasDisponiveis =
+      (m.maxParticipantes || 0) - (m.participantesAtuais || 0);
+    return total + Math.max(0, vagasDisponiveis);
+  }, 0);
+
+  const totalPremios = modalidadesData.reduce(
+    (acc, m) => acc + (m.premios?.length || 0),
+    0,
+  );
+
+  return {
+    totalModalidades: modalidadesData.length,
+    totalVagas,
+    vagasDisponiveis,
+    totalPremios,
+  };
+}
+
+export async function GET(request: Request) {
   try {
-    return NextResponse.json(modalidades);
+    const { searchParams } = new URL(request.url);
+    const incluirEstatisticas = searchParams.get('estatisticas') !== 'false'; // default true
+
+    const response: any = {
+      dados: modalidades,
+    };
+
+    // Adicionar estatísticas se solicitado
+    if (incluirEstatisticas) {
+      response.estatisticas = calcularEstatisticasModalidades(modalidades);
+    }
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Erro ao buscar modalidades:', error);
     return NextResponse.json(

@@ -25,7 +25,7 @@ import {
 import { generatePDF } from '@/lib/pdf-utils';
 import { Download, Filter } from 'lucide-react';
 
-import { Inscricoes } from './columns';
+import { InscricoesTable } from '@/types/inscricao';
 import { DataTable } from './data-table';
 import { AppSidebar } from '@/app/Dashboard/app-sidebar';
 import { SiteHeader } from '@/app/Dashboard/site-header';
@@ -42,7 +42,7 @@ import ConfirmacaoForm from '@/components/admin/ConfirmacaoForm';
 export default function DashboardPage() {
   const [lotacao, setLotacao] = useState<string | null>(null);
   const [modalidade, setModalidade] = useState<string | null>(null);
-  const [inscritos, setInscritos] = useState<Inscricoes[]>([]);
+  const [inscritos, setInscritos] = useState<InscricoesTable[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [activeTab, setActiveTab] = useState('dashboard');

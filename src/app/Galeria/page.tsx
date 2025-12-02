@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Card,
@@ -16,18 +16,14 @@ import VideoCard from '@/components/galeria/VideoCard';
 import ReleaseCard from '@/components/galeria/ReleaseCard';
 import ImageModal from '@/components/galeria/ImageModal';
 import QueryStateHandler from '@/components/ui/query-state-handler';
+import { MidiasResponse } from '@/types/midia';
 
-interface Midia {
-  id: string;
-  tipo: 'foto' | 'video' | 'release';
-  url: string;
-  titulo?: string | null;
-  destaque: boolean;
-  createdAt: string;
-}
+const fetchMidias = async (): Promise<MidiasResponse> => {
+  const params = new URLSearchParams();
+  params.append('separar', 'true');
+  params.append('estatisticas', 'true');
 
-const fetchMidias = async (): Promise<Midia[]> => {
-  const res = await fetch('/api/midias');
+  const res = await fetch(`/api/midias?${params.toString()}`);
   if (!res.ok) {
     throw new Error('Falha ao buscar mídias');
   }
@@ -40,21 +36,19 @@ export default function Galeria() {
   >(null);
 
   const {
-    data: midias,
+    data: midiasData,
     isLoading,
     isError,
     error,
-  } = useQuery<Midia[]>({
+  } = useQuery<MidiasResponse>({
     queryKey: ['midias'],
     queryFn: fetchMidias,
   });
 
-  const { fotos, videos, releases } = useMemo(() => {
-    const fotos = midias?.filter((m) => m.tipo === 'foto') || [];
-    const videos = midias?.filter((m) => m.tipo === 'video') || [];
-    const releases = midias?.filter((m) => m.tipo === 'release') || [];
-    return { fotos, videos, releases };
-  }, [midias]);
+  const fotos = midiasData?.fotos || [];
+  const videos = midiasData?.videos || [];
+  const releases = midiasData?.releases || [];
+  const estatisticas = midiasData?.estatisticas;
 
   return (
     <QueryStateHandler
@@ -71,25 +65,26 @@ export default function Galeria() {
               <Camera className='h-4 w-4' />
               Galeria Atualizada
             </div>
-
-            <h1 className='text-4xl md:text-5xl font-bold mb-6 bg-azul-olinsesp bg-clip-text text-transparent'>
-              Galeria de Mídias
-            </h1>
-            <p className='text-2xl md:text-xl font-medium text-gray-950 max-w-3xl mx-auto leading-relaxed'>
-              Reviva os melhores momentos através de fotos, vídeos e notícias
-              exclusivas do VIII Olinsesp
-            </p>
+            <div className='backdrop-blur-xl rounded-2xl p-6  border border-white/20 shadow-2xl'>
+              <h1 className='text-4xl md:text-5xl font-extrabold mb-6 bg-azul-olinsesp bg-clip-text text-transparent'>
+                Galeria de Mídias
+              </h1>
+              <p className='text-2xl md:text-xl font-extrabold text-gray-950 max-w-3xl mx-auto leading-relaxed'>
+                Reviva os melhores momentos através de fotos, vídeos e notícias
+                exclusivas do VIII Olinsesp
+              </p>
+            </div>
           </div>
 
           {/* Estatísticas */}
           <div className='grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12'>
             <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
               <CardContent className='p-4 sm:p-6 lg:p-8'>
-                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-linear-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center'>
+                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-azul-olinsesp rounded-2xl flex items-center justify-center'>
                   <ImageIcon className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-xl sm:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
-                  {fotos.length}+
+                  {estatisticas?.totalFotos || 0}+
                 </h3>
                 <p className='text-sm sm:text-base text-gray-600'>
                   Fotos Exclusivas
@@ -99,11 +94,11 @@ export default function Galeria() {
 
             <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
               <CardContent className='p-4 sm:p-6 lg:p-8'>
-                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-linear-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center'>
+                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-azul-olinsesp rounded-2xl flex items-center justify-center'>
                   <PlayCircle className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-xl sm:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
-                  {videos.length}+
+                  {estatisticas?.totalVideos || 0}+
                 </h3>
                 <p className='text-sm sm:text-base text-gray-600'>Vídeos HD</p>
               </CardContent>
@@ -111,11 +106,11 @@ export default function Galeria() {
 
             <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
               <CardContent className='p-4 sm:p-6 lg:p-8'>
-                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-linear-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center'>
+                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-azul-olinsesp rounded-2xl flex items-center justify-center'>
                   <FileTextIcon className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-xl sm:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
-                  {releases.length}+
+                  {estatisticas?.totalReleases || 0}+
                 </h3>
                 <p className='text-sm sm:text-base text-gray-600'>Releases</p>
               </CardContent>

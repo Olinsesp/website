@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Card,
@@ -24,37 +24,26 @@ import ClassificacoesFilters from '@/components/classificacoes/ClassificacoesFil
 import MedalTable from '@/components/classificacoes/MedalTable';
 import AthleteResultCard from '@/components/classificacoes/AthleteResultCard';
 import TeamResultCard from '@/components/classificacoes/TeamResultCard';
-import {
-  Classificacao as ClassificacaoType,
-  MedalRow as MedalRowType,
-} from '@/types/classificacao';
+import { ClassificacoesResponse } from '@/types/api';
 import QueryStateHandler from '@/components/ui/query-state-handler';
 
-interface Inscricao {
-  id: string;
-  nome: string;
-  lotacao: string;
-}
-interface Modalidade {
-  id: string;
-  nome: string;
-}
+const fetchClassificacoes = async (
+  tipo?: 'atletas' | 'equipes',
+  modalidade?: string | null,
+  categoria?: string | null,
+  lotacao?: string | null,
+): Promise<ClassificacoesResponse> => {
+  const params = new URLSearchParams();
+  if (tipo) params.append('tipo', tipo);
+  if (modalidade) params.append('modalidade', modalidade);
+  if (categoria) params.append('categoria', categoria);
+  if (lotacao) params.append('lotacao', lotacao);
+  params.append('estatisticas', 'true');
+  params.append('medalhas', 'true');
+  params.append('filtros', 'true');
 
-const fetchClassificacoes = async (): Promise<ClassificacaoType[]> => {
-  const res = await fetch('/api/classificacoes');
+  const res = await fetch(`/api/classificacoes?${params.toString()}`);
   if (!res.ok) throw new Error('Falha ao buscar classificações');
-  return res.json();
-};
-
-const fetchInscricoes = async (): Promise<Inscricao[]> => {
-  const res = await fetch('/api/inscricoes');
-  if (!res.ok) throw new Error('Falha ao buscar inscrições');
-  return res.json();
-};
-
-const fetchModalidades = async (): Promise<Modalidade[]> => {
-  const res = await fetch('/api/modalidades');
-  if (!res.ok) throw new Error('Falha ao buscar modalidades');
   return res.json();
 };
 
@@ -65,134 +54,41 @@ export default function Classificacoes() {
   const [activeTab, setActiveTab] = useState<'atletas' | 'equipes'>('atletas');
 
   const {
-    data: classificacoesRaw,
-    isLoading: isLoadingClassificacoes,
-    isError: isErrorClassificacoes,
-    error: errorClassificacoes,
-  } = useQuery<ClassificacaoType[]>({
-    queryKey: ['classificacoes'],
-    queryFn: fetchClassificacoes,
+    data: dadosCompletos,
+    isLoading: isLoadingCompletos,
+    isError: isErrorCompletos,
+    error: errorCompletos,
+  } = useQuery<ClassificacoesResponse>({
+    queryKey: ['classificacoes', 'completos'],
+    queryFn: () => fetchClassificacoes(),
   });
 
   const {
-    data: inscricoes,
-    isLoading: isLoadingInscricoes,
-    isError: isErrorInscricoes,
-    error: errorInscricoes,
-  } = useQuery<Inscricao[]>({
-    queryKey: ['inscricoes'],
-    queryFn: fetchInscricoes,
+    data: dadosFiltrados,
+    isLoading: isLoadingFiltrados,
+    isError: isErrorFiltrados,
+    error: errorFiltrados,
+  } = useQuery<ClassificacoesResponse>({
+    queryKey: ['classificacoes', activeTab, modalidade, categoria, lotacao],
+    queryFn: () =>
+      fetchClassificacoes(activeTab, modalidade, categoria, lotacao),
+    enabled: !!dadosCompletos, // Só busca quando dados completos estão carregados
   });
 
-  const {
-    data: modalidadesData,
-    isLoading: isLoadingModalidades,
-    isError: isErrorModalidades,
-    error: errorModalidades,
-  } = useQuery<Modalidade[]>({
-    queryKey: ['modalidades'],
-    queryFn: fetchModalidades,
-  });
+  // Usar dados filtrados se disponíveis, senão usar completos
+  const dadosAtuais = dadosFiltrados || dadosCompletos;
+  const isLoading = isLoadingCompletos || isLoadingFiltrados;
+  const isError = isErrorCompletos || isErrorFiltrados;
+  const error = errorCompletos || errorFiltrados;
 
-  const classificacoes = useMemo(() => {
-    if (!classificacoesRaw || !inscricoes || !modalidadesData) return [];
+  const classificacoes = dadosAtuais?.dados || [];
+  const quadroMedalhas = dadosAtuais?.quadroMedalhas || [];
+  const estatisticas = dadosAtuais?.estatisticas;
+  const filtros = dadosAtuais?.filtros;
 
-    const inscricoesMap = new Map(inscricoes.map((i) => [i.id, i]));
-    const modalidadesMap = new Map(modalidadesData.map((m) => [m.id, m]));
-
-    return classificacoesRaw.map((c) => {
-      const enriched = { ...c };
-
-      const modalidadeInfo = modalidadesMap.get(c.modalidadeId);
-      if (modalidadeInfo) {
-        enriched.modalidade = modalidadeInfo.nome;
-      }
-
-      if (c.inscricaoId) {
-        const inscricao = inscricoesMap.get(c.inscricaoId);
-        if (inscricao) {
-          enriched.atleta = inscricao.nome;
-          enriched.lotacao = inscricao.lotacao;
-        }
-      }
-      return enriched;
-    });
-  }, [classificacoesRaw, inscricoes, modalidadesData]);
-
-  const { atletas, equipes } = useMemo(() => {
-    if (!classificacoes) return { atletas: [], equipes: [] };
-    return {
-      atletas: classificacoes.filter((c) => c.inscricaoId),
-      equipes: classificacoes.filter((c) => !c.inscricaoId),
-    };
-  }, [classificacoes]);
-
-  const atletasFiltrados = useMemo(() => {
-    return atletas.filter((c) => {
-      if (modalidade && c.modalidade !== modalidade) return false;
-      if (categoria && c.categoria !== categoria) return false;
-      if (lotacao && c.lotacao !== lotacao) return false;
-      return true;
-    });
-  }, [atletas, modalidade, categoria, lotacao]);
-
-  const equipesFiltradas = useMemo(() => {
-    return equipes.filter((c) => {
-      if (modalidade && c.modalidade !== modalidade) return false;
-      if (categoria && c.categoria !== categoria) return false;
-      if (lotacao && c.lotacao !== lotacao) return false;
-      return true;
-    });
-  }, [equipes, modalidade, categoria, lotacao]);
-
-  const modalidades = useMemo(() => {
-    if (!classificacoes) return [];
-    const allModalidades = classificacoes
-      .map((c) => c.modalidade)
-      .filter(Boolean);
-    return [...new Set(allModalidades)] as string[];
-  }, [classificacoes]);
-
-  const categorias = useMemo(() => {
-    if (!classificacoes) return [];
-    return [...new Set(classificacoes.map((c) => c.categoria))];
-  }, [classificacoes]);
-
-  const lotacoes = useMemo(() => {
-    if (!classificacoes) return [];
-    const allLotacoes = classificacoes.map((c) => c.lotacao).filter(Boolean);
-    return [...new Set(allLotacoes)] as string[];
-  }, [classificacoes]);
-
-  const quadroMedalhas: MedalRowType[] = useMemo(() => {
-    if (!classificacoes) return [];
-
-    const mapa = new Map<string, MedalRowType>();
-    for (const c of classificacoes) {
-      if (c.posicao > 3 || !c.lotacao) continue;
-      const atual =
-        mapa.get(c.lotacao) ||
-        ({
-          lotacao: c.lotacao,
-          ouro: 0,
-          prata: 0,
-          bronze: 0,
-          total: 0,
-        } as MedalRowType);
-      if (c.posicao === 1) atual.ouro += 1;
-      if (c.posicao === 2) atual.prata += 1;
-      if (c.posicao === 3) atual.bronze += 1;
-      atual.total = atual.ouro + atual.prata + atual.bronze;
-      mapa.set(c.lotacao, atual);
-    }
-
-    return Array.from(mapa.values()).sort((a, b) => {
-      if (b.ouro !== a.ouro) return b.ouro - a.ouro;
-      if (b.prata !== a.prata) return b.prata - a.prata;
-      if (b.bronze !== a.bronze) return b.bronze - a.bronze;
-      return b.total - a.total;
-    });
-  }, [classificacoes]);
+  const modalidades = filtros?.modalidades || [];
+  const categorias = filtros?.categorias || [];
+  const lotacoes = filtros?.lotacoes || [];
 
   const handleTabChange = (value: string) => {
     if (value === 'atletas' || value === 'equipes') {
@@ -202,11 +98,9 @@ export default function Classificacoes() {
 
   return (
     <QueryStateHandler
-      isLoading={
-        isLoadingClassificacoes || isLoadingInscricoes || isLoadingModalidades
-      }
-      isError={isErrorClassificacoes || isErrorInscricoes || isErrorModalidades}
-      error={errorClassificacoes || errorInscricoes || errorModalidades}
+      isLoading={isLoading}
+      isError={isError}
+      error={error}
       loadingMessage='Carregando classificações...'
     >
       <div className='min-h-screen py-12'>
@@ -217,25 +111,26 @@ export default function Classificacoes() {
               <Trophy className='h-4 w-4' />
               Resultados Atualizados
             </div>
-
-            <h1 className='text-4xl md:text-5xl font-bold mb-6 bg-azul-olinsesp bg-clip-text text-transparent'>
-              Classificações
-            </h1>
-            <p className='text-2xl md:text-xl font-medium text-gray-950 max-w-3xl mx-auto leading-relaxed'>
-              Acompanhe em tempo real os resultados dos atletas e equipes em
-              todas as modalidades do VIII Olinsesp
-            </p>
+            <div className='backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-2xl'>
+              <h1 className='text-4xl md:text-5xl font-extrabold mb-6 bg-azul-olinsesp bg-clip-text text-transparent'>
+                Classificações
+              </h1>
+              <p className='text-2xl md:text-xl font-extrabold text-gray-950 max-w-3xl mx-auto leading-relaxed'>
+                Acompanhe em tempo real os resultados dos atletas e equipes em
+                todas as modalidades do VIII Olinsesp
+              </p>
+            </div>
           </div>
 
           {/* Estatísticas */}
           <div className='grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12'>
             <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
               <CardContent className='p-4 sm:p-6 lg:p-8'>
-                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-amarelo-olinsesp rounded-2xl flex items-center justify-center'>
+                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-azul-olinsesp rounded-2xl flex items-center justify-center'>
                   <Crown className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
-                  {classificacoes?.filter((c) => c.posicao === 1).length || 0}
+                  {estatisticas?.totalCampeoes || 0}
                 </h3>
                 <p className='text-xs sm:text-sm lg:text-base text-gray-600'>
                   Campeões
@@ -249,7 +144,7 @@ export default function Classificacoes() {
                   <Trophy className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
-                  {modalidades.length}
+                  {estatisticas?.totalModalidades || 0}
                 </h3>
                 <p className='text-xs sm:text-sm lg:text-base text-gray-600'>
                   Modalidades
@@ -259,11 +154,11 @@ export default function Classificacoes() {
 
             <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
               <CardContent className='p-4 sm:p-6 lg:p-8'>
-                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-verde-olinsesp rounded-2xl flex items-center justify-center'>
+                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-azul-olinsesp rounded-2xl flex items-center justify-center'>
                   <Users className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
-                  {classificacoes?.length || 0}
+                  {estatisticas?.totalClassificacoes || 0}
                 </h3>
                 <p className='text-xs sm:text-sm lg:text-base text-gray-600'>
                   Classificações
@@ -273,11 +168,11 @@ export default function Classificacoes() {
 
             <Card className='text-center bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1'>
               <CardContent className='p-4 sm:p-6 lg:p-8'>
-                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-laranja-olinsesp rounded-2xl flex items-center justify-center'>
+                <div className='h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 mx-auto mb-3 sm:mb-4 bg-azul-olinsesp rounded-2xl flex items-center justify-center'>
                   <TrendingUp className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
-                  {lotacoes.length}
+                  {estatisticas?.totalLotacoes || 0}
                 </h3>
                 <p className='text-xs sm:text-sm lg:text-base text-gray-600'>
                   Forças
@@ -304,10 +199,7 @@ export default function Classificacoes() {
             />
             <Button
               onClick={() =>
-                generatePDF(
-                  activeTab === 'atletas' ? atletasFiltrados : equipesFiltradas,
-                  `classificacoes-${activeTab}`,
-                )
+                generatePDF(classificacoes, `classificacoes-${activeTab}`)
               }
               className='bg-azul-olinsesp hover:bg-azul-olinsesp/90 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base'
             >
@@ -357,9 +249,9 @@ export default function Classificacoes() {
                 </CardHeader>
 
                 <CardContent className='p-4 sm:p-6 lg:p-8'>
-                  {atletasFiltrados.length > 0 ? (
+                  {classificacoes.length > 0 ? (
                     <div className='space-y-4'>
-                      {atletasFiltrados.map((classificacao) => (
+                      {classificacoes.map((classificacao) => (
                         <AthleteResultCard
                           key={classificacao.id}
                           classificacao={classificacao}
@@ -397,9 +289,9 @@ export default function Classificacoes() {
                 </CardHeader>
 
                 <CardContent className='p-8'>
-                  {equipesFiltradas.length > 0 ? (
+                  {classificacoes.length > 0 ? (
                     <div className='space-y-4'>
-                      {equipesFiltradas.map((classificacao) => (
+                      {classificacoes.map((classificacao) => (
                         <TeamResultCard
                           key={classificacao.id}
                           classificacao={classificacao}

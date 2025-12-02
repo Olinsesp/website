@@ -33,30 +33,14 @@ import {
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
-type Evento = {
-  id: string;
-  atividade: string;
-  inicio: string;
-  fim: string;
-  detalhes?: string | null;
-  modalidade?: string;
-};
-
-type Inscricao = {
-  nome: string;
-  email: string;
-  cpf: string;
-  telefone: string;
-  camiseta: string;
-  lotacao: string;
-  matricula: string;
-  modalidades: string[];
-};
+import { Evento } from '@/types/cronograma';
+import { Inscricao } from '@/types/inscricao';
 
 async function fetchEventos(): Promise<Evento[]> {
-  const res = await fetch('/api/cronograma');
+  const res = await fetch('/api/cronograma?agruparPorDia=false&formatar=false');
   if (!res.ok) throw new Error('Falha ao buscar cronograma');
-  return res.json();
+  const data = await res.json();
+  return data.dados || data; // Compatibilidade com formato antigo
 }
 
 async function fetchInscricoes(): Promise<Inscricao[]> {

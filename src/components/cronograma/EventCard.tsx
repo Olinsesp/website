@@ -5,17 +5,7 @@ import { Button } from '@/components/ui/button';
 import { MapPin, Trophy, Users } from 'lucide-react';
 import React from 'react';
 import { getStatusBadge, getTipoIcon } from './utils';
-
-export type Evento = {
-  atividade: string;
-  horario?: string;
-  tipo?: string;
-  local?: string;
-  status?: 'agendado' | 'em_andamento' | 'finalizado';
-  participantes?: string;
-  resultado?: string;
-  modalidade?: string;
-};
+import { Evento } from '@/types/cronograma';
 
 type Props = {
   evento: Evento;

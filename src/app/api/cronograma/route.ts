@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { staticCronograma } from './cronogramaData';
+import { EventoEnriquecido, DiaCronograma } from '@/types/cronograma';
 
 const eventoSchema = z.object({
   atividade: z.string().min(1, 'A atividade é obrigatória.'),
@@ -10,12 +11,87 @@ const eventoSchema = z.object({
   modalidade: z.string().min(1, 'A modalidade é obrigatória.'),
 });
 
-export async function GET() {
+function enriquecerEvento(evento: any): EventoEnriquecido {
+  const inicioDate = new Date(evento.inicio);
+  const inicioFormatado = inicioDate.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+  const horarioFormatado = inicioDate.toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  return {
+    ...evento,
+    horario: horarioFormatado,
+    tipo: evento.atividade.includes('Cerimônia') ? 'cerimonia' : 'jogo',
+    local: evento.detalhes || 'A definir',
+    status: 'agendado' as const,
+    participantes: 'Consulte detalhes',
+    inicioFormatado,
+    horarioFormatado,
+  };
+}
+
+function agruparPorDia(eventos: EventoEnriquecido[]): DiaCronograma[] {
+  const groupedByDay = eventos.reduce(
+    (acc, evento) => {
+      const data =
+        evento.inicioFormatado ||
+        new Date(evento.inicio).toLocaleDateString('pt-BR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        });
+
+      if (!acc[data]) {
+        acc[data] = {
+          id: `dia-${Object.keys(acc).length + 1}`,
+          data,
+          titulo: `Dia ${Object.keys(acc).length + 1}`,
+          descricao: `Eventos do dia ${data}`,
+          eventos: [],
+        };
+      }
+      acc[data].eventos.push(evento);
+      return acc;
+    },
+    {} as Record<string, DiaCronograma>,
+  );
+
+  return Object.values(groupedByDay);
+}
+
+export async function GET(request: Request) {
   try {
-    const cronograma = staticCronograma.sort(
+    const { searchParams } = new URL(request.url);
+    const agruparPorDiaParam = searchParams.get('agruparPorDia') !== 'false'; // default true
+    const incluirFormatacao = searchParams.get('formatar') !== 'false'; // default true
+
+    // Ordenar eventos por data
+    let eventos = staticCronograma.sort(
       (a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime(),
     );
-    return NextResponse.json(cronograma);
+
+    // Enriquecer eventos com formatação
+    if (incluirFormatacao) {
+      eventos = eventos.map(enriquecerEvento) as any[];
+    }
+
+    // Preparar resposta
+    const response: any = {};
+
+    if (agruparPorDiaParam) {
+      // Agrupar por dia
+      response.dias = agruparPorDia(eventos as EventoEnriquecido[]);
+    } else {
+      // Retornar lista única
+      response.dados = eventos;
+    }
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Erro ao buscar cronograma:', error);
     return NextResponse.json(

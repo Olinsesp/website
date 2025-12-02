@@ -48,23 +48,9 @@ const inscricaoSchema = z.object({
   status: z.enum(['pendente', 'aprovada', 'rejeitada']).optional(),
 });
 
-type InscricaoFormData = z.infer<typeof inscricaoSchema>;
+import { Inscricao } from '@/types/inscricao';
 
-interface Inscricao {
-  id: string;
-  nome: string;
-  email: string;
-  telefone: string;
-  cpf: string;
-  dataNascimento: string;
-  camiseta: string;
-  matricula: string;
-  lotacao: string;
-  orgaoOrigem: string;
-  modalidades: string[];
-  status: 'pendente' | 'aprovada' | 'rejeitada';
-  createdAt: string;
-}
+type InscricaoFormData = z.infer<typeof inscricaoSchema>;
 
 async function fetchInscricoes(): Promise<Inscricao[]> {
   const response = await fetch('/api/inscricoes');
@@ -172,7 +158,12 @@ export default function InscricoesForm() {
     setValue('email', inscricao.email);
     setValue('telefone', inscricao.telefone);
     setValue('cpf', inscricao.cpf);
-    setValue('dataNascimento', inscricao.dataNascimento);
+    setValue(
+      'dataNascimento',
+      inscricao.dataNascimento instanceof Date
+        ? inscricao.dataNascimento.toISOString().split('T')[0]
+        : inscricao.dataNascimento,
+    );
     setValue('camiseta', inscricao.camiseta);
     setValue('matricula', inscricao.matricula);
     setValue('lotacao', inscricao.lotacao);
@@ -252,12 +243,13 @@ export default function InscricoesForm() {
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row }) => getStatusBadge(row.original.status),
+      cell: ({ row }) => getStatusBadge(row.original.status || 'pendente'),
     },
     {
       accessorKey: 'createdAt',
       header: 'Inscrito em',
-      cell: ({ row }) => formatDate(row.original.createdAt),
+      cell: ({ row }) =>
+        row.original.createdAt ? formatDate(row.original.createdAt) : 'N/A',
     },
     {
       id: 'actions',

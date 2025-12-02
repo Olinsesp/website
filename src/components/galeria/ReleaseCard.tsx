@@ -3,14 +3,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileTextIcon, Share2 } from 'lucide-react';
-
-export type Release = {
-  id: string;
-  url: string;
-  titulo?: string | null;
-  destaque: boolean;
-  createdAt: string;
-};
+import { Release } from '@/types/midia';
 
 export default function ReleaseCard({ release }: { release: Release }) {
   return (
