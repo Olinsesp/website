@@ -212,9 +212,9 @@ export default function GaleriaForm() {
 
   const getTipoBadge = (tipo: string) => {
     const tipoConfig = {
-      foto: { label: 'Foto', color: 'bg-blue-500' },
-      video: { label: 'Vídeo', color: 'bg-red-500' },
-      release: { label: 'Release', color: 'bg-green-500' },
+      foto: { label: 'Foto', color: 'bg-azul-olinsesp' },
+      video: { label: 'Vídeo', color: 'bg-vermelho-olinsesp' },
+      release: { label: 'Release', color: 'bg-verde-olinsesp' },
     };
     const config = tipoConfig[tipo as keyof typeof tipoConfig] || {
       label: 'Desconhecido',
@@ -295,7 +295,7 @@ export default function GaleriaForm() {
           href={row.original.url}
           target='_blank'
           rel='noopener noreferrer'
-          className='text-blue-500 hover:underline truncate max-w-xs'
+          className='text-azul-olinsesp hover:underline truncate max-w-xs'
         >
           {row.original.url}
         </a>
@@ -307,7 +307,7 @@ export default function GaleriaForm() {
       cell: ({ row }) =>
         row.original.destaque && (
           <Badge variant='outline' className='flex items-center gap-1'>
-            <Star className='h-3 w-3 fill-yellow-400 text-yellow-400' />
+            <Star className='h-3 w-3 fill-amarelo-olinsesp text-amarelo-olinsesp' />
             Destaque
           </Badge>
         ),
@@ -367,7 +367,6 @@ export default function GaleriaForm() {
           </CardContent>
         </Card>
 
-        {/* Dialog para Adicionar/Editar */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className='sm:max-w-[425px]'>
             <DialogHeader>
@@ -412,7 +411,7 @@ export default function GaleriaForm() {
                     </SelectContent>
                   </Select>
                   {errors.tipo && (
-                    <p className='text-sm text-red-600'>
+                    <p className='text-sm text-vermelho-olinsesp'>
                       {errors.tipo.message}
                     </p>
                   )}
@@ -434,7 +433,9 @@ export default function GaleriaForm() {
                     }
                   />
                   {errors.url && (
-                    <p className='text-sm text-red-600'>{errors.url.message}</p>
+                    <p className='text-sm text-vermelho-olinsesp'>
+                      {errors.url.message}
+                    </p>
                   )}
                 </div>
 

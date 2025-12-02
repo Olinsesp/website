@@ -30,7 +30,7 @@ export default function Home() {
         'Cadastre-se agora e participe do maior evento esportivo regional!',
       link: '/Inscricoes',
       variant: 'default' as const,
-      color: 'from-blue-500 to-blue-600',
+      color: 'bg-azul-olinsesp',
     },
     {
       icon: Calendar,
@@ -39,7 +39,7 @@ export default function Home() {
         'Confira os horários de todas as modalidades e não perca nenhum jogo.',
       link: '/Cronograma',
       variant: 'default' as const,
-      color: 'from-orange-500 to-orange-600',
+      color: 'bg-laranja-olinsesp',
     },
     {
       icon: Camera,
@@ -48,7 +48,7 @@ export default function Home() {
         'Reviva os melhores momentos através de fotos e vídeos exclusivos.',
       link: '/Galeria',
       variant: 'default' as const,
-      color: 'from-green-500 to-green-600',
+      color: 'bg-verde-olinsesp',
     },
     {
       icon: FileText,
@@ -57,7 +57,7 @@ export default function Home() {
         'Acompanhe as pontuações e veja quem está liderando em cada modalidade.',
       link: '/Classificacoes',
       variant: 'default' as const,
-      color: 'from-purple-500 to-purple-600',
+      color: 'bg-rosa-olinsesp',
     },
   ];
 
@@ -66,25 +66,25 @@ export default function Home() {
       icon: Clock,
       title: '36 Dias',
       description: 'de competições intensas',
-      color: 'text-blue-600',
+      color: 'text-azul-olinsesp',
     },
     {
       icon: Trophy,
       title: '15+',
       description: 'modalidades esportivas',
-      color: 'text-orange-600',
+      color: 'text-laranja-olinsesp',
     },
     {
       icon: Users,
       title: '500+',
       description: 'atletas participantes',
-      color: 'text-green-600',
+      color: 'text-verde-olinsesp',
     },
     {
       icon: MapPin,
       title: 'Centro',
       description: 'Esportivo',
-      color: 'text-purple-600',
+      color: 'text-rosa-olinsesp',
     },
   ];
 
@@ -125,18 +125,24 @@ export default function Home() {
         <Image
           src='/sports-hero.jpeg'
           alt='hero'
-          width={1920}
-          height={1080}
-          className='w-full h-full object-fill m-0 p-0'
+          fill
+          className='w-full h-full object-cover object-bottom m-0 p-0 hidden md:block'
           priority
         />
-        <div className='absolute inset-0 flex flex-col items-center justify-center z-10'>
-          <div className='flex flex-col sm:flex-row gap-4 justify-center mb-12 pt-40'>
+        <Image
+          src='/sports-hero-mobile.jpeg'
+          alt='hero-mobile'
+          fill
+          className='w-full h-full object-cover object-bottom m-0 p-0 block md:hidden'
+          priority
+        />
+        <div className='absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center'>
+          <div className='flex flex-col sm:flex-row gap-4 justify-center mb-12 pt-11 lg:pt-64'>
             <Link href='/Inscricoes'>
               <Button
                 variant='secondary'
                 size='lg'
-                className='text-lg px-8 py-4 bg-linear-to-r from-blue-600 via-blue-400 to-orange-400 text-white border-0 hover:brightness-110 cursor-pointer transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-blue-500/25'
+                className='text-lg px-8 py-4 bg-azul-olinsesp hover:bg-azul-olinsesp text-white border-0 cursor-pointer transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-azul-olinsesp'
               >
                 <Users className='mr-2 h-5 w-5' />
                 Inscrever-se Agora
@@ -147,7 +153,7 @@ export default function Home() {
               <Button
                 variant='outline'
                 size='lg'
-                className='text-lg px-8 py-4 bg-white/10 border-white/30 text-white hover:bg-white/20 cursor-pointer backdrop-blur-sm transform hover:scale-105 transition-all duration-300'
+                className='text-lg px-8 py-4 bg-white/10 border-white/30 text-white hover:bg-azul-olinsesp hover:text-white cursor-pointer backdrop-blur-sm transform hover:scale-105 transition-all duration-300'
               >
                 <Calendar className='mr-2 h-5 w-5' />
                 Ver Cronograma
@@ -166,7 +172,7 @@ export default function Home() {
       <section className='py-20'>
         <div className='container mx-auto px-4'>
           <div className='text-center mb-16'>
-            <h2 className='text-4xl md:text-5xl font-bold mb-6 bg-linear-to-r from-blue-600 via-blue-500 to-orange-500 bg-clip-text text-transparent'>
+            <h2 className='text-4xl md:text-5xl font-bold mb-6 bg-azul-olinsesp bg-clip-text text-transparent'>
               Destaques do Evento
             </h2>
             <p className='text-2xl font-medium text-gray-950 max-w-2xl mx-auto'>
@@ -175,7 +181,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className='grid grid-cols-2 md:grid-cols-4 gap-8'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8'>
             {highlights.map((highlight, index) => {
               const Icon = highlight.icon;
               return (
@@ -189,7 +195,7 @@ export default function Home() {
                     >
                       <Icon className='h-8 w-8' />
                     </div>
-                    <h3 className='text-2xl font-bold text-gray-800 mb-3 group-hover:text-blue-600 transition-colors'>
+                    <h3 className='text-2xl font-bold text-gray-800 mb-3 group-hover:text-azul-olinsesp transition-colors'>
                       {highlight.title}
                     </h3>
                     <p className='text-gray-600 leading-relaxed'>
@@ -207,7 +213,7 @@ export default function Home() {
       <section className='py-20'>
         <div className='container mx-auto px-4'>
           <div className='text-center mb-16'>
-            <h2 className='text-4xl md:text-5xl font-bold mb-6 bg-linear-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent'>
+            <h2 className='text-4xl md:text-5xl font-bold mb-6 bg-azul-olinsesp bg-clip-text text-transparent'>
               Explore o Evento
             </h2>
             <p className='text-2xl font-medium text-gray-950 max-w-3xl mx-auto'>
@@ -231,7 +237,7 @@ export default function Home() {
                       <Icon className='h-8 w-8 text-white' />
                     </div>
 
-                    <CardTitle className='text-xl text-gray-800 group-hover:text-blue-600 transition-colors text-center'>
+                    <CardTitle className='text-xl text-gray-800 group-hover:text-azul-olinsesp transition-colors text-center'>
                       {feature.title}
                     </CardTitle>
                     <CardDescription className='text-gray-600 leading-relaxed text-center'>
@@ -258,7 +264,7 @@ export default function Home() {
       </section>
 
       {/* Quick Info */}
-      <section className='py-20 text-white bg-linear-to-r from-blue-600 via-blue-500 to-orange-500 relative overflow-hidden'>
+      <section className='py-20 text-white bg-azul-olinsesp relative overflow-hidden'>
         <div className='container mx-auto px-4 text-center relative z-10'>
           <h2 className='text-4xl md:text-5xl font-bold mb-12'>
             Informações Importantes

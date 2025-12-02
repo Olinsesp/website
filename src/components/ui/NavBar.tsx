@@ -59,8 +59,8 @@ export default function Navbar() {
                     size='sm'
                     className={`flex items-center space-x-2 cursor-pointer transition-colors ${
                       isActive
-                        ? 'bg-blue-500 text-white'
-                        : 'hover:bg-blue-500 hover:text-white'
+                        ? 'bg-azul-olinsesp text-white'
+                        : 'hover:bg-azul-olinsesp hover:text-white'
                     }`}
                   >
                     <Icon className='h-4 w-4' />
@@ -71,7 +71,6 @@ export default function Navbar() {
             })}
           </div>
 
-          {/* Mobile menu button */}
           <div className='md:hidden'>
             <Button
               variant='ghost'

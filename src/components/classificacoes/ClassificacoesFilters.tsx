@@ -42,7 +42,7 @@ export function ClassificacoesFilters({
     >
       <CardHeader className='pb-3 sm:pb-4 px-4 sm:px-6'>
         <div className='flex items-center gap-2'>
-          <Filter className='h-4 w-4 sm:h-5 sm:w-5 text-blue-600' />
+          <Filter className='h-4 w-4 sm:h-5 sm:w-5 text-azul-olinsesp' />
           <CardTitle className='text-lg sm:text-xl text-gray-800'>
             Filtros de Busca
           </CardTitle>
@@ -60,7 +60,7 @@ export function ClassificacoesFilters({
                 onChangeModalidade(val === 'todos' ? null : val)
               }
             >
-              <SelectTrigger className='w-full border-2 border-gray-200 bg-white hover:border-blue-300 transition-colors text-sm'>
+              <SelectTrigger className='w-full border-2 border-gray-200 bg-white hover:border-azul-olinsesp transition-colors text-sm'>
                 <SelectValue placeholder='Todas as modalidades' />
               </SelectTrigger>
               <SelectContent>
@@ -84,7 +84,7 @@ export function ClassificacoesFilters({
                 onChangeCategoria(val === 'todos' ? null : val)
               }
             >
-              <SelectTrigger className='w-full border-2 border-gray-200 bg-white hover:border-blue-300 transition-colors text-sm'>
+              <SelectTrigger className='w-full border-2 border-gray-200 bg-white hover:border-azul-olinsesp transition-colors text-sm'>
                 <SelectValue placeholder='Todas as categorias' />
               </SelectTrigger>
               <SelectContent>
@@ -108,7 +108,7 @@ export function ClassificacoesFilters({
                 onChangeLotacao(val === 'todos' ? null : val)
               }
             >
-              <SelectTrigger className='w-full border-2 border-gray-200 bg-white hover:border-blue-300 transition-colors text-sm'>
+              <SelectTrigger className='w-full border-2 border-gray-200 bg-white hover:border-azul-olinsesp transition-colors text-sm'>
                 <SelectValue placeholder='Todas as lotações' />
               </SelectTrigger>
               <SelectContent>

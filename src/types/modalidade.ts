@@ -34,6 +34,6 @@ export interface Modalidade {
     | 'inscricoes-encerradas'
     | 'em-andamento'
     | 'finalizada';
-  divisoes?: (string | Divisao)[]; // ✅ Aceita string OU objeto
+  divisoes?: (string | Divisao)[];
   modalidadesSexo?: string[];
 }

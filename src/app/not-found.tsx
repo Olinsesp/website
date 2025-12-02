@@ -14,14 +14,16 @@ export default function NotFound() {
   });
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 via-white to-orange-50'>
+    <div className='min-h-screen flex items-center justify-center bg-linear-to-br from-azul-olinsesp/10 via-white to-laranja-olinsesp/10'>
       <div className='text-center max-w-2xl mx-auto p-8'>
         <Card className='bg-white/80 backdrop-blur-sm border-0 shadow-2xl'>
           <CardContent className='p-12'>
             {/* Ícone de Erro Estilizado */}
             <div className='relative mb-8'>
-              <div className='text-8xl font-black text-blue-600 mb-4'>404</div>
-              <div className='absolute -top-2 -right-2 w-6 h-6 bg-orange-500 rounded-full animate-pulse'></div>
+              <div className='text-8xl font-black text-azul-olinsesp mb-4'>
+                404
+              </div>
+              <div className='absolute -top-2 -right-2 w-6 h-6 bg-laranja-olinsesp rounded-full animate-pulse'></div>
             </div>
 
             {/* Título e Descrição */}
@@ -38,7 +40,7 @@ export default function NotFound() {
               <Link href='/'>
                 <Button
                   size='lg'
-                  className='w-full bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300'
+                  className='w-full bg-azul-olinsesp hover:bg-azul-olinsesp/90 text-white shadow-lg hover:shadow-xl transition-all duration-300'
                 >
                   <Home className='mr-2 h-5 w-5' />
                   Voltar ao Início
@@ -52,7 +54,7 @@ export default function NotFound() {
                 <Button
                   variant='outline'
                   size='sm'
-                  className='w-full border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors'
+                  className='w-full border-azul-olinsesp text-azul-olinsesp hover:bg-azul-olinsesp/10 hover:border-azul-olinsesp transition-colors'
                 >
                   <Users className='mr-2 h-4 w-4' />
                   Inscrições
@@ -62,7 +64,7 @@ export default function NotFound() {
                 <Button
                   variant='outline'
                   size='sm'
-                  className='w-full border-orange-300 text-orange-600 hover:bg-orange-50 hover:border-orange-400 transition-colors'
+                  className='w-full border-laranja-olinsesp text-laranja-olinsesp hover:bg-laranja-olinsesp/10 hover:border-laranja-olinsesp transition-colors'
                 >
                   <Calendar className='mr-2 h-4 w-4' />
                   Cronograma

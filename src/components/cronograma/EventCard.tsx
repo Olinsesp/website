@@ -28,7 +28,7 @@ export default function EventCard({ evento }: Props) {
         <div className='flex flex-col gap-4 sm:gap-6'>
           <div className='flex items-start gap-4'>
             <div className='flex flex-col items-center min-w-[80px] sm:min-w-[100px]'>
-              <div className='text-xl sm:text-2xl font-bold text-blue-600 mb-1 sm:mb-2'>
+              <div className='text-xl sm:text-2xl font-bold text-azul-olinsesp mb-1 sm:mb-2'>
                 {evento.horario}
               </div>
               <div className='flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-gray-500'>
@@ -48,19 +48,19 @@ export default function EventCard({ evento }: Props) {
 
           <div className='space-y-2 sm:space-y-3'>
             <div className='flex items-center gap-2 text-gray-600'>
-              <MapPin className='h-4 w-4 text-blue-500 flex-shrink-0' />
+              <MapPin className='h-4 w-4 text-azul-olinsesp flex-shrink-0' />
               <span className='font-medium text-sm sm:text-base'>
                 {evento.local}
               </span>
             </div>
             <div className='flex items-center gap-2 text-gray-600'>
-              <Users className='h-4 w-4 text-green-500 flex-shrink-0' />
+              <Users className='h-4 w-4 text-verde-olinsesp flex-shrink-0' />
               <span className='text-sm sm:text-base'>
                 {evento.participantes}
               </span>
             </div>
             {evento.resultado && (
-              <div className='flex items-center gap-2 text-green-600 font-semibold'>
+              <div className='flex items-center gap-2 text-verde-olinsesp font-semibold'>
                 <Trophy className='h-4 w-4 flex-shrink-0' />
                 <span className='text-sm sm:text-base'>
                   🏆 {evento.resultado}
@@ -75,7 +75,7 @@ export default function EventCard({ evento }: Props) {
               <Button
                 variant='outline'
                 size='sm'
-                className='border-2 border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors text-xs sm:text-sm'
+                className='border-2 border-azul-olinsesp text-azul-olinsesp hover:bg-azul-olinsesp/10 hover:border-azul-olinsesp transition-colors text-xs sm:text-sm'
               >
                 Ver Pauta
               </Button>

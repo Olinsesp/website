@@ -18,7 +18,7 @@ export default function AthleteResultCard({ classificacao }: Props) {
         <div className='flex flex-col gap-4 sm:gap-6'>
           <div className='flex items-start gap-4'>
             <div className='flex flex-col items-center min-w-[60px] sm:min-w-[80px]'>
-              <div className='text-2xl sm:text-3xl font-bold text-blue-600 mb-1 sm:mb-2'>
+              <div className='text-2xl sm:text-3xl font-bold text-azul-olinsesp mb-1 sm:mb-2'>
                 {classificacao.posicao}º
               </div>
               {getPosicaoBadge(classificacao.posicao)}

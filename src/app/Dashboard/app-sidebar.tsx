@@ -180,7 +180,7 @@ export function AppSidebar({
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={handleLogout}>
-              <div className='flex flex-row gap-2 p-2 bg-red-500 rounded-md cursor-pointer hover:bg-red-600'>
+              <div className='flex flex-row gap-2 p-2 bg-vermelho-olinsesp rounded-md cursor-pointer hover:bg-vermelho-olinsesp'>
                 <LogOut className='text-white' size={20} />
                 <span className='text-white'>Sair</span>
               </div>

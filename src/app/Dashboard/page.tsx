@@ -66,7 +66,6 @@ export default function DashboardPage() {
         if (!inscritosRes.ok) throw new Error('Falha ao buscar inscrições');
 
         const inscritosData = await inscritosRes.json();
-        // Mock status and id for demonstration
         const inscritosComStatus = inscritosData.map(
           (item: any, index: number) => ({
             ...item,

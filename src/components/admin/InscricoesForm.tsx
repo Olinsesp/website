@@ -210,9 +210,9 @@ export default function InscricoesForm() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      pendente: { label: 'Pendente', color: 'bg-yellow-500' },
-      aprovada: { label: 'Aprovada', color: 'bg-green-500' },
-      rejeitada: { label: 'Rejeitada', color: 'bg-red-500' },
+      pendente: { label: 'Pendente', color: 'bg-amarelo-olinsesp' },
+      aprovada: { label: 'Aprovada', color: 'bg-verde-olinsesp' },
+      rejeitada: { label: 'Rejeitada', color: 'bg-vermelho-olinsesp' },
     };
     const config = statusConfig[status as keyof typeof statusConfig] || {
       label: 'Desconhecido',
@@ -313,7 +313,6 @@ export default function InscricoesForm() {
           </CardContent>
         </Card>
 
-        {/* Dialog para Adicionar/Editar */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className='sm:max-w-[700px] max-h-[90vh] overflow-y-auto'>
             <DialogHeader>
@@ -336,7 +335,7 @@ export default function InscricoesForm() {
                     placeholder='Nome completo'
                   />
                   {errors.nome && (
-                    <p className='text-sm text-red-600'>
+                    <p className='text-sm text-vermelho-olinsesp'>
                       {errors.nome.message}
                     </p>
                   )}
@@ -351,7 +350,7 @@ export default function InscricoesForm() {
                     placeholder='email@exemplo.com'
                   />
                   {errors.email && (
-                    <p className='text-sm text-red-600'>
+                    <p className='text-sm text-vermelho-olinsesp'>
                       {errors.email.message}
                     </p>
                   )}
@@ -365,7 +364,7 @@ export default function InscricoesForm() {
                     placeholder='(61) 99999-9999'
                   />
                   {errors.telefone && (
-                    <p className='text-sm text-red-600'>
+                    <p className='text-sm text-vermelho-olinsesp'>
                       {errors.telefone.message}
                     </p>
                   )}
@@ -379,7 +378,9 @@ export default function InscricoesForm() {
                     placeholder='000.000.000-00'
                   />
                   {errors.cpf && (
-                    <p className='text-sm text-red-600'>{errors.cpf.message}</p>
+                    <p className='text-sm text-vermelho-olinsesp'>
+                      {errors.cpf.message}
+                    </p>
                   )}
                 </div>
 
@@ -391,7 +392,7 @@ export default function InscricoesForm() {
                     {...register('dataNascimento')}
                   />
                   {errors.dataNascimento && (
-                    <p className='text-sm text-red-600'>
+                    <p className='text-sm text-vermelho-olinsesp'>
                       {errors.dataNascimento.message}
                     </p>
                   )}
@@ -414,7 +415,7 @@ export default function InscricoesForm() {
                     </SelectContent>
                   </Select>
                   {errors.camiseta && (
-                    <p className='text-sm text-red-600'>
+                    <p className='text-sm text-vermelho-olinsesp'>
                       {errors.camiseta.message}
                     </p>
                   )}
@@ -428,7 +429,7 @@ export default function InscricoesForm() {
                     placeholder='Número da matrícula'
                   />
                   {errors.matricula && (
-                    <p className='text-sm text-red-600'>
+                    <p className='text-sm text-vermelho-olinsesp'>
                       {errors.matricula.message}
                     </p>
                   )}
@@ -450,7 +451,7 @@ export default function InscricoesForm() {
                     </SelectContent>
                   </Select>
                   {errors.lotacao && (
-                    <p className='text-sm text-red-600'>
+                    <p className='text-sm text-vermelho-olinsesp'>
                       {errors.lotacao.message}
                     </p>
                   )}
@@ -474,7 +475,7 @@ export default function InscricoesForm() {
                     </SelectContent>
                   </Select>
                   {errors.orgaoOrigem && (
-                    <p className='text-sm text-red-600'>
+                    <p className='text-sm text-vermelho-olinsesp'>
                       {errors.orgaoOrigem.message}
                     </p>
                   )}
@@ -510,7 +511,7 @@ export default function InscricoesForm() {
                   ))}
                 </div>
                 {errors.modalidades && (
-                  <p className='text-sm text-red-600'>
+                  <p className='text-sm text-vermelho-olinsesp'>
                     {errors.modalidades.message}
                   </p>
                 )}
@@ -536,7 +537,7 @@ export default function InscricoesForm() {
                   </SelectContent>
                 </Select>
                 {errors.status && (
-                  <p className='text-sm text-red-600'>
+                  <p className='text-sm text-vermelho-olinsesp'>
                     {errors.status.message}
                   </p>
                 )}

@@ -232,13 +232,13 @@ export default function ModalidadesForm() {
     const statusConfig = {
       'inscricoes-abertas': {
         label: 'Inscrições Abertas',
-        color: 'bg-green-500',
+        color: 'bg-verde-olinsesp',
       },
       'inscricoes-fechadas': {
         label: 'Inscrições Fechadas',
-        color: 'bg-yellow-500',
+        color: 'bg-amarelo-olinsesp',
       },
-      'em-andamento': { label: 'Em Andamento', color: 'bg-blue-500' },
+      'em-andamento': { label: 'Em Andamento', color: 'bg-azul-olinsesp' },
       finalizada: { label: 'Finalizada', color: 'bg-gray-500' },
     };
     const config = statusConfig[status as keyof typeof statusConfig] || {
@@ -350,7 +350,7 @@ export default function ModalidadesForm() {
                     placeholder='Ex: Futebol'
                   />
                   {errors.nome && (
-                    <p className='text-sm text-red-600'>
+                    <p className='text-sm text-vermelho-olinsesp'>
                       {errors.nome.message}
                     </p>
                   )}
@@ -364,7 +364,7 @@ export default function ModalidadesForm() {
                     placeholder='Ex: Coletivo'
                   />
                   {errors.categoria && (
-                    <p className='text-sm text-red-600'>
+                    <p className='text-sm text-vermelho-olinsesp'>
                       {errors.categoria.message}
                     </p>
                   )}
@@ -381,7 +381,7 @@ export default function ModalidadesForm() {
                     placeholder='20'
                   />
                   {errors.maxParticipantes && (
-                    <p className='text-sm text-red-600'>
+                    <p className='text-sm text-vermelho-olinsesp'>
                       {errors.maxParticipantes.message}
                     </p>
                   )}
@@ -407,7 +407,7 @@ export default function ModalidadesForm() {
                     </SelectContent>
                   </Select>
                   {errors.status && (
-                    <p className='text-sm text-red-600'>
+                    <p className='text-sm text-vermelho-olinsesp'>
                       {errors.status.message}
                     </p>
                   )}
@@ -423,7 +423,7 @@ export default function ModalidadesForm() {
                   rows={3}
                 />
                 {errors.descricao && (
-                  <p className='text-sm text-red-600'>
+                  <p className='text-sm text-vermelho-olinsesp'>
                     {errors.descricao.message}
                   </p>
                 )}

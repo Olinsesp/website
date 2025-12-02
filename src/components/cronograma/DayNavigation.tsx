@@ -27,7 +27,7 @@ export default function DayNavigation({
         onClick={onPrev}
         disabled={!canPrev}
         variant='outline'
-        className='border-2 border-gray-200 hover:border-blue-300 transition-colors px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base w-full sm:w-auto'
+        className='border-2 border-gray-200 hover:border-azul-olinsesp transition-colors px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base w-full sm:w-auto'
       >
         <ChevronLeft className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
         Dia Anterior
@@ -44,7 +44,7 @@ export default function DayNavigation({
         onClick={onNext}
         disabled={!canNext}
         variant='outline'
-        className='border-2 border-gray-200 hover:border-blue-300 transition-colors px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base w-full sm:w-auto'
+        className='border-2 border-gray-200 hover:border-azul-olinsesp transition-colors px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base w-full sm:w-auto'
       >
         Próximo Dia
         <ChevronRight className='h-4 w-4 sm:h-5 sm:w-5 ml-2' />

@@ -121,21 +121,21 @@ export default function Inscricoes() {
   };
 
   return (
-    <div className='min-h-screen py-12 bg-linear-to-br from-blue-50 via-white to-orange-50 bg-none'>
+    <div className='min-h-screen py-12 bg-none'>
       <div className='container mx-auto px-4 max-w-5xl'>
         <div className='text-center mb-12'>
-          <div className='inline-flex items-center gap-2 bg-linear-to-r from-blue-600 to-orange-500 text-white px-6 py-3 rounded-full text-sm font-medium mb-6'>
+          <div className='inline-flex items-center gap-2 bg-azul-olinsesp text-white px-6 py-3 rounded-full text-sm font-medium mb-6'>
             <CheckCircle className='h-4 w-4' />
             Inscrições Abertas
           </div>
-          <h1 className='text-4xl md:text-5xl font-bold mb-6 bg-linear-to-r from-blue-600 via-blue-500 to-orange-500 bg-clip-text text-transparent'>
+          <h1 className='text-4xl md:text-5xl font-bold mb-6 bg-azul-olinsesp bg-clip-text text-transparent'>
             Inscrições VIII Olinsesp
           </h1>
           <p className='text-2xl md:text-xl font-medium text-gray-950 mb-8 max-w-3xl mx-auto leading-relaxed'>
             Faça parte do maior evento esportivo da região! Junte-se a centenas
             de atletas das forças de segurança em uma competição única.
           </p>
-          <Card className='max-w-md mx-auto mb-8 bg-linear-to-r from-blue-600 to-orange-500 text-white border-0 shadow-2xl'>
+          <Card className='max-w-md mx-auto mb-8 bg-azul-olinsesp text-white border-0 shadow-2xl'>
             <CardContent className='p-6'>
               <CountdownTimer />
             </CardContent>
@@ -144,7 +144,7 @@ export default function Inscricoes() {
 
         <Card className='bg-white/90 backdrop-blur-sm border-0 shadow-2xl'>
           <CardHeader className='text-center pb-6'>
-            <div className='h-20 w-20 mx-auto mb-6 bg-linear-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center'>
+            <div className='h-20 w-20 mx-auto mb-6 bg-azul-olinsesp rounded-full flex items-center justify-center'>
               <Users className='h-10 w-10 text-white' />
             </div>
             <CardTitle className='text-3xl text-gray-800'>
@@ -161,7 +161,7 @@ export default function Inscricoes() {
               {/* DADOS PESSOAIS */}
               <div className='space-y-6'>
                 <div className='flex items-center gap-3 mb-6'>
-                  <div className='h-8 w-1 bg-linear-to-b from-blue-500 to-orange-500 rounded-full'></div>
+                  <div className='h-8 w-1 bg-azul-olinsesp rounded-full'></div>
                   <h3 className='text-xl font-semibold text-gray-800'>
                     Dados Pessoais
                   </h3>
@@ -173,10 +173,10 @@ export default function Inscricoes() {
                       id='nome'
                       {...register('nome')}
                       placeholder='Digite seu nome completo'
-                      className='border-2 border-gray-200 focus:border-blue-500 transition-colors h-12'
+                      className='border-2 border-gray-200 focus:border-azul-olinsesp transition-colors h-12'
                     />
                     {errors.nome && (
-                      <div className='flex items-center gap-2 text-red-500 text-sm mt-1'>
+                      <div className='flex items-center gap-2 text-vermelho-olinsesp text-sm mt-1'>
                         <AlertCircle className='h-4 w-4' />
                         {errors.nome.message}
                       </div>
@@ -189,10 +189,10 @@ export default function Inscricoes() {
                       type='email'
                       {...register('email')}
                       placeholder='seu@email.com'
-                      className='border-2 border-gray-200 focus:border-blue-500 transition-colors h-12'
+                      className='border-2 border-gray-200 focus:border-azul-olinsesp transition-colors h-12'
                     />
                     {errors.email && (
-                      <div className='flex items-center gap-2 text-red-500 text-sm mt-1'>
+                      <div className='flex items-center gap-2 text-vermelho-olinsesp text-sm mt-1'>
                         <AlertCircle className='h-4 w-4' />
                         {errors.email.message}
                       </div>
@@ -206,10 +206,10 @@ export default function Inscricoes() {
                       id='telefone'
                       {...register('telefone')}
                       placeholder='(11) 99999-9999'
-                      className='border-2 border-gray-200 focus:border-blue-500 transition-colors h-12'
+                      className='border-2 border-gray-200 focus:border-azul-olinsesp transition-colors h-12'
                     />
                     {errors.telefone && (
-                      <div className='flex items-center gap-2 text-red-500 text-sm mt-1'>
+                      <div className='flex items-center gap-2 text-vermelho-olinsesp text-sm mt-1'>
                         <AlertCircle className='h-4 w-4' />
                         {errors.telefone.message}
                       </div>
@@ -221,10 +221,10 @@ export default function Inscricoes() {
                       id='cpf'
                       {...register('cpf')}
                       placeholder='12345678901'
-                      className='border-2 border-gray-200 focus:border-blue-500 transition-colors h-12'
+                      className='border-2 border-gray-200 focus:border-azul-olinsesp transition-colors h-12'
                     />
                     {errors.cpf && (
-                      <div className='flex items-center gap-2 text-red-500 text-sm mt-1'>
+                      <div className='flex items-center gap-2 text-vermelho-olinsesp text-sm mt-1'>
                         <AlertCircle className='h-4 w-4' />
                         {errors.cpf.message}
                       </div>
@@ -236,10 +236,10 @@ export default function Inscricoes() {
                       id='dataNascimento'
                       type='date'
                       {...register('dataNascimento')}
-                      className='border-2 border-gray-200 focus:border-blue-500 transition-colors h-12'
+                      className='border-2 border-gray-200 focus:border-azul-olinsesp transition-colors h-12'
                     />
                     {errors.dataNascimento && (
-                      <div className='flex items-center gap-2 text-red-500 text-sm mt-1'>
+                      <div className='flex items-center gap-2 text-vermelho-olinsesp text-sm mt-1'>
                         <AlertCircle className='h-4 w-4' />
                         {errors.dataNascimento.message}
                       </div>
@@ -252,7 +252,7 @@ export default function Inscricoes() {
                     <Select
                       onValueChange={(value) => setValue('camiseta', value)}
                     >
-                      <SelectTrigger className='border-2 border-gray-200 focus:border-blue-500 transition-colors h-12'>
+                      <SelectTrigger className='border-2 border-gray-200 focus:border-azul-olinsesp transition-colors h-12'>
                         <SelectValue placeholder='Selecione o tamanho' />
                       </SelectTrigger>
                       <SelectContent>
@@ -266,7 +266,7 @@ export default function Inscricoes() {
                       </SelectContent>
                     </Select>
                     {errors.camiseta && (
-                      <div className='flex items-center gap-2 text-red-500 text-sm mt-1'>
+                      <div className='flex items-center gap-2 text-vermelho-olinsesp text-sm mt-1'>
                         <AlertCircle className='h-4 w-4' />
                         {errors.camiseta.message}
                       </div>
@@ -275,7 +275,7 @@ export default function Inscricoes() {
                   <div className='space-y-2'>
                     <Label htmlFor='sexo'>Sexo *</Label>
                     <Select onValueChange={(value) => setValue('sexo', value)}>
-                      <SelectTrigger className='border-2 border-gray-200 focus:border-blue-500 transition-colors h-12'>
+                      <SelectTrigger className='border-2 border-gray-200 focus:border-azul-olinsesp transition-colors h-12'>
                         <SelectValue placeholder='Selecione o sexo' />
                       </SelectTrigger>
                       <SelectContent>
@@ -284,7 +284,7 @@ export default function Inscricoes() {
                       </SelectContent>
                     </Select>
                     {errors.sexo && (
-                      <div className='flex items-center gap-2 text-red-500 text-sm mt-1'>
+                      <div className='flex items-center gap-2 text-vermelho-olinsesp text-sm mt-1'>
                         <AlertCircle className='h-4 w-4' />
                         {errors.sexo.message}
                       </div>
@@ -296,7 +296,7 @@ export default function Inscricoes() {
                       id='matricula'
                       {...register('matricula')}
                       placeholder='Ex: 123456'
-                      className='border-2 border-gray-200 focus:border-blue-500 transition-colors h-12'
+                      className='border-2 border-gray-200 focus:border-azul-olinsesp transition-colors h-12'
                     />
                   </div>
                   <div className='space-y-2'>
@@ -304,7 +304,7 @@ export default function Inscricoes() {
                     <Select
                       onValueChange={(value) => setValue('lotacao', value)}
                     >
-                      <SelectTrigger className='border-2 border-gray-200 focus:border-blue-500 transition-colors h-12'>
+                      <SelectTrigger className='border-2 border-gray-200 focus:border-azul-olinsesp transition-colors h-12'>
                         <SelectValue placeholder='Selecione a lotação' />
                       </SelectTrigger>
                       <SelectContent>
@@ -317,7 +317,7 @@ export default function Inscricoes() {
                       </SelectContent>
                     </Select>
                     {errors.lotacao && (
-                      <div className='flex items-center gap-2 text-red-500 text-sm mt-1'>
+                      <div className='flex items-center gap-2 text-vermelho-olinsesp text-sm mt-1'>
                         <AlertCircle className='h-4 w-4' />
                         {errors.lotacao.message}
                       </div>
@@ -328,7 +328,7 @@ export default function Inscricoes() {
                     <Select
                       onValueChange={(value) => setValue('orgaoOrigem', value)}
                     >
-                      <SelectTrigger className='border-2 border-gray-200 focus:border-blue-500 transition-colors h-12'>
+                      <SelectTrigger className='border-2 border-gray-200 focus:border-azul-olinsesp transition-colors h-12'>
                         <SelectValue placeholder='Selecione o órgão' />
                       </SelectTrigger>
                       <SelectContent>
@@ -341,7 +341,7 @@ export default function Inscricoes() {
                       </SelectContent>
                     </Select>
                     {errors.orgaoOrigem && (
-                      <div className='flex items-center gap-2 text-red-500 text-sm mt-1'>
+                      <div className='flex items-center gap-2 text-vermelho-olinsesp text-sm mt-1'>
                         <AlertCircle className='h-4 w-4' />
                         {errors.orgaoOrigem.message}
                       </div>
@@ -357,7 +357,7 @@ export default function Inscricoes() {
                   variant='default'
                   size='lg'
                   disabled={loading}
-                  className='px-16 py-6 text-lg bg-linear-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 text-white border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed'
+                  className='px-16 py-6 text-lg bg-azul-olinsesp hover:bg-azul-olinsesp/90 text-white border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed'
                 >
                   {loading ? (
                     <>

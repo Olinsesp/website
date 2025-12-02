@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Montserrat } from 'next/font/google';
 import './globals.css';
 import Provider from '@/lib/Provider';
 import { Tooltip } from '@/components/ui/tooltip';
@@ -7,8 +7,9 @@ import { Toaster } from '@/components/ui/sonner';
 import Navbar from '@/components/ui/NavBar';
 import { Analytics } from '@vercel/analytics/next';
 
-const inter = Inter({
+const montserrat = Montserrat({
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800', '900'],
 });
 
 export const metadata: Metadata = {
@@ -23,7 +24,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang='pt-BR'>
-      <body className={`${inter.className}`}>
+      <body className={`${montserrat.className}`}>
         <Provider>
           <Tooltip>
             <Toaster />

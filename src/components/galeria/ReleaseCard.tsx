@@ -18,7 +18,7 @@ export default function ReleaseCard({ release }: { release: Release }) {
       <CardContent className='p-4 sm:p-6 lg:p-8'>
         <div className='flex flex-col sm:flex-row items-start justify-between gap-4 sm:gap-6'>
           <div className='flex-1'>
-            <h4 className='text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-gray-800 hover:text-blue-600 cursor-pointer transition-colors'>
+            <h4 className='text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-gray-800 hover:text-azul-olinsesp cursor-pointer transition-colors'>
               {release.titulo}
             </h4>
             <p className='text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 leading-relaxed'>
@@ -30,7 +30,7 @@ export default function ReleaseCard({ release }: { release: Release }) {
                 {new Date(release.createdAt).toLocaleDateString('pt-BR')}
               </span>
               {release.destaque && (
-                <span className='bg-linear-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium'>
+                <span className='bg-linear-to-r from-amarelo-olinsesp to-laranja-olinsesp text-white px-2 py-1 rounded-full text-xs font-medium'>
                   ⭐ Destaque
                 </span>
               )}
@@ -42,7 +42,7 @@ export default function ReleaseCard({ release }: { release: Release }) {
               asChild
               variant='outline'
               size='sm'
-              className='border-2 border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors text-xs sm:text-sm w-full sm:w-auto'
+              className='border-2 border-azul-olinsesp text-azul-olinsesp hover:bg-azul-olinsesp/10 hover:border-azul-olinsesp transition-colors text-xs sm:text-sm w-full sm:w-auto'
             >
               <a href={release.url} target='_blank' rel='noopener noreferrer'>
                 <FileTextIcon className='h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2' />

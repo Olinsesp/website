@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { classificacoes } from './classificacoesData';
-import { modalidades } from '../modalidades/modalidadesData'; // Import modalidades data
-import { inscricoes } from '../inscricoes/inscriçoesData'; // Import inscricoes data
+import { modalidades } from '../modalidades/modalidadesData';
+import { inscricoes } from '../inscricoes/inscriçoesData';
 
 const classificacaoSchema = z
   .object({
@@ -15,7 +15,7 @@ const classificacaoSchema = z
     tempo: z.string().optional(),
     distancia: z.string().optional(),
     observacoes: z.string().optional(),
-    atleta: z.string().optional(), // Added for direct athlete input
+    atleta: z.string().optional(),
   })
   .refine(
     (data) =>
@@ -29,7 +29,6 @@ const classificacaoSchema = z
     },
   );
 
-// Helper function to enrich a single classification
 function enrichClassificacao(classificacao: any) {
   const modalidade = modalidades.find(
     (m) => m.id === classificacao.modalidadeId,
@@ -42,7 +41,7 @@ function enrichClassificacao(classificacao: any) {
     );
     atletaNome = inscricao?.nome;
   } else if (!atletaNome && classificacao.lotacao) {
-    atletaNome = classificacao.lotacao; // Use lotacao as athlete name for team classifications
+    atletaNome = classificacao.lotacao;
   }
 
   let sexo = '';
@@ -54,7 +53,6 @@ function enrichClassificacao(classificacao: any) {
     }
   }
 
-  // Fallback to parsing from categoria if not found in modalidadesSexo
   if (!sexo) {
     if (classificacao.categoria.includes('Masculino')) {
       sexo = 'Masculino';

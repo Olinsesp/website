@@ -106,12 +106,12 @@ export default function Cronograma() {
         <div className='container mx-auto px-4'>
           {/* Header da Página */}
           <div className='text-center mb-12'>
-            <div className='inline-flex items-center gap-2 bg-linear-to-r from-blue-600 to-orange-500 text-white px-6 py-3 rounded-full text-sm font-medium mb-6'>
+            <div className='inline-flex items-center gap-2 bg-azul-olinsesp text-white px-6 py-3 rounded-full text-sm font-medium mb-6'>
               <CalendarDays className='h-4 w-4' />
               Programação Atualizada
             </div>
 
-            <h1 className='text-4xl md:text-5xl font-bold mb-6 bg-linear-to-r from-blue-600 via-blue-500 to-orange-500 bg-clip-text text-transparent'>
+            <h1 className='text-4xl md:text-5xl font-bold mb-6 bg-azul-olinsesp bg-clip-text text-transparent'>
               Cronograma do Evento
             </h1>
             <p className='text-2xl md:text-xl font-medium text-gray-950 max-w-3xl mx-auto leading-relaxed'>
@@ -168,7 +168,7 @@ export default function Cronograma() {
           {/* Cronograma Principal */}
           <Card className='bg-white/90 backdrop-blur-sm border-0 shadow-2xl'>
             <CardHeader className='text-center pb-4 sm:pb-6 px-4 sm:px-6'>
-              <div className='h-16 w-16 sm:h-20 sm:w-20 mx-auto mb-4 sm:mb-6 bg-linear-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center'>
+              <div className='h-16 w-16 sm:h-20 sm:w-20 mx-auto mb-4 sm:mb-6 bg-azul-olinsesp rounded-full flex items-center justify-center'>
                 <CalendarDays className='h-8 w-8 sm:h-10 sm:w-10 text-white' />
               </div>
               <CardTitle className='text-2xl sm:text-3xl text-gray-800'>

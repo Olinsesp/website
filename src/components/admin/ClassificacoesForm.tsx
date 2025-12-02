@@ -159,19 +159,16 @@ export default function ClassificacoesForm() {
     [watch],
   );
 
-  // Build selected modalidade object
   const selectedModalidade = useMemo(
     () => modalidades.find((m) => m.id === watchedModalidadeId) ?? null,
     [modalidades, watchedModalidadeId],
   );
 
-  /* ------------------ dynamic fields builder (keeps form compact) ------------------ */
   const dynamicFields = useMemo(() => {
     if (!selectedModalidade) return null;
     const nodes: React.ReactNode[] = [];
     const { divisoes, modalidadesSexo } = selectedModalidade;
 
-    // Sexo
     if (modalidadesSexo?.length) {
       nodes.push(
         <SelectField
@@ -185,7 +182,6 @@ export default function ClassificacoesForm() {
       );
     }
 
-    // Divisões
     if (divisoes) {
       const isStringArray =
         Array.isArray(divisoes) && divisoes.every((d) => typeof d === 'string');
@@ -204,7 +200,6 @@ export default function ClassificacoesForm() {
         const divs = divisoes as any[];
         const hasNomes = divs.every((d) => !!d.nome);
 
-        // Divisão selector (nome or tipo)
         nodes.push(
           <SelectField
             key='divisao-obj'
@@ -219,7 +214,6 @@ export default function ClassificacoesForm() {
           />,
         );
 
-        // If a division is selected, show related subfields (pesos, provas, categorias)
         const selectedDiv = watchedDynamicFields?.divisao
           ? divs.find(
               (d) =>
@@ -229,7 +223,6 @@ export default function ClassificacoesForm() {
           : null;
 
         if (selectedDiv) {
-          // Pesos
           if (selectedDiv.pesos) {
             let pesos: string[] = [];
             const sexo = (watchedDynamicFields?.sexo || '').toLowerCase();
@@ -257,7 +250,6 @@ export default function ClassificacoesForm() {
             }
           }
 
-          // Provas
           if (selectedDiv.provas) {
             nodes.push(
               <SelectField
@@ -273,7 +265,6 @@ export default function ClassificacoesForm() {
             );
           }
 
-          // Faixa etária / categorias
           if (selectedDiv.categorias) {
             nodes.push(
               <SelectField
@@ -296,13 +287,11 @@ export default function ClassificacoesForm() {
     return nodes.length ? nodes : null;
   }, [selectedModalidade, control, watchedDynamicFields]);
 
-  // Build categoria string from dynamic fields automatically
   useEffect(() => {
     const parts = Object.values(watchedDynamicFields).filter(Boolean);
     if (parts.length) setValue('categoria', parts.join(' - '));
   }, [watchedDynamicFields, setValue]);
 
-  /* ------------------------------ mutations -------------------------------- */
   const mutation = useMutation<
     Response,
     Error,
@@ -399,8 +388,7 @@ export default function ClassificacoesForm() {
 
   function handleEdit(classificacao: Classificacao) {
     setEditingId(classificacao.id);
-    reset(); // clear first
-    // prefill basic fields (dynamic fields left for user to re-select)
+    reset();
     setValue('modalidadeId', classificacao.modalidadeId);
     setValue('categoria', classificacao.categoria);
     setValue('posicao', classificacao.posicao);
@@ -523,19 +511,17 @@ export default function ClassificacoesForm() {
                     )}
                   />
                   {errors.modalidadeId && (
-                    <p className='text-sm text-red-600'>
+                    <p className='text-sm text-vermelho-olinsesp'>
                       {errors.modalidadeId.message}
                     </p>
                   )}
                 </div>
 
-                {/* dynamic fields (built by useMemo) */}
                 {dynamicFields}
 
-                {/* hidden categoria (built from dynamicFields) */}
                 <input type='hidden' {...register('categoria')} />
                 {errors.categoria && (
-                  <p className='text-sm text-red-600 md:col-span-2'>
+                  <p className='text-sm text-vermelho-olinsesp md:col-span-2'>
                     {errors.categoria.message}
                   </p>
                 )}
@@ -544,7 +530,7 @@ export default function ClassificacoesForm() {
                   <Label htmlFor='posicao'>Posição *</Label>
                   <Input id='posicao' type='number' {...register('posicao')} />
                   {errors.posicao && (
-                    <p className='text-sm text-red-600'>
+                    <p className='text-sm text-vermelho-olinsesp'>
                       {errors.posicao.message}
                     </p>
                   )}
@@ -558,7 +544,7 @@ export default function ClassificacoesForm() {
                     {...register('pontuacao')}
                   />
                   {errors.pontuacao && (
-                    <p className='text-sm text-red-600'>
+                    <p className='text-sm text-vermelho-olinsesp'>
                       {errors.pontuacao.message}
                     </p>
                   )}

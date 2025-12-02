@@ -19,7 +19,7 @@ export type Inscricoes = {
   lotacao: string;
   orgaoOrigem: string;
   modalidades: string[];
-  status: 'Pendente' | 'Confirmado' | 'Cancelado'; // Adding status for better management
+  status: 'Pendente' | 'Confirmado' | 'Cancelado';
 };
 
 export const columns: ColumnDef<Inscricoes>[] = [

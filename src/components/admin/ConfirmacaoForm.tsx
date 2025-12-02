@@ -371,7 +371,7 @@ export default function ConfirmacaoForm() {
                                     toggleConfirmado(i.cpf)
                                   }
                                 />
-                                <span className='text-sm text-green-600'>
+                                <span className='text-sm text-verde-olinsesp'>
                                   P
                                 </span>
                               </label>
@@ -380,7 +380,9 @@ export default function ConfirmacaoForm() {
                                   checked={ausentesSet.has(i.cpf)}
                                   onCheckedChange={() => toggleAusente(i.cpf)}
                                 />
-                                <span className='text-sm text-red-600'>A</span>
+                                <span className='text-sm text-vermelho-olinsesp'>
+                                  A
+                                </span>
                               </label>
                             </div>
                           </TableCell>
@@ -406,10 +408,10 @@ export default function ConfirmacaoForm() {
                           <TableCell>
                             <div className='flex items-center gap-2'>
                               {confirmadosSet.has(i.cpf) && (
-                                <CheckCircle className='h-4 w-4 text-green-600' />
+                                <CheckCircle className='h-4 w-4 text-verde-olinsesp' />
                               )}
                               {ausentesSet.has(i.cpf) && (
-                                <X className='h-4 w-4 text-red-600' />
+                                <X className='h-4 w-4 text-vermelho-olinsesp' />
                               )}
                             </div>
                           </TableCell>

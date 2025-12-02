@@ -257,7 +257,6 @@ export default function CronogramaForm() {
           </CardContent>
         </Card>
 
-        {/* Dialog para Adicionar/Editar */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className='sm:max-w-[600px]'>
             <DialogHeader>
@@ -280,7 +279,7 @@ export default function CronogramaForm() {
                     placeholder='Ex: Abertura do Evento'
                   />
                   {errors.atividade && (
-                    <p className='text-sm text-red-600'>
+                    <p className='text-sm text-vermelho-olinsesp'>
                       {errors.atividade.message}
                     </p>
                   )}
@@ -299,7 +298,7 @@ export default function CronogramaForm() {
                   <Label htmlFor='inicio'>Horário de Início *</Label>
                   <Input id='inicio' type='time' {...register('inicio')} />
                   {errors.inicio && (
-                    <p className='text-sm text-red-600'>
+                    <p className='text-sm text-vermelho-olinsesp'>
                       {errors.inicio.message}
                     </p>
                   )}
@@ -309,7 +308,9 @@ export default function CronogramaForm() {
                   <Label htmlFor='fim'>Horário de Fim *</Label>
                   <Input id='fim' type='time' {...register('fim')} />
                   {errors.fim && (
-                    <p className='text-sm text-red-600'>{errors.fim.message}</p>
+                    <p className='text-sm text-vermelho-olinsesp'>
+                      {errors.fim.message}
+                    </p>
                   )}
                 </div>
               </div>
