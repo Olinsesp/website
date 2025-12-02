@@ -26,5 +26,4 @@ export const classificacoes = [
     pontuacao: 82,
     observacoes: 'Terceiro lugar na modalidade',
   },
- 
 ];

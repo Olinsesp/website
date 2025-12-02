@@ -12,7 +12,7 @@ export default function CountdownTimer() {
   const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
-    const targetDate = new Date('2025-12-22T09:00:00');
+    const targetDate = new Date('2026-02-24T00:00:00');
     const timer = setInterval(() => {
       const now = new Date().getTime();
       const distance = targetDate.getTime() - now;
@@ -47,7 +47,7 @@ export default function CountdownTimer() {
       {!isExpired ? (
         <>
           <h3 className='text-lg font-semibold mb-4'>
-            As inscrições abrem em:
+            Contagem Regressiva para o Evento
           </h3>
           <div className='grid grid-cols-4 gap-2 max-w-md mx-auto'>
             {timeUnits.map((unit) => (
@@ -66,9 +66,14 @@ export default function CountdownTimer() {
           </div>
         </>
       ) : (
-        <h3 className='text-2xl font-bold text-white animate-pulse'>
-          🥳 Inscrições Abertas 🎉
-        </h3>
+        <div>
+          <h3 className='text-2xl font-bold text-white animate-pulse'>
+            O Evento Começou! 🥳🎉
+          </h3>
+          <p>
+            Estamos ansiosos para vê-lo lá. Fique atento para mais atualizações!
+          </p>
+        </div>
       )}
     </div>
   );
