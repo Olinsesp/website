@@ -12,8 +12,8 @@ const midiaSchema = z.object({
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const tipo = searchParams.get('tipo'); // 'foto', 'video', 'release'
-    const incluirEstatisticas = searchParams.get('estatisticas') !== 'false'; // default true
+    const tipo = searchParams.get('tipo');
+    const incluirEstatisticas = searchParams.get('estatisticas') !== 'false';
     const separarPorTipo = searchParams.get('separar') === 'true';
 
     let midias = staticMidias.sort(
@@ -21,25 +21,20 @@ export async function GET(request: Request) {
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
 
-    // Filtrar por tipo se especificado
     if (tipo && ['foto', 'video', 'release'].includes(tipo)) {
       midias = midias.filter((m) => m.tipo === tipo);
     }
 
-    // Preparar resposta
     const response: any = {};
 
     if (separarPorTipo) {
-      // Separar por tipo
       response.fotos = midias.filter((m) => m.tipo === 'foto');
       response.videos = midias.filter((m) => m.tipo === 'video');
       response.releases = midias.filter((m) => m.tipo === 'release');
     } else {
-      // Retornar lista única
       response.dados = midias;
     }
 
-    // Adicionar estatísticas se solicitado
     if (incluirEstatisticas) {
       const todasMidias = staticMidias;
       response.estatisticas = {

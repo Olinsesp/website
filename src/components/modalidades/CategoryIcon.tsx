@@ -1,18 +1,60 @@
-'use client';
+import React from 'react';
+import {
+  Dumbbell,
+  Activity,
+  Bike,
+  Waves,
+  Volleyball,
+  Swords,
+  Target,
+  Puzzle,
+  ChessKing,
+  Spade,
+  Footprints,
+  BicepsFlexed,
+} from 'lucide-react';
+import SportsBasketballOutlinedIcon from '@mui/icons-material/SportsBasketballOutlined';
+import SportsSoccerOutlinedIcon from '@mui/icons-material/SportsSoccerOutlined';
+import SportsTennisOutlinedIcon from '@mui/icons-material/SportsTennisOutlined';
+interface Props {
+  categoria: string;
+}
 
-import { Activity, Shield, Target, Users } from 'lucide-react';
+export default function CategoryIcon({ categoria }: Props) {
+  const icons: Record<string, React.ReactNode> = {
+    Atletismo: <Footprints size={32} className='text-white' />,
+    'Corrida de Orientação': <Target size={32} className='text-white' />,
+    Triathlon: <Bike size={32} className='text-white' />,
+    Calistenia: <Dumbbell size={32} className='text-white' />,
+    Natação: <Waves size={32} className='text-white' />,
+    'Futebol de Campo': (
+      <SportsSoccerOutlinedIcon fontSize='large' className='text-white' />
+    ),
+    'Futebol de Salão': (
+      <SportsSoccerOutlinedIcon fontSize='large' className='text-white' />
+    ),
+    Basquetebol: (
+      <SportsBasketballOutlinedIcon fontSize='large' className='text-white' />
+    ),
+    'Vôlei de Quadra': <Volleyball size={32} className='text-white' />,
+    Futsal: (
+      <SportsSoccerOutlinedIcon fontSize='large' className='text-white' />
+    ),
+    'Vôlei de Praia': <Volleyball size={32} className='text-white' />,
+    'Beach Tênis': (
+      <SportsTennisOutlinedIcon fontSize='large' className='text-white' />
+    ),
+    Futevôlei: <Volleyball size={32} className='text-white' />,
+    Judô: <Swords size={32} className='text-white' />,
+    'Jiu-Jitsu': <Swords size={32} className='text-white' />,
+    'Tênis de Mesa': (
+      <SportsTennisOutlinedIcon fontSize='large' className='text-white' />
+    ),
+    Xadrez: <ChessKing size={32} className='text-white' />,
+    Dominó: <Puzzle size={32} className='text-white' />,
+    Truco: <Spade size={32} className='text-white' />,
+    'Cabo de Guerra': <BicepsFlexed size={32} className='text-white' />,
+  };
 
-export default function CategoryIcon({ categoria }: { categoria?: string }) {
-  switch (categoria?.toLowerCase()) {
-    case 'coletiva':
-      return <Users className='h-5 w-5 text-blue-500' />;
-    case 'individual':
-      return <Target className='h-5 w-5 text-green-500' />;
-    case 'equipe':
-      return <Shield className='h-5 w-5 text-purple-500' />;
-    case 'resistência':
-      return <Target className='h-5 w-5 text-orange-500' />;
-    default:
-      return <Activity className='h-5 w-5 text-gray-500' />;
-  }
+  return icons[categoria] ?? <Activity size={32} className='text-white' />;
 }

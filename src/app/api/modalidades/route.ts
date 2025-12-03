@@ -56,13 +56,12 @@ function calcularEstatisticasModalidades(modalidadesData: any[]) {
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const incluirEstatisticas = searchParams.get('estatisticas') !== 'false'; // default true
+    const incluirEstatisticas = searchParams.get('estatisticas') !== 'false';
 
     const response: any = {
       dados: modalidades,
     };
 
-    // Adicionar estatísticas se solicitado
     if (incluirEstatisticas) {
       response.estatisticas = calcularEstatisticasModalidades(modalidades);
     }

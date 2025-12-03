@@ -67,27 +67,22 @@ function agruparPorDia(eventos: EventoEnriquecido[]): DiaCronograma[] {
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const agruparPorDiaParam = searchParams.get('agruparPorDia') !== 'false'; // default true
-    const incluirFormatacao = searchParams.get('formatar') !== 'false'; // default true
+    const agruparPorDiaParam = searchParams.get('agruparPorDia') !== 'false';
+    const incluirFormatacao = searchParams.get('formatar') !== 'false';
 
-    // Ordenar eventos por data
     let eventos = staticCronograma.sort(
       (a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime(),
     );
 
-    // Enriquecer eventos com formatação
     if (incluirFormatacao) {
       eventos = eventos.map(enriquecerEvento) as any[];
     }
 
-    // Preparar resposta
     const response: any = {};
 
     if (agruparPorDiaParam) {
-      // Agrupar por dia
       response.dias = agruparPorDia(eventos as EventoEnriquecido[]);
     } else {
-      // Retornar lista única
       response.dados = eventos;
     }
 

@@ -138,29 +138,25 @@ function calcularEstatisticas(classificacoesEnriquecidas: any[]) {
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const tipo = searchParams.get('tipo'); // 'atletas' ou 'equipes'
+    const tipo = searchParams.get('tipo');
     const modalidade = searchParams.get('modalidade');
     const categoria = searchParams.get('categoria');
     const lotacao = searchParams.get('lotacao');
     const incluirMedalhas = searchParams.get('medalhas') === 'true';
-    const incluirEstatisticas = searchParams.get('estatisticas') !== 'false'; // default true
+    const incluirEstatisticas = searchParams.get('estatisticas') !== 'false';
     const incluirFiltros = searchParams.get('filtros') === 'true';
 
-    // Enriquecer todas as classificações
     let enrichedClassificacoes = classificacoes.map(enrichClassificacao);
 
-    // Separar atletas e equipes
     const atletas = enrichedClassificacoes.filter((c) => c.inscricaoId);
     const equipes = enrichedClassificacoes.filter((c) => !c.inscricaoId);
 
-    // Aplicar filtro de tipo
     if (tipo === 'atletas') {
       enrichedClassificacoes = atletas;
     } else if (tipo === 'equipes') {
       enrichedClassificacoes = equipes;
     }
 
-    // Aplicar filtros
     if (modalidade) {
       enrichedClassificacoes = enrichedClassificacoes.filter(
         (c) => c.modalidade === modalidade,
@@ -177,24 +173,20 @@ export async function GET(request: Request) {
       );
     }
 
-    // Preparar resposta
     const response: any = {
       dados: enrichedClassificacoes,
     };
 
-    // Adicionar estatísticas se solicitado
     if (incluirEstatisticas) {
       const todasClassificacoes = classificacoes.map(enrichClassificacao);
       response.estatisticas = calcularEstatisticas(todasClassificacoes);
     }
 
-    // Adicionar quadro de medalhas se solicitado
     if (incluirMedalhas) {
       const todasClassificacoes = classificacoes.map(enrichClassificacao);
       response.quadroMedalhas = calcularQuadroMedalhas(todasClassificacoes);
     }
 
-    // Adicionar listas de filtros se solicitado
     if (incluirFiltros) {
       const todasClassificacoes = classificacoes.map(enrichClassificacao);
       const estatisticas = calcularEstatisticas(todasClassificacoes);

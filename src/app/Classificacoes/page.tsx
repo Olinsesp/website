@@ -72,10 +72,9 @@ export default function Classificacoes() {
     queryKey: ['classificacoes', activeTab, modalidade, categoria, lotacao],
     queryFn: () =>
       fetchClassificacoes(activeTab, modalidade, categoria, lotacao),
-    enabled: !!dadosCompletos, // Só busca quando dados completos estão carregados
+    enabled: !!dadosCompletos,
   });
 
-  // Usar dados filtrados se disponíveis, senão usar completos
   const dadosAtuais = dadosFiltrados || dadosCompletos;
   const isLoading = isLoadingCompletos || isLoadingFiltrados;
   const isError = isErrorCompletos || isErrorFiltrados;

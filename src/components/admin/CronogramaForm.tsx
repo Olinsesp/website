@@ -43,7 +43,7 @@ async function fetchEventos(): Promise<Evento[]> {
     throw new Error('Erro ao carregar cronograma');
   }
   const data = await response.json();
-  return data.dados || data; // Compatibilidade com formato antigo
+  return data.dados || data;
 }
 
 export default function CronogramaForm() {

@@ -48,22 +48,19 @@ const classificacaoSchema = z.object({
 });
 type ClassificacaoFormData = z.output<typeof classificacaoSchema>;
 
-/* ------------------------------- fetchers ------------------------------- */
 async function fetchClassificacoes(): Promise<Classificacao[]> {
   const res = await fetch('/api/classificacoes?estatisticas=false');
   if (!res.ok) throw new Error('Erro ao carregar classificações');
   const data = await res.json();
-  return data.dados || data; // Compatibilidade com formato antigo
+  return data.dados || data;
 }
 async function fetchModalidades(): Promise<Modalidade[]> {
   const res = await fetch('/api/modalidades?estatisticas=false');
   if (!res.ok) throw new Error('Erro ao carregar modalidades');
   const data = await res.json();
-  return data.dados || data; // Compatibilidade com formato antigo
+  return data.dados || data;
 }
 
-/* ------------------------- Helper small components ---------------------- */
-/* Each "field" component receives control/name/options and renders a Controller */
 function SelectField({
   name,
   control,
@@ -102,7 +99,6 @@ function SelectField({
   );
 }
 
-/* ----------------------------- main component --------------------------- */
 export default function ClassificacoesForm() {
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);

@@ -40,7 +40,7 @@ async function fetchEventos(): Promise<Evento[]> {
   const res = await fetch('/api/cronograma?agruparPorDia=false&formatar=false');
   if (!res.ok) throw new Error('Falha ao buscar cronograma');
   const data = await res.json();
-  return data.dados || data; // Compatibilidade com formato antigo
+  return data.dados || data;
 }
 
 async function fetchInscricoes(): Promise<Inscricao[]> {

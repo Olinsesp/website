@@ -76,7 +76,7 @@ async function fetchMidias(): Promise<Midia[]> {
     throw new Error('Erro ao carregar mídias');
   }
   const data = await response.json();
-  return data.dados || data; // Compatibilidade com formato antigo
+  return data.dados || data;
 }
 
 export default function GaleriaForm() {

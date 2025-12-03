@@ -52,7 +52,7 @@ export async function POST(req: Request) {
     const data = await req.json();
     const validatedData = inscricaoSchema.parse(data);
     sendEmail(validatedData).catch((err) => {
-      console.error('Erro ao enviar email (simulado):', err.message);
+      console.error('Erro ao enviar email', err.message);
     });
 
     return NextResponse.json(validatedData, { status: 201 });
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
       );
     }
 
-    console.error('Erro ao criar inscrição (simulado):', error);
+    console.error('Erro ao criar inscrição', error);
     return NextResponse.json(
       { error: 'Ocorreu um erro no servidor ao processar a inscrição.' },
       { status: 500 },

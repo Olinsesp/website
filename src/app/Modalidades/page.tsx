@@ -45,7 +45,6 @@ export default function Modalidades() {
 
   const modalidades = modalidadesData?.dados || [];
   const estatisticas = modalidadesData?.estatisticas;
-
   return (
     <QueryStateHandler
       isLoading={isLoading}
@@ -148,8 +147,7 @@ export default function Modalidades() {
                           modalidade.categoria,
                         )} rounded-2xl flex items-center justify-center shrink-0`}
                       >
-                        <CategoryIcon categoria={modalidade.categoria} />
-                        <div className='h-10 w-10 sm:h-12 sm:w-12 text-white' />
+                        <CategoryIcon categoria={modalidade.nome} />
                       </div>
 
                       {/* Informações Principais */}
@@ -208,7 +206,7 @@ export default function Modalidades() {
 
                       <div className='w-full sm:w-48 bg-gray-200 rounded-full h-2'>
                         <div
-                          className='bg-gradient-to-r from-azul-olinsesp to-verde-olinsesp h-2 rounded-full transition-all duration-500'
+                          className='bg-linear-to-r from-azul-olinsesp to-verde-olinsesp h-2 rounded-full transition-all duration-500'
                           style={{
                             width: `${(modalidade.participantesAtuais / modalidade.maxParticipantes) * 100}%`,
                           }}

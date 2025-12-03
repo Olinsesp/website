@@ -12,10 +12,9 @@ export interface Inscricao {
   modalidades: string[];
   status?: 'aprovada' | 'pendente' | 'rejeitada';
   createdAt?: string;
-  [key: string]: any; // Para campos extras dinâmicos
+  [key: string]: any;
 }
 
-// Type para tabela do Dashboard
 export type InscricoesTable = {
   id: string;
   nome: string;
