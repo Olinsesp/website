@@ -1,7 +1,6 @@
 export interface Classificacao {
   id: string;
   modalidadeId: string;
-  categoria: string;
   posicao: number;
   inscricaoId?: string;
   lotacao?: string;

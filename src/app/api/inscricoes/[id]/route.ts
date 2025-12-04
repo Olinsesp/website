@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { inscricoes } from '../inscriçoesData';
+import { prisma } from '@/lib/prisma';
 
 const inscricaoUpdateSchema = z.object({
   nome: z
@@ -12,6 +12,7 @@ const inscricaoUpdateSchema = z.object({
   camiseta: z.string().optional(),
   lotacao: z.string().optional(),
   orgaoOrigem: z.string().optional(),
+  status: z.enum(['aprovada', 'pendente', 'rejeitada']).optional(),
   modalidades: z
     .array(z.string())
     .min(1, { message: 'Selecione ao menos uma modalidade.' })
@@ -24,7 +25,16 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const inscricao = inscricoes.find((i) => i.id === id);
+    const inscricao = await prisma.inscricao.findUnique({
+      where: { id },
+      include: {
+        modalidades: {
+          include: {
+            modalidade: true,
+          },
+        },
+      },
+    });
 
     if (!inscricao) {
       return NextResponse.json(
@@ -33,7 +43,25 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(inscricao);
+    const inscricaoFormatada = {
+      id: inscricao.id,
+      nome: inscricao.nome,
+      email: inscricao.email,
+      cpf: inscricao.cpf,
+      dataNascimento: inscricao.dataNascimento.toISOString(),
+      telefone: inscricao.telefone,
+      sexo: inscricao.sexo,
+      camiseta: inscricao.camiseta,
+      lotacao: inscricao.lotacao,
+      orgaoOrigem: inscricao.orgaoOrigem,
+      matricula: inscricao.matricula,
+      modalidades: inscricao.modalidades.map((im) => im.modalidade.nome),
+      status: inscricao.status,
+      createdAt: inscricao.createdAt.toISOString(),
+      ...(inscricao.dadosExtras as object),
+    };
+
+    return NextResponse.json(inscricaoFormatada);
   } catch (error) {
     console.error('Erro ao buscar inscrição:', error);
     return NextResponse.json(
@@ -52,29 +80,87 @@ export async function PUT(
     const data = await request.json();
     const validatedData = inscricaoUpdateSchema.parse(data);
 
-    const inscricaoIndex = inscricoes.findIndex((i) => i.id === id);
+    const { modalidades: modalidadesNomes, ...dadosAtualizacao } =
+      validatedData;
 
-    if (inscricaoIndex === -1) {
-      return NextResponse.json(
-        { error: 'Inscrição não encontrada.' },
-        { status: 404 },
-      );
+    const updateData: any = { ...dadosAtualizacao };
+
+    // Se modalidades foram fornecidas, atualizar relacionamento
+    if (modalidadesNomes) {
+      const modalidades = await prisma.modalidade.findMany({
+        where: {
+          nome: {
+            in: modalidadesNomes,
+          },
+        },
+      });
+
+      if (modalidades.length !== modalidadesNomes.length) {
+        return NextResponse.json(
+          { error: 'Uma ou mais modalidades não foram encontradas.' },
+          { status: 400 },
+        );
+      }
+
+      // Deletar modalidades antigas e criar novas
+      await prisma.inscricaoModalidade.deleteMany({
+        where: { inscricaoId: id },
+      });
+
+      updateData.modalidades = {
+        create: modalidades.map((modalidade) => ({
+          modalidadeId: modalidade.id,
+        })),
+      };
     }
 
-    const inscricaoAtualizada = {
-      ...inscricoes[inscricaoIndex],
-      ...validatedData,
+    const inscricaoAtualizada = await prisma.inscricao.update({
+      where: { id },
+      data: updateData,
+      include: {
+        modalidades: {
+          include: {
+            modalidade: true,
+          },
+        },
+      },
+    });
+
+    const inscricaoFormatada = {
+      id: inscricaoAtualizada.id,
+      nome: inscricaoAtualizada.nome,
+      email: inscricaoAtualizada.email,
+      cpf: inscricaoAtualizada.cpf,
+      dataNascimento: inscricaoAtualizada.dataNascimento.toISOString(),
+      telefone: inscricaoAtualizada.telefone,
+      sexo: inscricaoAtualizada.sexo,
+      camiseta: inscricaoAtualizada.camiseta,
+      lotacao: inscricaoAtualizada.lotacao,
+      orgaoOrigem: inscricaoAtualizada.orgaoOrigem,
+      matricula: inscricaoAtualizada.matricula,
+      modalidades: inscricaoAtualizada.modalidades.map(
+        (im) => im.modalidade.nome,
+      ),
+      status: inscricaoAtualizada.status,
+      createdAt: inscricaoAtualizada.createdAt.toISOString(),
+      ...(inscricaoAtualizada.dadosExtras as object),
     };
 
-    return NextResponse.json(inscricaoAtualizada);
+    return NextResponse.json(inscricaoFormatada);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
           error: 'Dados de entrada inválidos.',
-          details: z.treeifyError(error),
+          details: error.issues,
         },
         { status: 400 },
+      );
+    }
+    if ((error as any).code === 'P2025') {
+      return NextResponse.json(
+        { error: 'Inscrição não encontrada.' },
+        { status: 404 },
       );
     }
     console.error('Erro ao atualizar inscrição:', error);
@@ -92,17 +178,18 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    const inscricaoIndex = inscricoes.findIndex((i) => i.id === id);
+    await prisma.inscricao.delete({
+      where: { id },
+    });
 
-    if (inscricaoIndex === -1) {
+    return new NextResponse(null, { status: 204 });
+  } catch (error) {
+    if ((error as any).code === 'P2025') {
       return NextResponse.json(
         { error: 'Inscrição não encontrada.' },
         { status: 404 },
       );
     }
-
-    return new NextResponse(null, { status: 204 });
-  } catch (error) {
     console.error('Erro ao deletar inscrição:', error);
     return NextResponse.json(
       {

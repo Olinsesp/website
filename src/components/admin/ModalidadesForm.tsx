@@ -32,17 +32,22 @@ import { DataTable } from '@/app/Dashboard/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-const campoExtraSchema = z.object({
-  id: z.string().min(1, 'ID do campo é obrigatório'),
-  label: z.string().min(1, 'Label do campo é obrigatório'),
-  type: z.enum(['text', 'select']),
-  options: z.array(z.string()).optional(),
+const divisaoSchema = z.object({
+  nome: z.string().min(1, 'Nome da divisão é obrigatório'),
+});
+
+const sexoSchema = z.object({
+  nome: z.string().min(1, 'Nome do sexo é obrigatório'),
+});
+
+const faixaEtariaSchema = z.object({
+  nome: z.string().min(1, 'Nome da faixa etária é obrigatório'),
 });
 
 const modalidadeSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório'),
   descricao: z.string().min(1, 'Descrição é obrigatória'),
-  categoria: z.string().min(1, 'Categoria é obrigatória'),
+  categoria: z.string().array().min(1, 'Categoria é obrigatória'),
   maxParticipantes: z
     .number()
     .min(1, 'Máximo de participantes deve ser maior que 0'),
@@ -52,19 +57,14 @@ const modalidadeSchema = z.object({
     'em-andamento',
     'finalizada',
   ]),
-  camposExtras: z.array(campoExtraSchema).optional(),
+  modalidadesSexo: z.array(sexoSchema).optional(),
+  faixaEtaria: z.array(faixaEtariaSchema).optional(),
+  divisoes: z.array(divisaoSchema).optional(),
 });
 
 type ModalidadeFormData = z.infer<typeof modalidadeSchema>;
 
 import { Modalidade } from '@/types/modalidade';
-
-export interface CampoExtra {
-  id: string;
-  label: string;
-  type: 'text' | 'select';
-  options?: string[];
-}
 
 async function fetchModalidades(): Promise<Modalidade[]> {
   const response = await fetch('/api/modalidades?estatisticas=false');
@@ -102,16 +102,40 @@ export default function ModalidadesForm() {
     defaultValues: {
       nome: '',
       descricao: '',
-      categoria: '',
+      categoria: [],
       maxParticipantes: 0,
       status: 'inscricoes-abertas',
-      camposExtras: [],
+      modalidadesSexo: [],
+      faixaEtaria: [],
+      divisoes: [],
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const {
+    fields: divisoesFields,
+    append: appendDivisao,
+    remove: removeDivisao,
+  } = useFieldArray({
     control,
-    name: 'camposExtras',
+    name: 'divisoes',
+  });
+
+  const {
+    fields: modalidadesSexoFields,
+    append: appendModalidadeSexo,
+    remove: removeModalidadeSexo,
+  } = useFieldArray({
+    control,
+    name: 'modalidadesSexo',
+  });
+
+  const {
+    fields: faixaEtariaFields,
+    append: appendFaixaEtaria,
+    remove: removeFaixaEtaria,
+  } = useFieldArray({
+    control,
+    name: 'faixaEtaria',
   });
 
   const mutation = useMutation<
@@ -122,23 +146,14 @@ export default function ModalidadesForm() {
     mutationFn: async ({ data, id }) => {
       const url = id ? `/api/modalidades/${id}` : '/api/modalidades';
       const method = id ? 'PUT' : 'POST';
-      const dataToSend = {
-        ...data,
-        camposExtras: data.camposExtras?.map((field: any) => ({
-          ...field,
-          options:
-            typeof field.options === 'string'
-              ? field.options.split('\n').map((opt: string) => opt.trim())
-              : field.options,
-        })),
-      };
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataToSend),
+        body: JSON.stringify(data),
       });
       if (!response.ok) {
-        throw new Error('Erro ao salvar modalidade');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erro ao salvar modalidade');
       }
       return response;
     },
@@ -174,7 +189,16 @@ export default function ModalidadesForm() {
   });
 
   const onSubmit = (data: ModalidadeFormData) => {
-    mutation.mutate({ data, id: editingId });
+    const formattedData = {
+      ...data,
+      modalidadesSexo: data.modalidadesSexo?.map((s) => s.nome),
+      faixaEtaria: data.faixaEtaria?.map((f) => f.nome),
+      divisoes: data.divisoes?.map((d) => ({ nome: d.nome })), // Ensure divisoes is also correctly formatted
+    };
+    mutation.mutate({
+      data: formattedData as ModalidadeFormData,
+      id: editingId,
+    });
   };
 
   const handleEdit = (modalidade: Modalidade) => {
@@ -190,11 +214,16 @@ export default function ModalidadesForm() {
         : (modalidade.status as any),
     );
     setValue(
-      'camposExtras',
-      (modalidade as any).camposExtras?.map((ce: any) => ({
-        ...ce,
-        options: ce.options?.join('\n'),
-      })) || [],
+      'modalidadesSexo',
+      modalidade.modalidadesSexo?.map((s) => ({ nome: s })) || [],
+    );
+    setValue(
+      'faixaEtaria',
+      modalidade.faixaEtaria?.map((f) => ({ nome: f })) || [],
+    );
+    setValue(
+      'divisoes',
+      (modalidade.divisoes as unknown as { nome: string }[]) || [],
     );
     setIsDialogOpen(true);
   };
@@ -244,12 +273,59 @@ export default function ModalidadesForm() {
       header: 'Nome',
     },
     {
-      accessorKey: 'descricao',
-      header: 'Descrição',
-    },
-    {
       accessorKey: 'categoria',
       header: 'Categoria',
+    },
+    {
+      accessorKey: 'modalidadesSexo',
+      header: 'Sexo',
+      cell: ({ row }) => {
+        const sexos = row.original.modalidadesSexo;
+        if (!sexos || sexos.length === 0) return <span>N/A</span>;
+        return (
+          <div className='flex flex-wrap gap-1'>
+            {sexos.map((sexo) => (
+              <Badge key={sexo} variant='secondary'>
+                {sexo}
+              </Badge>
+            ))}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'faixaEtaria',
+      header: 'Faixa Etária',
+      cell: ({ row }) => {
+        const faixas = row.original.faixaEtaria;
+        if (!faixas || faixas.length === 0) return <span>N/A</span>;
+        return (
+          <div className='flex flex-wrap gap-1'>
+            {faixas.map((faixa) => (
+              <Badge key={faixa} variant='secondary'>
+                {faixa}
+              </Badge>
+            ))}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'divisoes',
+      header: 'Divisões',
+      cell: ({ row }) => {
+        const divisoes = row.original.divisoes as { nome: string }[];
+        if (!divisoes || divisoes.length === 0) return <span>N/A</span>;
+        return (
+          <div className='flex flex-col gap-1'>
+            {divisoes.map((divisao, index) => (
+              <Badge key={index} variant='outline'>
+                {divisao.nome}
+              </Badge>
+            ))}
+          </div>
+        );
+      },
     },
     {
       accessorKey: 'participantes',
@@ -418,49 +494,23 @@ export default function ModalidadesForm() {
               </div>
 
               <div className='space-y-4'>
-                <Label>Campos Extras</Label>
-                {fields.map((field, index) => (
+                <Label>Sexo da Modalidade</Label>
+                {modalidadesSexoFields.map((field, index) => (
                   <div
                     key={field.id}
                     className='flex items-center gap-2 p-2 border rounded-lg'
                   >
-                    <div className='grid grid-cols-2 gap-2 flex-1'>
+                    <div className='grid grid-cols-1 gap-2 flex-1'>
                       <Input
-                        {...register(`camposExtras.${index}.id`)}
-                        placeholder='ID do campo (e.g., peso_categoria)'
-                      />
-                      <Input
-                        {...register(`camposExtras.${index}.label`)}
-                        placeholder='Label do campo (e.g., Categoria de Peso)'
-                      />
-                      <Select
-                        onValueChange={(value) =>
-                          setValue(
-                            `camposExtras.${index}.type`,
-                            value as 'text' | 'select',
-                          )
-                        }
-                        defaultValue={field.type}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder='Tipo de campo' />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value='text'>Texto</SelectItem>
-                          <SelectItem value='select'>Seleção</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Textarea
-                        {...register(`camposExtras.${index}.options` as any)}
-                        placeholder='Opções (uma por linha)'
-                        rows={2}
+                        {...register(`modalidadesSexo.${index}.nome`)}
+                        placeholder='Ex: Masculino, Feminino, Misto'
                       />
                     </div>
                     <Button
                       type='button'
                       variant='destructive'
                       size='sm'
-                      onClick={() => remove(index)}
+                      onClick={() => removeModalidadeSexo(index)}
                     >
                       <Trash2 className='h-4 w-4' />
                     </Button>
@@ -470,12 +520,78 @@ export default function ModalidadesForm() {
                   type='button'
                   variant='outline'
                   size='sm'
-                  onClick={() =>
-                    append({ id: '', label: '', type: 'text', options: [] })
-                  }
+                  onClick={() => appendModalidadeSexo({ nome: '' })}
                 >
                   <Plus className='h-4 w-4 mr-2' />
-                  Adicionar Campo Extra
+                  Adicionar Sexo
+                </Button>
+              </div>
+
+              <div className='space-y-4'>
+                <Label>Faixa Etária</Label>
+                {faixaEtariaFields.map((field, index) => (
+                  <div
+                    key={field.id}
+                    className='flex items-center gap-2 p-2 border rounded-lg'
+                  >
+                    <div className='grid grid-cols-1 gap-2 flex-1'>
+                      <Input
+                        {...register(`faixaEtaria.${index}.nome`)}
+                        placeholder='Ex: Sub-10, Adulto, Livre'
+                      />
+                    </div>
+                    <Button
+                      type='button'
+                      variant='destructive'
+                      size='sm'
+                      onClick={() => removeFaixaEtaria(index)}
+                    >
+                      <Trash2 className='h-4 w-4' />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type='button'
+                  variant='outline'
+                  size='sm'
+                  onClick={() => appendFaixaEtaria({ nome: '' })}
+                >
+                  <Plus className='h-4 w-4 mr-2' />
+                  Adicionar Faixa Etária
+                </Button>
+              </div>
+
+              <div className='space-y-4'>
+                <Label>Divisões (Opcional)</Label>
+                {divisoesFields.map((field, index) => (
+                  <div
+                    key={field.id}
+                    className='flex items-center gap-2 p-2 border rounded-lg'
+                  >
+                    <div className='grid grid-cols-1 gap-2 flex-1'>
+                      <Input
+                        {...register(`divisoes.${index}.nome`)}
+                        placeholder='Nome da divisão (Ex: Sub-20)'
+                      />
+                    </div>
+                    <Button
+                      type='button'
+                      variant='destructive'
+                      size='sm'
+                      onClick={() => removeDivisao(index)}
+                    >
+                      <Trash2 className='h-4 w-4' />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type='button'
+                  variant='outline'
+                  size='sm'
+                  onClick={() => appendDivisao({ nome: '' })}
+                >
+                  <Plus className='h-4 w-4 mr-2' />
+                  Adicionar Divisão
                 </Button>
               </div>
 

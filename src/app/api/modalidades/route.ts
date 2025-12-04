@@ -1,23 +1,27 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { modalidades } from './modalidadesData';
+import { prisma } from '@/lib/prisma';
 
 const modalidadeSchema = z.object({
   nome: z.string().min(1, 'O nome é obrigatório.'),
   descricao: z.string().min(1, 'A descrição é obrigatória.'),
-  categoria: z.string().min(1, 'A categoria é obrigatória.'),
+  categoria: z.string().array().min(1, 'A categoria é obrigatória.'),
   maxParticipantes: z
     .number()
     .min(1, 'O número máximo de participantes deve ser maior que 0.'),
   participantesAtuais: z
     .number()
-    .min(0, 'O número de participantes atuais deve ser maior ou igual a 0.'),
+    .min(0, 'O número de participantes atuais deve ser maior ou igual a 0.')
+    .optional(),
   dataInicio: z.string().optional(),
   dataFim: z.string().optional(),
   local: z.string().optional(),
   horario: z.string().optional(),
   regras: z.array(z.string()).optional(),
   premios: z.array(z.string()).optional(),
+  divisoes: z.any().optional(),
+  modalidadesSexo: z.array(z.string()).optional(),
+  faixaEtaria: z.array(z.string()).optional(),
   status: z
     .enum([
       'inscricoes-abertas',
@@ -58,6 +62,10 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const incluirEstatisticas = searchParams.get('estatisticas') !== 'false';
 
+    const modalidades = await prisma.modalidade.findMany({
+      orderBy: { nome: 'asc' },
+    });
+
     const response: any = {
       dados: modalidades,
     };
@@ -81,20 +89,25 @@ export async function POST(req: Request) {
     const body = await req.json();
     const validatedData = modalidadeSchema.parse(body);
 
-    const novaModalidade = {
-      id: (modalidades.length + 1).toString(),
-      dataInicio: '',
-      dataFim: '',
-      local: '',
-      horario: '',
-      regras: [],
-      premios: [],
-      status: 'inscricoes-abertas' as const,
-      camposExtras: [],
-      ...validatedData,
-    };
-
-    modalidades.push(novaModalidade);
+    const novaModalidade = await prisma.modalidade.create({
+      data: {
+        nome: validatedData.nome,
+        descricao: validatedData.descricao,
+        categoria: validatedData.categoria,
+        maxParticipantes: validatedData.maxParticipantes,
+        participantesAtuais: validatedData.participantesAtuais ?? 0,
+        dataInicio: validatedData.dataInicio ?? null,
+        dataFim: validatedData.dataFim ?? null,
+        local: validatedData.local ?? null,
+        horario: validatedData.horario ?? null,
+        regras: validatedData.regras ?? [],
+        premios: validatedData.premios ?? [],
+        divisoes: validatedData.divisoes ?? null,
+        modalidadesSexo: validatedData.modalidadesSexo ?? [],
+        faixaEtaria: validatedData.faixaEtaria ?? [],
+        status: validatedData.status ?? 'inscricoes-abertas',
+      },
+    });
 
     return NextResponse.json(novaModalidade, { status: 201 });
   } catch (error) {

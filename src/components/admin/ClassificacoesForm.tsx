@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -28,14 +28,28 @@ import { toast } from 'sonner';
 import QueryStateHandler from '../ui/query-state-handler';
 import { Classificacao } from '@/types/classificacao';
 import { Modalidade } from '@/types/modalidade';
+import { Inscricao } from '@/types/inscricao';
 import { DataTable } from '@/app/Dashboard/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-/* ----------------------------- schema/types ----------------------------- */
+const orgaos = [
+  'SSP',
+  'CBMDF',
+  'PMDF',
+  'PCDF',
+  'DETRAN-DF',
+  'PF',
+  'PPDF',
+  'PPF',
+  'PLDF',
+  'PLF',
+  'PRF',
+  'SEJUS',
+];
+
 const classificacaoSchema = z.object({
   modalidadeId: z.string().min(1, 'Modalidade é obrigatória'),
-  categoria: z.string().min(1, 'Categoria é obrigatória'),
   posicao: z.coerce.number().min(1, 'Posição é obrigatória'),
   inscricaoId: z.string().optional(),
   lotacao: z.string().optional(),
@@ -57,6 +71,16 @@ async function fetchClassificacoes(): Promise<Classificacao[]> {
 async function fetchModalidades(): Promise<Modalidade[]> {
   const res = await fetch('/api/modalidades?estatisticas=false');
   if (!res.ok) throw new Error('Erro ao carregar modalidades');
+  const data = await res.json();
+  return data.dados || data;
+}
+
+async function fetchInscricoesByModalidade(
+  modalidadeId: string,
+): Promise<Inscricao[]> {
+  if (!modalidadeId) return [];
+  const res = await fetch(`/api/inscricoes/modalidade/${modalidadeId}`);
+  if (!res.ok) throw new Error('Erro ao carregar inscrições');
   const data = await res.json();
   return data.dados || data;
 }
@@ -127,17 +151,6 @@ export default function ClassificacoesForm() {
     queryFn: fetchModalidades,
   });
 
-  const filteredModalidades = useMemo(() => {
-    return modalidades.filter((m) => {
-      if (modalidadeTypeFilter === 'all') return true;
-      if (modalidadeTypeFilter === 'individual')
-        return m.categoria === 'Individual';
-      if (modalidadeTypeFilter === 'coletiva')
-        return m.categoria === 'Equipe' || m.categoria === 'Duplas';
-      return true;
-    });
-  }, [modalidades, modalidadeTypeFilter]);
-
   const {
     register,
     handleSubmit,
@@ -148,7 +161,7 @@ export default function ClassificacoesForm() {
     formState: { errors },
   } = useForm<ClassificacaoFormData>({
     resolver: zodResolver(classificacaoSchema) as any,
-    defaultValues: { dynamicFields: {}, categoria: '' },
+    defaultValues: { dynamicFields: {} },
   });
 
   const watchedModalidadeId = watch('modalidadeId');
@@ -156,6 +169,21 @@ export default function ClassificacoesForm() {
     () => watch('dynamicFields') || {},
     [watch],
   );
+
+  const { data: inscricoes = [] } = useQuery<Inscricao[], Error>({
+    queryKey: ['inscricoes', watchedModalidadeId],
+    queryFn: () => fetchInscricoesByModalidade(watchedModalidadeId),
+    enabled: !!watchedModalidadeId,
+  });
+
+  const filteredModalidades = useMemo(() => {
+    return modalidades.filter(() => {
+      if (modalidadeTypeFilter === 'all') return true;
+      if (modalidadeTypeFilter === 'individual') return false; // Or some other logic if needed
+      if (modalidadeTypeFilter === 'coletiva') return false; // Or some other logic if needed
+      return true;
+    });
+  }, [modalidades, modalidadeTypeFilter]);
 
   const selectedModalidade = useMemo(
     () => modalidades.find((m) => m.id === watchedModalidadeId) ?? null,
@@ -165,7 +193,7 @@ export default function ClassificacoesForm() {
   const dynamicFields = useMemo(() => {
     if (!selectedModalidade) return null;
     const nodes: React.ReactNode[] = [];
-    const { divisoes, modalidadesSexo } = selectedModalidade;
+    const { divisoes, modalidadesSexo, faixaEtaria } = selectedModalidade;
 
     if (modalidadesSexo?.length) {
       nodes.push(
@@ -176,6 +204,19 @@ export default function ClassificacoesForm() {
           label='Sexo'
           options={modalidadesSexo.map((s) => ({ value: s }))}
           placeholder='Selecione o sexo'
+        />,
+      );
+    }
+
+    if (faixaEtaria?.length) {
+      nodes.push(
+        <SelectField
+          key='faixaEtaria'
+          name={'dynamicFields.faixaEtaria'}
+          control={control}
+          label='Faixa Etária'
+          options={faixaEtaria.map((f) => ({ value: f }))}
+          placeholder='Selecione a faixa etária'
         />,
       );
     }
@@ -285,11 +326,6 @@ export default function ClassificacoesForm() {
     return nodes.length ? nodes : null;
   }, [selectedModalidade, control, watchedDynamicFields]);
 
-  useEffect(() => {
-    const parts = Object.values(watchedDynamicFields).filter(Boolean);
-    if (parts.length) setValue('categoria', parts.join(' - '));
-  }, [watchedDynamicFields, setValue]);
-
   const mutation = useMutation<
     Response,
     Error,
@@ -333,7 +369,6 @@ export default function ClassificacoesForm() {
     onError: (err) => toast.error(err.message),
   });
 
-  /* --------------------------- table & actions ----------------------------- */
   const columns: ColumnDef<Classificacao>[] = [
     {
       accessorKey: 'atleta',
@@ -341,7 +376,6 @@ export default function ClassificacoesForm() {
       cell: ({ row }) => row.original.atleta || 'Equipe',
     },
     { accessorKey: 'modalidade', header: 'Modalidade' },
-    { accessorKey: 'categoria', header: 'Categoria' },
     {
       accessorKey: 'posicao',
       header: 'Posição',
@@ -380,7 +414,6 @@ export default function ClassificacoesForm() {
     },
   ];
 
-  /* --------------------------- handlers ----------------------------------- */
   const onSubmit = (data: ClassificacaoFormData) =>
     mutation.mutate({ data, id: editingId });
 
@@ -388,7 +421,6 @@ export default function ClassificacoesForm() {
     setEditingId(classificacao.id);
     reset();
     setValue('modalidadeId', classificacao.modalidadeId);
-    setValue('categoria', classificacao.categoria);
     setValue('posicao', classificacao.posicao);
     setValue('inscricaoId', classificacao.inscricaoId || '');
     setValue('lotacao', classificacao.lotacao || '');
@@ -418,13 +450,10 @@ export default function ClassificacoesForm() {
   }
 
   const tipoProva = useMemo(() => {
-    return selectedModalidade?.categoria === 'Equipe' ||
-      selectedModalidade?.categoria === 'Duplas'
-      ? 'Coletiva'
-      : 'Individual';
+    if (!selectedModalidade) return 'Individual';
+    return 'Individual';
   }, [selectedModalidade]);
 
-  /* --------------------------------- render -------------------------------- */
   return (
     <QueryStateHandler
       isLoading={isLoadingClassificacoes || isLoadingModalidades}
@@ -470,7 +499,6 @@ export default function ClassificacoesForm() {
                     ) => {
                       setModalidadeTypeFilter(value);
                       setValue('modalidadeId', '');
-                      setValue('categoria', '');
                     }}
                     value={modalidadeTypeFilter}
                   >
@@ -492,7 +520,11 @@ export default function ClassificacoesForm() {
                     control={control}
                     render={({ field }) => (
                       <Select
-                        onValueChange={(v) => field.onChange(v)}
+                        onValueChange={(v) => {
+                          field.onChange(v);
+                          setValue('inscricaoId', '');
+                          setValue('atleta', '');
+                        }}
                         value={field.value}
                       >
                         <SelectTrigger>
@@ -517,11 +549,39 @@ export default function ClassificacoesForm() {
 
                 {dynamicFields}
 
-                <input type='hidden' {...register('categoria')} />
-                {errors.categoria && (
-                  <p className='text-sm text-vermelho-olinsesp md:col-span-2'>
-                    {errors.categoria.message}
-                  </p>
+                {tipoProva === 'Individual' && (
+                  <div className='space-y-2'>
+                    <Label>Atleta Inscrito</Label>
+                    <Controller
+                      name='inscricaoId'
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            const selectedInscricao = inscricoes.find(
+                              (i) => i.id === value,
+                            );
+                            if (selectedInscricao) {
+                              setValue('atleta', selectedInscricao.nome);
+                            }
+                          }}
+                          value={field.value}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder='Selecione o atleta' />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {inscricoes.map((i) => (
+                              <SelectItem key={i.id} value={i.id}>
+                                {i.nome}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
                 )}
 
                 <div className='space-y-2'>
@@ -548,17 +608,20 @@ export default function ClassificacoesForm() {
                   )}
                 </div>
 
-                <div className='space-y-2'>
-                  <Label htmlFor='atleta'>
-                    {tipoProva === 'Individual' ? 'Atleta' : 'Equipe'}
-                  </Label>
-                  <Input id='atleta' {...register('atleta')} />
-                </div>
+                {tipoProva === 'Coletiva' && (
+                  <div className='space-y-2'>
+                    <Label htmlFor='atleta'>Equipe</Label>
+                    <Input id='atleta' {...register('atleta')} />
+                  </div>
+                )}
 
-                <div className='space-y-2'>
-                  <Label htmlFor='lotacao'>Lotação</Label>
-                  <Input id='lotacao' {...register('lotacao')} />
-                </div>
+                <SelectField
+                  name='lotacao'
+                  control={control}
+                  label='Lotação'
+                  options={orgaos.map((o) => ({ value: o, label: o }))}
+                  placeholder='Selecione a lotação'
+                />
 
                 <div className='space-y-2'>
                   <Label htmlFor='tempo'>Tempo</Label>

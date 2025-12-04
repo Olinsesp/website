@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { modalidades } from '../modalidadesData';
+import { prisma } from '@/lib/prisma';
 
 const modalidadeUpdateSchema = z.object({
   nome: z.string().min(1, 'O nome é obrigatório.').optional(),
   descricao: z.string().min(1, 'A descrição é obrigatória.').optional(),
-  categoria: z.string().min(1, 'A categoria é obrigatória.').optional(),
+  categoria: z.array(z.string()).optional(),
   maxParticipantes: z
     .number()
     .min(1, 'O número máximo de participantes deve ser maior que 0.')
@@ -19,11 +19,14 @@ const modalidadeUpdateSchema = z.object({
   local: z.string().optional(),
   horario: z.string().optional(),
   regras: z.array(z.string()).optional(),
+  faixaEtaria: z.array(z.string()).optional(),
   premios: z.array(z.string()).optional(),
+  divisoes: z.any().optional(),
+  modalidadesSexo: z.array(z.string()).optional(),
   status: z
     .enum([
       'inscricoes-abertas',
-      'inscricoes-fechadas',
+      'inscricoes-encerradas',
       'em-andamento',
       'finalizada',
     ])
@@ -36,7 +39,9 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const modalidade = modalidades.find((m: any) => m.id === id);
+    const modalidade = await prisma.modalidade.findUnique({
+      where: { id },
+    });
 
     if (!modalidade) {
       return NextResponse.json(
@@ -65,26 +70,23 @@ export async function PUT(
 
     const validatedData = modalidadeUpdateSchema.parse(body);
 
-    const modalidadeIndex = modalidades.findIndex((m: any) => m.id === id);
+    const modalidade = await prisma.modalidade.update({
+      where: { id },
+      data: validatedData,
+    });
 
-    if (modalidadeIndex === -1) {
-      return NextResponse.json(
-        { error: 'Modalidade não encontrada.' },
-        { status: 404 },
-      );
-    }
-
-    modalidades[modalidadeIndex] = {
-      ...modalidades[modalidadeIndex],
-      ...validatedData,
-    } as any;
-
-    return NextResponse.json(modalidades[modalidadeIndex]);
+    return NextResponse.json(modalidade);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Dados inválidos.', details: error.issues },
         { status: 400 },
+      );
+    }
+    if ((error as any).code === 'P2025') {
+      return NextResponse.json(
+        { error: 'Modalidade não encontrada.' },
+        { status: 404 },
       );
     }
     console.error('Erro ao atualizar modalidade:', error);
@@ -102,19 +104,18 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    const modalidadeIndex = modalidades.findIndex((m: any) => m.id === id);
+    await prisma.modalidade.delete({
+      where: { id },
+    });
 
-    if (modalidadeIndex === -1) {
+    return new NextResponse(null, { status: 204 });
+  } catch (error) {
+    if ((error as any).code === 'P2025') {
       return NextResponse.json(
         { error: 'Modalidade não encontrada.' },
         { status: 404 },
       );
     }
-
-    modalidades.splice(modalidadeIndex, 1);
-
-    return new NextResponse(null, { status: 204 });
-  } catch (error) {
     console.error('Erro ao deletar modalidade:', error);
     return NextResponse.json(
       {

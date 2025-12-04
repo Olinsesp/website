@@ -44,6 +44,7 @@ export default function Modalidades() {
   });
 
   const modalidades = modalidadesData?.dados || [];
+  console.log(modalidades);
   const estatisticas = modalidadesData?.estatisticas;
   return (
     <QueryStateHandler
@@ -144,7 +145,7 @@ export default function Modalidades() {
                       {/* Ícone da Categoria */}
                       <div
                         className={`h-16 w-16 sm:h-20 sm:w-20 bg-linear-to-br ${getCategoryGradient(
-                          modalidade.categoria,
+                          modalidade.categoria[0],
                         )} rounded-2xl flex items-center justify-center shrink-0`}
                       >
                         <CategoryIcon categoria={modalidade.nome} />

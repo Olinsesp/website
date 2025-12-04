@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { staticCronograma } from './cronogramaData';
-import { EventoEnriquecido, DiaCronograma } from '@/types/cronograma';
+import { prisma } from '@/lib/prisma';
+import { EventoEnriquecido, DiaCronograma, Evento } from '@/types/cronograma';
 
 const eventoSchema = z.object({
   atividade: z.string().min(1, 'A atividade é obrigatória.'),
   inicio: z.string().min(1, 'A data de início é obrigatória.'),
   fim: z.string().min(1, 'A data de fim é obrigatória.'),
-  detalhes: z.string().min(1, 'Os detalhes são obrigatórios.'),
-  modalidade: z.string().min(1, 'A modalidade é obrigatória.'),
+  detalhes: z.string().optional(),
+  modalidade: z.string().optional(),
+  modalidadeId: z.string().optional(),
 });
 
 function enriquecerEvento(evento: any): EventoEnriquecido {
@@ -24,7 +25,15 @@ function enriquecerEvento(evento: any): EventoEnriquecido {
   });
 
   return {
-    ...evento,
+    id: evento.id,
+    atividade: evento.atividade,
+    inicio:
+      evento.inicio instanceof Date
+        ? evento.inicio.toISOString()
+        : evento.inicio,
+    fim: evento.fim instanceof Date ? evento.fim.toISOString() : evento.fim,
+    detalhes: evento.detalhes,
+    modalidade: evento.modalidade || evento.modalidadeRel?.nome || null,
     horario: horarioFormatado,
     tipo: evento.atividade.includes('Cerimônia') ? 'cerimonia' : 'jogo',
     local: evento.detalhes || 'A definir',
@@ -70,20 +79,34 @@ export async function GET(request: Request) {
     const agruparPorDiaParam = searchParams.get('agruparPorDia') !== 'false';
     const incluirFormatacao = searchParams.get('formatar') !== 'false';
 
-    let eventos = staticCronograma.sort(
-      (a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime(),
-    );
+    const eventos = await prisma.evento.findMany({
+      include: {
+        modalidadeRel: true,
+      },
+      orderBy: { inicio: 'asc' },
+    });
+
+    let eventosFormatados: any[] = eventos;
 
     if (incluirFormatacao) {
-      eventos = eventos.map(enriquecerEvento) as any[];
+      eventosFormatados = eventos.map(enriquecerEvento) as any[];
+    } else {
+      eventosFormatados = eventos.map((e) => ({
+        id: e.id,
+        atividade: e.atividade,
+        inicio: e.inicio.toISOString(),
+        fim: e.fim.toISOString(),
+        detalhes: e.detalhes,
+        modalidade: e.modalidade || e.modalidadeRel?.nome || null,
+      })) as Evento[];
     }
 
     const response: any = {};
 
-    if (agruparPorDiaParam) {
-      response.dias = agruparPorDia(eventos as EventoEnriquecido[]);
+    if (agruparPorDiaParam && incluirFormatacao) {
+      response.dias = agruparPorDia(eventosFormatados as EventoEnriquecido[]);
     } else {
-      response.dados = eventos;
+      response.dados = eventosFormatados;
     }
 
     return NextResponse.json(response);
@@ -101,14 +124,32 @@ export async function POST(req: Request) {
     const body = await req.json();
     const validatedData = eventoSchema.parse(body);
 
-    const novoEvento = {
-      id: (staticCronograma.length + 1).toString(),
-      ...validatedData,
-    };
+    const novoEvento = await prisma.evento.create({
+      data: {
+        atividade: validatedData.atividade,
+        inicio: new Date(validatedData.inicio),
+        fim: new Date(validatedData.fim),
+        detalhes: validatedData.detalhes || null,
+        modalidade: validatedData.modalidade || null,
+        modalidadeId: validatedData.modalidadeId || null,
+      },
+      include: {
+        modalidadeRel: true,
+      },
+    });
 
-    staticCronograma.push(novoEvento);
-
-    return NextResponse.json(novoEvento, { status: 201 });
+    return NextResponse.json(
+      {
+        id: novoEvento.id,
+        atividade: novoEvento.atividade,
+        inicio: novoEvento.inicio.toISOString(),
+        fim: novoEvento.fim.toISOString(),
+        detalhes: novoEvento.detalhes,
+        modalidade:
+          novoEvento.modalidade || novoEvento.modalidadeRel?.nome || null,
+      },
+      { status: 201 },
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

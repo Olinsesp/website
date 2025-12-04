@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import nodemailer from 'nodemailer';
-import { inscricoes } from './inscriçoesData';
-import { modalidades } from '../modalidades/modalidadesData';
+import { prisma } from '@/lib/prisma';
 import { Inscricao } from '@/types/inscricao';
 
 const inscricaoSchema = z
@@ -20,7 +19,7 @@ const inscricaoSchema = z
       message: 'Por favor, insira uma data válida.',
     }),
     telefone: z.string().min(10, { message: 'Telefone inválido.' }),
-    sexo: z.enum(['m', 'f']),
+    sexo: z.enum(['m', 'f']).optional(),
     camiseta: z
       .string()
       .min(1, { message: 'Selecione um tamanho de camiseta.' }),
@@ -37,7 +36,36 @@ const inscricaoSchema = z
 
 export async function GET() {
   try {
-    return NextResponse.json(inscricoes);
+    const inscricoes = await prisma.inscricao.findMany({
+      include: {
+        modalidades: {
+          include: {
+            modalidade: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const inscricoesFormatadas = inscricoes.map((inscricao) => ({
+      id: inscricao.id,
+      nome: inscricao.nome,
+      email: inscricao.email,
+      cpf: inscricao.cpf,
+      dataNascimento: inscricao.dataNascimento.toISOString(),
+      telefone: inscricao.telefone,
+      sexo: inscricao.sexo,
+      camiseta: inscricao.camiseta,
+      lotacao: inscricao.lotacao,
+      orgaoOrigem: inscricao.orgaoOrigem,
+      matricula: inscricao.matricula,
+      modalidades: inscricao.modalidades.map((im) => im.modalidade.nome),
+      status: inscricao.status,
+      createdAt: inscricao.createdAt.toISOString(),
+      ...(inscricao.dadosExtras as object),
+    }));
+
+    return NextResponse.json(inscricoesFormatadas);
   } catch (error) {
     console.error('Erro ao buscar inscrições:', error);
     return NextResponse.json(
@@ -51,11 +79,98 @@ export async function POST(req: Request) {
   try {
     const data = await req.json();
     const validatedData = inscricaoSchema.parse(data);
-    sendEmail(validatedData).catch((err) => {
+
+    // Extrair modalidades e dados extras
+    const { modalidades: modalidadesNomes, ...dadosInscricao } = validatedData;
+
+    // Buscar IDs das modalidades
+    const modalidades = await prisma.modalidade.findMany({
+      where: {
+        nome: {
+          in: modalidadesNomes,
+        },
+      },
+    });
+
+    if (modalidades.length !== modalidadesNomes.length) {
+      return NextResponse.json(
+        { error: 'Uma ou mais modalidades não foram encontradas.' },
+        { status: 400 },
+      );
+    }
+
+    // Separar dados extras (campos que não são do schema principal)
+    const camposExtras: Record<string, any> = {};
+    const dadosInscricaoConhecidos = [
+      'nome',
+      'email',
+      'cpf',
+      'dataNascimento',
+      'telefone',
+      'sexo',
+      'camiseta',
+      'lotacao',
+      'orgaoOrigem',
+      'matricula',
+    ];
+
+    for (const key in dadosInscricao) {
+      if (!dadosInscricaoConhecidos.includes(key)) {
+        camposExtras[key] = (dadosInscricao as any)[key];
+      }
+    }
+
+    // Criar inscrição com modalidades
+    const novaInscricao = await prisma.inscricao.create({
+      data: {
+        ...dadosInscricao,
+        dataNascimento: new Date(dadosInscricao.dataNascimento), // Ensure dataNascimento is a Date object
+        dadosExtras:
+          Object.keys(camposExtras).length > 0 ? camposExtras : undefined,
+        modalidades: {
+          create: modalidades.map((modalidade) => ({
+            modalidadeId: modalidade.id,
+          })),
+        },
+      },
+      include: {
+        modalidades: {
+          include: {
+            modalidade: true,
+          },
+        },
+      },
+    });
+
+    // Enviar email em background
+    sendEmail({
+      ...validatedData,
+      id: novaInscricao.id,
+      status: novaInscricao.status,
+      createdAt: novaInscricao.createdAt,
+    }).catch((err) => {
       console.error('Erro ao enviar email', err.message);
     });
 
-    return NextResponse.json(validatedData, { status: 201 });
+    const inscricaoFormatada = {
+      id: novaInscricao.id,
+      nome: novaInscricao.nome,
+      email: novaInscricao.email,
+      cpf: novaInscricao.cpf,
+      dataNascimento: novaInscricao.dataNascimento.toISOString(),
+      telefone: novaInscricao.telefone,
+      sexo: novaInscricao.sexo,
+      camiseta: novaInscricao.camiseta,
+      lotacao: novaInscricao.lotacao,
+      orgaoOrigem: novaInscricao.orgaoOrigem,
+      matricula: novaInscricao.matricula,
+      modalidades: novaInscricao.modalidades.map((im) => im.modalidade.nome),
+      status: novaInscricao.status,
+      createdAt: novaInscricao.createdAt.toISOString(),
+      ...(novaInscricao.dadosExtras as object),
+    };
+
+    return NextResponse.json(inscricaoFormatada, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -74,7 +189,7 @@ export async function POST(req: Request) {
 
 async function sendEmail(
   inscricao: Omit<Inscricao, 'id' | 'status' | 'createdAt'> & {
-    sexo: 'm' | 'f';
+    sexo?: 'm' | 'f';
   },
 ) {
   if (!process.env.GMAIL_USER || !process.env.GMAIL_PASSWORD) {
@@ -92,7 +207,9 @@ async function sendEmail(
     },
   });
 
-  const allFlattenedModalidades = modalidades.map((mod) => ({
+  // Buscar modalidades do banco de dados
+  const allModalidades = await prisma.modalidade.findMany();
+  const allFlattenedModalidades = allModalidades.map((mod) => ({
     ...mod,
     parentCategory: mod.categoria,
   }));
@@ -114,7 +231,12 @@ async function sendEmail(
     },
   );
 
-  const sexoFormatado = inscricao.sexo === 'm' ? 'Masculino' : 'Feminino';
+  const sexoFormatado =
+    inscricao.sexo === 'm'
+      ? 'Masculino'
+      : inscricao.sexo === 'f'
+        ? 'Feminino'
+        : 'Não informado';
 
   const getCamposExtrasPorModalidade = (modalidade: any) => {
     if (!modalidade.campos_extras) return [];

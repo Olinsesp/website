@@ -20,7 +20,7 @@ export interface Modalidade {
   id: string;
   nome: string;
   descricao: string;
-  categoria: string;
+  categoria: string[];
   maxParticipantes: number;
   participantesAtuais: number;
   dataInicio: string;
@@ -36,4 +36,5 @@ export interface Modalidade {
     | 'finalizada';
   divisoes?: (string | Divisao)[];
   modalidadesSexo?: string[];
+  faixaEtaria?: string[];
 }

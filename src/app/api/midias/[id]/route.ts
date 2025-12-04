@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { staticMidias } from '../midiasData';
+import { prisma } from '@/lib/prisma';
 
 const midiaUpdateSchema = z.object({
-  tipo: z.string().min(1, 'O tipo é obrigatório.').optional(),
-  url: z.url({ message: 'URL inválida.' }).optional(),
+  tipo: z.enum(['foto', 'video', 'release']).optional(),
+  url: z.string().min(1, 'A URL é obrigatória.').optional(),
   titulo: z.string().optional(),
   destaque: z.boolean().optional(),
 });
@@ -15,7 +15,9 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const midia = staticMidias.find((m) => m.id === id);
+    const midia = await prisma.midia.findUnique({
+      where: { id },
+    });
 
     if (!midia) {
       return NextResponse.json(
@@ -24,7 +26,14 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(midia);
+    return NextResponse.json({
+      id: midia.id,
+      tipo: midia.tipo,
+      url: midia.url,
+      titulo: midia.titulo,
+      destaque: midia.destaque,
+      createdAt: midia.createdAt.toISOString(),
+    });
   } catch (error) {
     console.error('Erro ao buscar mídia:', error);
     return NextResponse.json(
@@ -43,21 +52,19 @@ export async function PUT(
     const data = await request.json();
     const validatedData = midiaUpdateSchema.parse(data);
 
-    const midiaIndex = staticMidias.findIndex((m) => m.id === id);
+    const midiaAtualizada = await prisma.midia.update({
+      where: { id },
+      data: validatedData,
+    });
 
-    if (midiaIndex === -1) {
-      return NextResponse.json(
-        { error: 'Mídia não encontrada.' },
-        { status: 404 },
-      );
-    }
-
-    const midiaAtualizada = {
-      ...staticMidias[midiaIndex],
-      ...validatedData,
-    };
-
-    return NextResponse.json(midiaAtualizada);
+    return NextResponse.json({
+      id: midiaAtualizada.id,
+      tipo: midiaAtualizada.tipo,
+      url: midiaAtualizada.url,
+      titulo: midiaAtualizada.titulo,
+      destaque: midiaAtualizada.destaque,
+      createdAt: midiaAtualizada.createdAt.toISOString(),
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -66,6 +73,12 @@ export async function PUT(
           details: error.issues,
         },
         { status: 400 },
+      );
+    }
+    if ((error as any).code === 'P2025') {
+      return NextResponse.json(
+        { error: 'Mídia não encontrada.' },
+        { status: 404 },
       );
     }
     console.error('Erro ao atualizar mídia:', error);
@@ -83,17 +96,18 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    const midiaIndex = staticMidias.findIndex((m) => m.id === id);
+    await prisma.midia.delete({
+      where: { id },
+    });
 
-    if (midiaIndex === -1) {
+    return new NextResponse(null, { status: 204 });
+  } catch (error) {
+    if ((error as any).code === 'P2025') {
       return NextResponse.json(
         { error: 'Mídia não encontrada.' },
         { status: 404 },
       );
     }
-
-    return new NextResponse(null, { status: 204 });
-  } catch (error) {
     console.error('Erro ao deletar mídia:', error);
     return NextResponse.json(
       {

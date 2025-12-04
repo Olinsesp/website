@@ -17,7 +17,7 @@ export default function TeamResultCard({ classificacao }: Props) {
       <CardContent className='p-6'>
         <div className='flex flex-col lg:flex-row lg:items-center justify-between gap-6'>
           <div className='flex items-center gap-6'>
-            <div className='flex flex-col items-center min-w-[80px]'>
+            <div className='flex flex-col items-center min-w-20'>
               <div className='text-3xl font-bold text-purple-600 mb-2'>
                 {classificacao.posicao}º
               </div>
@@ -34,7 +34,6 @@ export default function TeamResultCard({ classificacao }: Props) {
                     {classificacao.modalidade}
                   </span>
                   <span className='text-gray-400'>•</span>
-                  <span>{classificacao.categoria}</span>
                 </div>
               </div>
             </div>

@@ -17,7 +17,7 @@ export default function AthleteResultCard({ classificacao }: Props) {
       <CardContent className='p-4 sm:p-6'>
         <div className='flex flex-col gap-4 sm:gap-6'>
           <div className='flex items-start gap-4'>
-            <div className='flex flex-col items-center min-w-[60px] sm:min-w-[80px]'>
+            <div className='flex flex-col items-center min-w-[60px] sm:min-w-20'>
               <div className='text-2xl sm:text-3xl font-bold text-azul-olinsesp mb-1 sm:mb-2'>
                 {classificacao.posicao}º
               </div>
@@ -32,24 +32,21 @@ export default function AthleteResultCard({ classificacao }: Props) {
 
           <div className='space-y-2 sm:space-y-3'>
             <div className='flex items-center gap-2 text-gray-600'>
-              <Target className='h-4 w-4 text-blue-500 flex-shrink-0' />
+              <Target className='h-4 w-4 text-blue-500 shrink-0' />
               <span className='font-medium text-sm sm:text-base'>
                 {classificacao.modalidade}
               </span>
               <span className='text-gray-400'>•</span>
-              <span className='text-sm sm:text-base'>
-                {classificacao.categoria}
-              </span>
             </div>
             <div className='flex items-center gap-2 text-gray-600'>
-              <Users className='h-4 w-4 text-green-500 flex-shrink-0' />
+              <Users className='h-4 w-4 text-green-500 shrink-0' />
               <span className='text-sm sm:text-base'>
                 {classificacao.lotacao}
               </span>
             </div>
             {classificacao.tempo && (
               <div className='flex items-center gap-2 text-gray-600'>
-                <Zap className='h-4 w-4 text-orange-500 flex-shrink-0' />
+                <Zap className='h-4 w-4 text-orange-500 shrink-0' />
                 <span className='text-sm sm:text-base'>
                   Tempo: {classificacao.tempo}
                 </span>
@@ -57,7 +54,7 @@ export default function AthleteResultCard({ classificacao }: Props) {
             )}
             {classificacao.distancia && (
               <div className='flex items-center gap-2 text-gray-600'>
-                <Target className='h-4 w-4 text-purple-500 flex-shrink-0' />
+                <Target className='h-4 w-4 text-purple-500 shrink-0' />
                 <span className='text-sm sm:text-base'>
                   Distância: {classificacao.distancia}
                 </span>

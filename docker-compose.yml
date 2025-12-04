@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: bitnami/postgresql:latest
+    container_name: bitnami_postgres
+    restart: always
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRESQL_USERNAME=admin
+      - POSTGRESQL_PASSWORD=admin123
+      - POSTGRESQL_DATABASE=meubanco
+      - POSTGRESQL_POSTGRES_PASSWORD=admin123
+      # O Bitnami executa como não-root por padrão, essas variáveis acima bastam.
+    volumes:
+      - postgres_data:/bitnami/postgresql
+
+volumes:
+  postgres_data:
+    driver: local

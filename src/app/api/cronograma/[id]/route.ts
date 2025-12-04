@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { staticCronograma } from '../cronogramaData';
+import { prisma } from '@/lib/prisma';
 
 const cronogramaUpdateSchema = z.object({
   atividade: z.string().min(1, 'A atividade é obrigatória.').optional(),
-  inicio: z.iso.datetime({ message: 'Data de início inválida.' }).optional(),
-  fim: z.iso.datetime({ message: 'Data de fim inválida.' }).optional(),
+  inicio: z.string().optional(),
+  fim: z.string().optional(),
   detalhes: z.string().optional(),
+  modalidade: z.string().optional(),
+  modalidadeId: z.string().optional(),
 });
 
 export async function GET(
@@ -15,16 +17,28 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const cronograma = staticCronograma.find((c) => c.id === id);
+    const evento = await prisma.evento.findUnique({
+      where: { id },
+      include: {
+        modalidadeRel: true,
+      },
+    });
 
-    if (!cronograma) {
+    if (!evento) {
       return NextResponse.json(
         { error: 'Atividade do cronograma não encontrada.' },
         { status: 404 },
       );
     }
 
-    return NextResponse.json(cronograma);
+    return NextResponse.json({
+      id: evento.id,
+      atividade: evento.atividade,
+      inicio: evento.inicio.toISOString(),
+      fim: evento.fim.toISOString(),
+      detalhes: evento.detalhes,
+      modalidade: evento.modalidade || evento.modalidadeRel?.nome || null,
+    });
   } catch (error) {
     console.error('Erro ao buscar atividade do cronograma:', error);
     return NextResponse.json(
@@ -46,29 +60,51 @@ export async function PUT(
     const data = await request.json();
     const validatedData = cronogramaUpdateSchema.parse(data);
 
-    const cronogramaIndex = staticCronograma.findIndex((c) => c.id === id);
+    const updateData: any = {};
+    if (validatedData.atividade) updateData.atividade = validatedData.atividade;
+    if (validatedData.inicio)
+      updateData.inicio = new Date(validatedData.inicio);
+    if (validatedData.fim) updateData.fim = new Date(validatedData.fim);
+    if (validatedData.detalhes !== undefined)
+      updateData.detalhes = validatedData.detalhes;
+    if (validatedData.modalidade !== undefined)
+      updateData.modalidade = validatedData.modalidade;
+    if (validatedData.modalidadeId !== undefined)
+      updateData.modalidadeId = validatedData.modalidadeId;
 
-    if (cronogramaIndex === -1) {
-      return NextResponse.json(
-        { error: 'Atividade do cronograma não encontrada.' },
-        { status: 404 },
-      );
-    }
+    const eventoAtualizado = await prisma.evento.update({
+      where: { id },
+      data: updateData,
+      include: {
+        modalidadeRel: true,
+      },
+    });
 
-    const cronogramaAtualizado = {
-      ...staticCronograma[cronogramaIndex],
-      ...validatedData,
-    };
-
-    return NextResponse.json(cronogramaAtualizado);
+    return NextResponse.json({
+      id: eventoAtualizado.id,
+      atividade: eventoAtualizado.atividade,
+      inicio: eventoAtualizado.inicio.toISOString(),
+      fim: eventoAtualizado.fim.toISOString(),
+      detalhes: eventoAtualizado.detalhes,
+      modalidade:
+        eventoAtualizado.modalidade ||
+        eventoAtualizado.modalidadeRel?.nome ||
+        null,
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
           error: 'Dados de entrada inválidos.',
-          details: z.treeifyError(error),
+          details: error.issues,
         },
         { status: 400 },
+      );
+    }
+    if ((error as any).code === 'P2025') {
+      return NextResponse.json(
+        { error: 'Atividade do cronograma não encontrada.' },
+        { status: 404 },
       );
     }
     console.error('Erro ao atualizar atividade do cronograma:', error);
@@ -89,17 +125,18 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    const cronogramaIndex = staticCronograma.findIndex((c) => c.id === id);
+    await prisma.evento.delete({
+      where: { id },
+    });
 
-    if (cronogramaIndex === -1) {
+    return new NextResponse(null, { status: 204 });
+  } catch (error) {
+    if ((error as any).code === 'P2025') {
       return NextResponse.json(
         { error: 'Atividade do cronograma não encontrada.' },
         { status: 404 },
       );
     }
-
-    return new NextResponse(null, { status: 204 });
-  } catch (error) {
     console.error('Erro ao deletar atividade do cronograma:', error);
     return NextResponse.json(
       {

@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Modalidade {
+  id                  String                @id @default(uuid())
+  nome                String
+  descricao           String
+  categoria           String[]
+  maxParticipantes    Int
+  participantesAtuais Int                   @default(0)
+  dataInicio          String?
+  dataFim             String?
+  local               String?
+  horario             String?
+  regras              String[]              @default([])
+  premios             String[]              @default([])
+  status              String                @default("inscricoes-abertas")
+  divisoes            Json?
+  modalidadesSexo     String[]              @default([])
+  faixaEtaria         String[]              @default([])
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  classificacoes      Classificacao[]
+  eventos             Evento[]
+  inscricoes          InscricaoModalidade[]
+}
+
+model Inscricao {
+  id             String                @id @default(uuid())
+  nome           String
+  email          String
+  cpf            String
+  dataNascimento DateTime
+  telefone       String
+  sexo           String?
+  camiseta       String
+  lotacao        String
+  orgaoOrigem    String
+  matricula      String
+  status         String                @default("pendente")
+  dadosExtras    Json?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  classificacoes Classificacao[]
+  modalidades    InscricaoModalidade[]
+}
+
+model InscricaoModalidade {
+  id           String     @id @default(uuid())
+  inscricaoId  String
+  modalidadeId String
+  dadosExtras  Json?
+  createdAt    DateTime   @default(now())
+  inscricao    Inscricao  @relation(fields: [inscricaoId], references: [id], onDelete: Cascade)
+  modalidade   Modalidade @relation(fields: [modalidadeId], references: [id], onDelete: Cascade)
+
+  @@unique([inscricaoId, modalidadeId])
+}
+
+model Evento {
+  id            String      @id @default(uuid())
+  atividade     String
+  inicio        DateTime
+  fim           DateTime
+  detalhes      String?
+  modalidade    String?
+  modalidadeId  String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  modalidadeRel Modalidade? @relation(fields: [modalidadeId], references: [id])
+
+  @@index([inicio])
+  @@index([modalidadeId])
+}
+
+model Classificacao {
+  id           String     @id @default(uuid())
+  modalidadeId String
+  posicao      Int
+  inscricaoId  String?
+  lotacao      String?
+  pontuacao    Int
+  tempo        String?
+  distancia    String?
+  observacoes  String?
+  atleta       String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  inscricao    Inscricao? @relation(fields: [inscricaoId], references: [id])
+  modalidade   Modalidade @relation(fields: [modalidadeId], references: [id], onDelete: Cascade)
+
+  @@index([modalidadeId])
+  @@index([inscricaoId])
+  @@index([lotacao])
+}
+
+model Midia {
+  id        String   @id @default(uuid())
+  tipo      String
+  url       String
+  titulo    String?
+  destaque  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tipo])
+  @@index([destaque])
+}

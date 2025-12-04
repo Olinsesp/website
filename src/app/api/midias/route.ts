@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { staticMidias } from './midiasData';
+import { prisma } from '@/lib/prisma';
 
 const midiaSchema = z.object({
   tipo: z.enum(['foto', 'video', 'release']),
   url: z.string().min(1, 'A URL é obrigatória.'),
-  titulo: z.string().min(1, 'O título é obrigatório.'),
-  destaque: z.boolean(),
+  titulo: z.string().optional(),
+  destaque: z.boolean().optional(),
 });
 
 export async function GET(request: Request) {
@@ -16,27 +16,37 @@ export async function GET(request: Request) {
     const incluirEstatisticas = searchParams.get('estatisticas') !== 'false';
     const separarPorTipo = searchParams.get('separar') === 'true';
 
-    let midias = staticMidias.sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
-
+    const where: any = {};
     if (tipo && ['foto', 'video', 'release'].includes(tipo)) {
-      midias = midias.filter((m) => m.tipo === tipo);
+      where.tipo = tipo;
     }
+
+    const midias = await prisma.midia.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const midiasFormatadas = midias.map((m) => ({
+      id: m.id,
+      tipo: m.tipo,
+      url: m.url,
+      titulo: m.titulo,
+      destaque: m.destaque,
+      createdAt: m.createdAt.toISOString(),
+    }));
 
     const response: any = {};
 
     if (separarPorTipo) {
-      response.fotos = midias.filter((m) => m.tipo === 'foto');
-      response.videos = midias.filter((m) => m.tipo === 'video');
-      response.releases = midias.filter((m) => m.tipo === 'release');
+      response.fotos = midiasFormatadas.filter((m) => m.tipo === 'foto');
+      response.videos = midiasFormatadas.filter((m) => m.tipo === 'video');
+      response.releases = midiasFormatadas.filter((m) => m.tipo === 'release');
     } else {
-      response.dados = midias;
+      response.dados = midiasFormatadas;
     }
 
     if (incluirEstatisticas) {
-      const todasMidias = staticMidias;
+      const todasMidias = await prisma.midia.findMany();
       response.estatisticas = {
         totalFotos: todasMidias.filter((m) => m.tipo === 'foto').length,
         totalVideos: todasMidias.filter((m) => m.tipo === 'video').length,
@@ -60,15 +70,26 @@ export async function POST(req: Request) {
     const body = await req.json();
     const validatedData = midiaSchema.parse(body);
 
-    const novaMidia = {
-      id: (staticMidias.length + 1).toString(),
-      ...validatedData,
-      createdAt: new Date().toISOString(),
-    };
+    const novaMidia = await prisma.midia.create({
+      data: {
+        tipo: validatedData.tipo,
+        url: validatedData.url,
+        titulo: validatedData.titulo || null,
+        destaque: validatedData.destaque || false,
+      },
+    });
 
-    staticMidias.push(novaMidia);
-
-    return NextResponse.json(novaMidia, { status: 201 });
+    return NextResponse.json(
+      {
+        id: novaMidia.id,
+        tipo: novaMidia.tipo,
+        url: novaMidia.url,
+        titulo: novaMidia.titulo,
+        destaque: novaMidia.destaque,
+        createdAt: novaMidia.createdAt.toISOString(),
+      },
+      { status: 201 },
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

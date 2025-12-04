@@ -1,13 +1,10 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { classificacoes } from './classificacoesData';
-import { modalidades } from '../modalidades/modalidadesData';
-import { inscricoes } from '../inscricoes/inscriçoesData';
+import { prisma } from '@/lib/prisma';
 
 const classificacaoSchema = z
   .object({
     modalidadeId: z.string().min(1, 'O ID da modalidade é obrigatório.'),
-    categoria: z.string().min(1, 'A categoria é obrigatória.'),
     posicao: z.number().min(1, 'A posição deve ser maior que 0.'),
     inscricaoId: z.string().optional(),
     lotacao: z.string().optional(),
@@ -29,21 +26,20 @@ const classificacaoSchema = z
     },
   );
 
-function enrichClassificacao(classificacao: any) {
-  const modalidade = modalidades.find(
-    (m) => m.id === classificacao.modalidadeId,
-  );
+async function enrichClassificacao(classificacao: any) {
+  const modalidade = classificacao.modalidade
+    ? {
+        nome: classificacao.modalidade.nome,
+        modalidadesSexo: classificacao.modalidade.modalidadesSexo,
+      }
+    : null;
+
   let atletaNome = classificacao.atleta;
   let lotacaoEnriquecida = classificacao.lotacao;
 
-  if (!atletaNome && classificacao.inscricaoId) {
-    const inscricao = inscricoes.find(
-      (i) => i.id === classificacao.inscricaoId,
-    );
-    if (inscricao) {
-      atletaNome = inscricao.nome;
-      lotacaoEnriquecida = inscricao.lotacao;
-    }
+  if (!atletaNome && classificacao.inscricaoId && classificacao.inscricao) {
+    atletaNome = classificacao.inscricao.nome;
+    lotacaoEnriquecida = classificacao.inscricao.lotacao;
   } else if (!atletaNome && classificacao.lotacao) {
     atletaNome = classificacao.lotacao;
   }
@@ -57,19 +53,18 @@ function enrichClassificacao(classificacao: any) {
     }
   }
 
-  if (!sexo) {
-    if (classificacao.categoria.includes('Masculino')) {
-      sexo = 'Masculino';
-    } else if (classificacao.categoria.includes('Feminino')) {
-      sexo = 'Feminino';
-    }
-  }
-
   return {
-    ...classificacao,
-    modalidade: modalidade?.nome || 'Modalidade Desconhecida',
-    atleta: atletaNome || 'Atleta/Equipe Desconhecido',
+    id: classificacao.id,
+    modalidadeId: classificacao.modalidadeId,
+    posicao: classificacao.posicao,
+    inscricaoId: classificacao.inscricaoId,
     lotacao: lotacaoEnriquecida || classificacao.lotacao,
+    pontuacao: classificacao.pontuacao,
+    tempo: classificacao.tempo,
+    distancia: classificacao.distancia,
+    observacoes: classificacao.observacoes,
+    atleta: atletaNome || 'Atleta/Equipe Desconhecido',
+    modalidade: modalidade?.nome || 'Modalidade Desconhecida',
     sexo: sexo || 'N/A',
   };
 }
@@ -119,9 +114,6 @@ function calcularEstatisticas(classificacoesEnriquecidas: any[]) {
   const lotacoesUnicas = new Set(
     classificacoesEnriquecidas.map((c) => c.lotacao).filter(Boolean),
   );
-  const categoriasUnicas = new Set(
-    classificacoesEnriquecidas.map((c) => c.categoria),
-  );
 
   return {
     totalClassificacoes: classificacoesEnriquecidas.length,
@@ -130,7 +122,6 @@ function calcularEstatisticas(classificacoesEnriquecidas: any[]) {
     totalModalidades: modalidadesUnicas.size,
     totalLotacoes: lotacoesUnicas.size,
     modalidades: Array.from(modalidadesUnicas) as string[],
-    categorias: Array.from(categoriasUnicas) as string[],
     lotacoes: Array.from(lotacoesUnicas) as string[],
   };
 }
@@ -140,61 +131,71 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const tipo = searchParams.get('tipo');
     const modalidade = searchParams.get('modalidade');
-    const categoria = searchParams.get('categoria');
     const lotacao = searchParams.get('lotacao');
     const incluirMedalhas = searchParams.get('medalhas') === 'true';
     const incluirEstatisticas = searchParams.get('estatisticas') !== 'false';
     const incluirFiltros = searchParams.get('filtros') === 'true';
 
-    let enrichedClassificacoes = classificacoes.map(enrichClassificacao);
-
-    const atletas = enrichedClassificacoes.filter((c) => c.inscricaoId);
-    const equipes = enrichedClassificacoes.filter((c) => !c.inscricaoId);
-
-    if (tipo === 'atletas') {
-      enrichedClassificacoes = atletas;
-    } else if (tipo === 'equipes') {
-      enrichedClassificacoes = equipes;
-    }
+    const where: any = {};
 
     if (modalidade) {
-      enrichedClassificacoes = enrichedClassificacoes.filter(
-        (c) => c.modalidade === modalidade,
-      );
-    }
-    if (categoria) {
-      enrichedClassificacoes = enrichedClassificacoes.filter(
-        (c) => c.categoria === categoria,
-      );
+      where.modalidade = {
+        nome: modalidade,
+      };
     }
     if (lotacao) {
-      enrichedClassificacoes = enrichedClassificacoes.filter(
-        (c) => c.lotacao === lotacao,
-      );
+      where.lotacao = lotacao;
     }
+    if (tipo === 'atletas') {
+      where.inscricaoId = { not: null };
+    } else if (tipo === 'equipes') {
+      where.inscricaoId = null;
+    }
+
+    const classificacoes = await prisma.classificacao.findMany({
+      where,
+      include: {
+        modalidade: true,
+        inscricao: true,
+      },
+      orderBy: [{ posicao: 'asc' }, { pontuacao: 'desc' }],
+    });
+
+    const enrichedClassificacoes = await Promise.all(
+      classificacoes.map(enrichClassificacao),
+    );
 
     const response: any = {
       dados: enrichedClassificacoes,
     };
 
-    if (incluirEstatisticas) {
-      const todasClassificacoes = classificacoes.map(enrichClassificacao);
-      response.estatisticas = calcularEstatisticas(todasClassificacoes);
-    }
+    if (incluirEstatisticas || incluirMedalhas || incluirFiltros) {
+      const todasClassificacoes = await prisma.classificacao.findMany({
+        include: {
+          modalidade: true,
+          inscricao: true,
+        },
+      });
 
-    if (incluirMedalhas) {
-      const todasClassificacoes = classificacoes.map(enrichClassificacao);
-      response.quadroMedalhas = calcularQuadroMedalhas(todasClassificacoes);
-    }
+      const todasEnriquecidas = await Promise.all(
+        todasClassificacoes.map(enrichClassificacao),
+      );
 
-    if (incluirFiltros) {
-      const todasClassificacoes = classificacoes.map(enrichClassificacao);
-      const estatisticas = calcularEstatisticas(todasClassificacoes);
-      response.filtros = {
-        modalidades: estatisticas.modalidades,
-        categorias: estatisticas.categorias,
-        lotacoes: estatisticas.lotacoes,
-      };
+      if (incluirEstatisticas) {
+        response.estatisticas = calcularEstatisticas(todasEnriquecidas);
+      }
+
+      if (incluirMedalhas) {
+        response.quadroMedalhas = calcularQuadroMedalhas(todasEnriquecidas);
+      }
+
+      if (incluirFiltros) {
+        const estatisticas = calcularEstatisticas(todasEnriquecidas);
+        response.filtros = {
+          modalidades: estatisticas.modalidades,
+          lotacoes: estatisticas.lotacoes,
+        };
+      }
     }
 
     return NextResponse.json(response);
@@ -212,14 +213,26 @@ export async function POST(req: Request) {
     const body = await req.json();
     const validatedData = classificacaoSchema.parse(body);
 
-    const novaClassificacao = {
-      id: (classificacoes.length + 1).toString(),
-      ...validatedData,
-    };
+    const novaClassificacao = await prisma.classificacao.create({
+      data: {
+        modalidadeId: validatedData.modalidadeId,
+        posicao: validatedData.posicao,
+        inscricaoId: validatedData.inscricaoId || null,
+        lotacao: validatedData.lotacao || null,
+        pontuacao: validatedData.pontuacao,
+        tempo: validatedData.tempo || null,
+        distancia: validatedData.distancia || null,
+        observacoes: validatedData.observacoes || null,
+        atleta: validatedData.atleta || null,
+      },
+      include: {
+        modalidade: true,
+        inscricao: true,
+      },
+    });
 
-    classificacoes.push(novaClassificacao as any);
-
-    const enrichedNovaClassificacao = enrichClassificacao(novaClassificacao);
+    const enrichedNovaClassificacao =
+      await enrichClassificacao(novaClassificacao);
 
     return NextResponse.json(enrichedNovaClassificacao, { status: 201 });
   } catch (error) {
