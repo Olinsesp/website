@@ -25,6 +25,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { Trash2, Edit, Plus, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import QueryStateHandler from '../ui/query-state-handler';
@@ -44,10 +50,14 @@ const faixaEtariaSchema = z.object({
   nome: z.string().min(1, 'Nome da faixa etária é obrigatório'),
 });
 
+const categoriaSchema = z.object({
+  nome: z.string().min(1, 'Nome da categoria é obrigatório'),
+});
+
 const modalidadeSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório'),
   descricao: z.string().min(1, 'Descrição é obrigatória'),
-  categoria: z.string().array().min(1, 'Categoria é obrigatória'),
+  categoria: z.array(categoriaSchema).optional(),
   maxParticipantes: z
     .number()
     .min(1, 'Máximo de participantes deve ser maior que 0'),
@@ -138,6 +148,15 @@ export default function ModalidadesForm() {
     name: 'faixaEtaria',
   });
 
+  const {
+    fields: categoriasFields,
+    append: appendCategoria,
+    remove: removeCategoria,
+  } = useFieldArray({
+    control,
+    name: 'categoria',
+  });
+
   const mutation = useMutation<
     Response,
     Error,
@@ -165,7 +184,23 @@ export default function ModalidadesForm() {
       handleCancel();
     },
     onError: (error) => {
-      toast.error(error.message);
+      let message = 'Erro ao salvar a modalidade.';
+
+      if (error instanceof Error) {
+        if (error.message.includes('categoria')) {
+          message = 'A categoria informada é inválida ou está faltando.';
+        } else if (error.message.includes('Duplicado')) {
+          message = 'Já existe uma modalidade com esse nome.';
+        } else if (error.message === 'Failed to fetch') {
+          message = 'Falha de comunicação com o servidor.';
+        } else {
+          message = error.message;
+        }
+      }
+
+      toast.error(message, {
+        description: 'Verifique os dados e tente novamente.',
+      });
     },
   });
 
@@ -191,9 +226,10 @@ export default function ModalidadesForm() {
   const onSubmit = (data: ModalidadeFormData) => {
     const formattedData = {
       ...data,
+      categoria: data.categoria?.map((c) => c.nome),
       modalidadesSexo: data.modalidadesSexo?.map((s) => s.nome),
       faixaEtaria: data.faixaEtaria?.map((f) => f.nome),
-      divisoes: data.divisoes?.map((d) => ({ nome: d.nome })), // Ensure divisoes is also correctly formatted
+      divisoes: data.divisoes?.map((d) => d.nome),
     };
     mutation.mutate({
       data: formattedData as ModalidadeFormData,
@@ -205,7 +241,11 @@ export default function ModalidadesForm() {
     setEditingId(modalidade.id);
     setValue('nome', modalidade.nome);
     setValue('descricao', modalidade.descricao);
-    setValue('categoria', modalidade.categoria);
+    setValue(
+      'categoria',
+      modalidade.categoria?.map((c) => ({ nome: c })) || [],
+    );
+
     setValue('maxParticipantes', modalidade.maxParticipantes);
     setValue(
       'status',
@@ -221,10 +261,7 @@ export default function ModalidadesForm() {
       'faixaEtaria',
       modalidade.faixaEtaria?.map((f) => ({ nome: f })) || [],
     );
-    setValue(
-      'divisoes',
-      (modalidade.divisoes as unknown as { nome: string }[]) || [],
-    );
+    setValue('divisoes', modalidade.divisoes?.map((d) => ({ nome: d })) || []);
     setIsDialogOpen(true);
   };
 
@@ -275,6 +312,42 @@ export default function ModalidadesForm() {
     {
       accessorKey: 'categoria',
       header: 'Categoria',
+      cell: ({ row }) => {
+        const categorias = row.original.categoria;
+        if (!categorias || categorias.length === 0) return <span>N/A</span>;
+
+        const displayedCategorias = categorias.slice(0, 2);
+        const remainingCategoriasCount =
+          categorias.length - displayedCategorias.length;
+
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className='flex flex-wrap gap-1 cursor-pointer'>
+                  {displayedCategorias.map((categoria) => (
+                    <Badge key={categoria} variant='secondary'>
+                      {categoria}
+                    </Badge>
+                  ))}
+                  {remainingCategoriasCount > 0 && (
+                    <Badge variant='secondary'>
+                      +{remainingCategoriasCount}
+                    </Badge>
+                  )}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className='flex flex-col gap-1'>
+                  {categorias.map((categoria) => (
+                    <span key={categoria}>{categoria}</span>
+                  ))}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      },
     },
     {
       accessorKey: 'modalidadesSexo',
@@ -282,14 +355,34 @@ export default function ModalidadesForm() {
       cell: ({ row }) => {
         const sexos = row.original.modalidadesSexo;
         if (!sexos || sexos.length === 0) return <span>N/A</span>;
+
+        const displayedSexos = sexos.slice(0, 2);
+        const remainingSexosCount = sexos.length - displayedSexos.length;
+
         return (
-          <div className='flex flex-wrap gap-1'>
-            {sexos.map((sexo) => (
-              <Badge key={sexo} variant='secondary'>
-                {sexo}
-              </Badge>
-            ))}
-          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className='flex flex-wrap gap-1 cursor-pointer'>
+                  {displayedSexos.map((sexo) => (
+                    <Badge key={sexo} variant='secondary'>
+                      {sexo}
+                    </Badge>
+                  ))}
+                  {remainingSexosCount > 0 && (
+                    <Badge variant='secondary'>+{remainingSexosCount}</Badge>
+                  )}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className='flex flex-col gap-1'>
+                  {sexos.map((sexo) => (
+                    <span key={sexo}>{sexo}</span>
+                  ))}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         );
       },
     },
@@ -299,14 +392,34 @@ export default function ModalidadesForm() {
       cell: ({ row }) => {
         const faixas = row.original.faixaEtaria;
         if (!faixas || faixas.length === 0) return <span>N/A</span>;
+
+        const displayedFaixas = faixas.slice(0, 2);
+        const remainingFaixasCount = faixas.length - displayedFaixas.length;
+
         return (
-          <div className='flex flex-wrap gap-1'>
-            {faixas.map((faixa) => (
-              <Badge key={faixa} variant='secondary'>
-                {faixa}
-              </Badge>
-            ))}
-          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className='flex flex-wrap gap-1 cursor-pointer'>
+                  {displayedFaixas.map((faixa) => (
+                    <Badge key={faixa} variant='secondary'>
+                      {faixa}
+                    </Badge>
+                  ))}
+                  {remainingFaixasCount > 0 && (
+                    <Badge variant='secondary'>+{remainingFaixasCount}</Badge>
+                  )}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className='flex flex-col gap-1'>
+                  {faixas.map((faixa) => (
+                    <span key={faixa}>{faixa}</span>
+                  ))}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         );
       },
     },
@@ -314,16 +427,37 @@ export default function ModalidadesForm() {
       accessorKey: 'divisoes',
       header: 'Divisões',
       cell: ({ row }) => {
-        const divisoes = row.original.divisoes as { nome: string }[];
+        const divisoes = row.original.divisoes;
         if (!divisoes || divisoes.length === 0) return <span>N/A</span>;
+
+        const displayedDivisoes = divisoes.slice(0, 2);
+        const remainingDivisoesCount =
+          divisoes.length - displayedDivisoes.length;
+
         return (
-          <div className='flex flex-col gap-1'>
-            {divisoes.map((divisao, index) => (
-              <Badge key={index} variant='outline'>
-                {divisao.nome}
-              </Badge>
-            ))}
-          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className='flex flex-wrap gap-1 cursor-pointer'>
+                  {displayedDivisoes.map((divisao) => (
+                    <Badge key={divisao} variant='outline'>
+                      {divisao}
+                    </Badge>
+                  ))}
+                  {remainingDivisoesCount > 0 && (
+                    <Badge variant='outline'>+{remainingDivisoesCount}</Badge>
+                  )}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className='flex flex-col gap-1'>
+                  {divisoes.map((divisao) => (
+                    <span key={divisao}>{divisao}</span>
+                  ))}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         );
       },
     },
@@ -421,12 +555,37 @@ export default function ModalidadesForm() {
                 </div>
 
                 <div className='space-y-2'>
-                  <Label htmlFor='categoria'>Categoria *</Label>
-                  <Input
-                    id='categoria'
-                    {...register('categoria')}
-                    placeholder='Ex: Coletivo'
-                  />
+                  <Label>Categoria *</Label>
+                  {categoriasFields.map((field, index) => (
+                    <div
+                      key={field.id}
+                      className='flex items-center gap-2 p-2 border rounded-lg'
+                    >
+                      <div className='grid grid-cols-1 gap-2 flex-1'>
+                        <Input
+                          {...register(`categoria.${index}.nome`)}
+                          placeholder='Ex: Individual, Coletivo, Duplas'
+                        />
+                      </div>
+                      <Button
+                        type='button'
+                        variant='destructive'
+                        size='sm'
+                        onClick={() => removeCategoria(index)}
+                      >
+                        <Trash2 className='h-4 w-4' />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type='button'
+                    variant='outline'
+                    size='sm'
+                    onClick={() => appendCategoria({ nome: '' })}
+                  >
+                    <Plus className='h-4 w-4 mr-2' />
+                    Adicionar Categoria
+                  </Button>
                   {errors.categoria && (
                     <p className='text-sm text-vermelho-olinsesp'>
                       {errors.categoria.message}

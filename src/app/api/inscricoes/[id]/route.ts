@@ -85,7 +85,6 @@ export async function PUT(
 
     const updateData: any = { ...dadosAtualizacao };
 
-    // Se modalidades foram fornecidas, atualizar relacionamento
     if (modalidadesNomes) {
       const modalidades = await prisma.modalidade.findMany({
         where: {
@@ -102,7 +101,6 @@ export async function PUT(
         );
       }
 
-      // Deletar modalidades antigas e criar novas
       await prisma.inscricaoModalidade.deleteMany({
         where: { inscricaoId: id },
       });

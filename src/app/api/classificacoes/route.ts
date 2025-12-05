@@ -2,29 +2,17 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 
-const classificacaoSchema = z
-  .object({
-    modalidadeId: z.string().min(1, 'O ID da modalidade é obrigatório.'),
-    posicao: z.number().min(1, 'A posição deve ser maior que 0.'),
-    inscricaoId: z.string().optional(),
-    lotacao: z.string().optional(),
-    pontuacao: z.number().min(0, 'A pontuação deve ser maior ou igual a 0.'),
-    tempo: z.string().optional(),
-    distancia: z.string().optional(),
-    observacoes: z.string().optional(),
-    atleta: z.string().optional(),
-  })
-  .refine(
-    (data) =>
-      (data.inscricaoId && !data.lotacao && !data.atleta) ||
-      (!data.inscricaoId && data.lotacao && !data.atleta) ||
-      (!data.inscricaoId && !data.lotacao && data.atleta),
-    {
-      message:
-        'Forneça `inscricaoId` para individual, `lotacao` para equipe, ou `atleta` diretamente, mas apenas um.',
-      path: ['inscricaoId', 'lotacao', 'atleta'],
-    },
-  );
+const classificacaoSchema = z.object({
+  modalidadeId: z.string().min(1, 'O ID da modalidade é obrigatório.'),
+  posicao: z.number().min(1, 'A posição deve ser maior que 0.'),
+  inscricaoId: z.string().optional(),
+  lotacao: z.string().optional(),
+  pontuacao: z.number().min(0, 'A pontuação deve ser maior ou igual a 0.'),
+  tempo: z.string().optional(),
+  distancia: z.string().optional(),
+  observacoes: z.string().optional(),
+  atleta: z.string().optional(),
+});
 
 async function enrichClassificacao(classificacao: any) {
   const modalidade = classificacao.modalidade
@@ -212,7 +200,6 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const validatedData = classificacaoSchema.parse(body);
-
     const novaClassificacao = await prisma.classificacao.create({
       data: {
         modalidadeId: validatedData.modalidadeId,
@@ -233,18 +220,25 @@ export async function POST(req: Request) {
 
     const enrichedNovaClassificacao =
       await enrichClassificacao(novaClassificacao);
-
     return NextResponse.json(enrichedNovaClassificacao, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
+      const errorMessages = error.issues
+        .map((issue) => issue.message)
+        .join('; ');
       return NextResponse.json(
-        { error: 'Dados inválidos.', details: error.issues },
+        {
+          error: `Erro de validação: ${errorMessages}`,
+          details: error.issues,
+        },
         { status: 400 },
       );
     }
     console.error('Erro ao criar classificação:', error);
     return NextResponse.json(
-      { error: 'Ocorreu um erro no servidor ao criar a classificação.' },
+      {
+        error: `Ocorreu um erro no servidor ao criar a classificação: ${(error as Error).message}`,
+      },
       { status: 500 },
     );
   }

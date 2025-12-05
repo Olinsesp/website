@@ -44,7 +44,6 @@ export default function Modalidades() {
   });
 
   const modalidades = modalidadesData?.dados || [];
-  console.log(modalidades);
   const estatisticas = modalidadesData?.estatisticas;
   return (
     <QueryStateHandler

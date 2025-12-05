@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 const modalidadeUpdateSchema = z.object({
   nome: z.string().min(1, 'O nome é obrigatório.').optional(),
   descricao: z.string().min(1, 'A descrição é obrigatória.').optional(),
-  categoria: z.array(z.string()).optional(),
+  categoria: z.string().array().optional(),
   maxParticipantes: z
     .number()
     .min(1, 'O número máximo de participantes deve ser maior que 0.')
@@ -21,7 +21,7 @@ const modalidadeUpdateSchema = z.object({
   regras: z.array(z.string()).optional(),
   faixaEtaria: z.array(z.string()).optional(),
   premios: z.array(z.string()).optional(),
-  divisoes: z.any().optional(),
+  divisoes: z.string().array().optional(),
   modalidadesSexo: z.array(z.string()).optional(),
   status: z
     .enum([

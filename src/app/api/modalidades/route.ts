@@ -19,7 +19,7 @@ const modalidadeSchema = z.object({
   horario: z.string().optional(),
   regras: z.array(z.string()).optional(),
   premios: z.array(z.string()).optional(),
-  divisoes: z.any().optional(),
+  divisoes: z.string().array().optional(),
   modalidadesSexo: z.array(z.string()).optional(),
   faixaEtaria: z.array(z.string()).optional(),
   status: z
@@ -102,7 +102,7 @@ export async function POST(req: Request) {
         horario: validatedData.horario ?? null,
         regras: validatedData.regras ?? [],
         premios: validatedData.premios ?? [],
-        divisoes: validatedData.divisoes ?? null,
+        divisoes: validatedData.divisoes ?? [],
         modalidadesSexo: validatedData.modalidadesSexo ?? [],
         faixaEtaria: validatedData.faixaEtaria ?? [],
         status: validatedData.status ?? 'inscricoes-abertas',

@@ -8,14 +8,6 @@ export interface CategoriaEtaria {
   faixaEtaria: string;
 }
 
-export interface Divisao {
-  nome?: string;
-  tipo?: string;
-  provas?: string[];
-  pesos?: PesoCategoria | string[];
-  categorias?: CategoriaEtaria[];
-}
-
 export interface Modalidade {
   id: string;
   nome: string;
@@ -34,7 +26,7 @@ export interface Modalidade {
     | 'inscricoes-encerradas'
     | 'em-andamento'
     | 'finalizada';
-  divisoes?: (string | Divisao)[];
+  divisoes?: string[];
   modalidadesSexo?: string[];
   faixaEtaria?: string[];
 }

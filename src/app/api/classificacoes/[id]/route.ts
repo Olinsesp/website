@@ -2,42 +2,23 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 
-const classificacaoUpdateSchema = z
-  .object({
-    modalidadeId: z
-      .string()
-      .min(1, 'O ID da modalidade é obrigatório.')
-      .optional(),
-    posicao: z.number().min(1, 'A posição deve ser maior que 0.').optional(),
-    inscricaoId: z.string().optional(),
-    lotacao: z.string().optional(),
-    pontuacao: z
-      .number()
-      .min(0, 'A pontuação deve ser maior ou igual a 0.')
-      .optional(),
-    tempo: z.string().optional(),
-    distancia: z.string().optional(),
-    observacoes: z.string().optional(),
-    atleta: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      if (!data.inscricaoId && !data.lotacao && !data.atleta) return true;
-      const hasInscricao = !!data.inscricaoId;
-      const hasLotacao = !!data.lotacao;
-      const hasAtleta = !!data.atleta;
-      return (
-        (hasInscricao && !hasLotacao && !hasAtleta) ||
-        (!hasInscricao && hasLotacao && !hasAtleta) ||
-        (!hasInscricao && !hasLotacao && hasAtleta)
-      );
-    },
-    {
-      message:
-        'A classificação deve ser individual (com `inscricaoId`), de equipe (com `lotacao`), ou com `atleta` diretamente, mas apenas um.',
-      path: ['inscricaoId', 'lotacao', 'atleta'],
-    },
-  );
+const classificacaoUpdateSchema = z.object({
+  modalidadeId: z
+    .string()
+    .min(1, 'O ID da modalidade é obrigatório.')
+    .optional(),
+  posicao: z.number().min(1, 'A posição deve ser maior que 0.').optional(),
+  inscricaoId: z.string().optional(),
+  lotacao: z.string().optional(),
+  pontuacao: z
+    .number()
+    .min(0, 'A pontuação deve ser maior ou igual a 0.')
+    .optional(),
+  tempo: z.string().optional(),
+  distancia: z.string().optional(),
+  observacoes: z.string().optional(),
+  atleta: z.string().optional(),
+});
 
 export async function GET(
   request: Request,
