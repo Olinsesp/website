@@ -1,21 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Plus, Save } from 'lucide-react';
+import { toast } from 'sonner';
+import QueryStateHandler from '../ui/query-state-handler';
+import { DataTable } from '@/app/Dashboard/data-table';
+import { getInscricoesColumns } from '@/components/inscricoes/inscricoes-columns';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Inscricao } from '@/types/inscricao';
 import {
   Dialog,
   DialogContent,
@@ -24,12 +18,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Plus, Save } from 'lucide-react';
-import { toast } from 'sonner';
-import QueryStateHandler from '../ui/query-state-handler';
-import { DataTable } from '@/app/Dashboard/data-table';
-import { getInscricoesColumns } from '@/components/inscricoes/inscricoes-columns';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import * as z from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const inscricaoSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório'),
@@ -47,8 +48,6 @@ const inscricaoSchema = z.object({
   status: z.enum(['pendente', 'aprovada', 'rejeitada']).optional(),
 });
 
-import { Inscricao } from '@/types/inscricao';
-
 type InscricaoFormData = z.infer<typeof inscricaoSchema>;
 
 async function fetchInscricoes(): Promise<Inscricao[]> {
@@ -59,7 +58,7 @@ async function fetchInscricoes(): Promise<Inscricao[]> {
   return response.json();
 }
 
-export default function InscricoesForm() {
+export default function InscricoesTable() {
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);

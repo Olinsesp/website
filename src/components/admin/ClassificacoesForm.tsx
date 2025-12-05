@@ -179,8 +179,8 @@ export default function ClassificacoesForm() {
   const filteredModalidades = useMemo(() => {
     return modalidades.filter(() => {
       if (modalidadeTypeFilter === 'all') return true;
-      if (modalidadeTypeFilter === 'individual') return false; 
-      if (modalidadeTypeFilter === 'coletiva') return false; 
+      if (modalidadeTypeFilter === 'individual') return false;
+      if (modalidadeTypeFilter === 'coletiva') return false;
       return true;
     });
   }, [modalidades, modalidadeTypeFilter]);

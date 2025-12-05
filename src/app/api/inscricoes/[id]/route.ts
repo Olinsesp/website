@@ -58,7 +58,6 @@ export async function GET(
       modalidades: inscricao.modalidades.map((im) => im.modalidade.nome),
       status: inscricao.status,
       createdAt: inscricao.createdAt.toISOString(),
-      ...(inscricao.dadosExtras as object),
     };
 
     return NextResponse.json(inscricaoFormatada);
@@ -141,7 +140,6 @@ export async function PUT(
       ),
       status: inscricaoAtualizada.status,
       createdAt: inscricaoAtualizada.createdAt.toISOString(),
-      ...(inscricaoAtualizada.dadosExtras as object),
     };
 
     return NextResponse.json(inscricaoFormatada);

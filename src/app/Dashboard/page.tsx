@@ -25,8 +25,8 @@ import {
 import { generatePDF } from '@/lib/pdf-utils';
 import { Download, Filter } from 'lucide-react';
 
-import { InscricoesTable } from '@/types/inscricao';
-import { DataTable } from './data-table';
+import { Inscricao } from '@/types/inscricao';
+
 import { AppSidebar } from '@/app/Dashboard/app-sidebar';
 import { SiteHeader } from '@/app/Dashboard/site-header';
 import { SectionCards } from '@/app/Dashboard/section-cards';
@@ -34,15 +34,16 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import ModalidadesForm from '@/components/admin/ModalidadesForm';
 import GaleriaForm from '@/components/admin/GaleriaForm';
 import CronogramaForm from '@/components/admin/CronogramaForm';
-import InscricoesForm from '@/components/admin/InscricoesForm';
+import InscricoesTable from '@/components/inscricoes/InscricoesTable';
 import ClassificacoesForm from '@/components/admin/ClassificacoesForm';
 import QueryStateHandler from '@/components/ui/query-state-handler';
 import ConfirmacaoForm from '@/components/admin/ConfirmacaoForm';
+import InscricoesForm from '@/components/admin/InscricoesForm';
 
 export default function DashboardPage() {
   const [lotacao, setLotacao] = useState<string | null>(null);
   const [modalidade, setModalidade] = useState<string | null>(null);
-  const [inscritos, setInscritos] = useState<InscricoesTable[]>([]);
+  const [inscritos, setInscritos] = useState<Inscricao[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -55,6 +56,14 @@ export default function DashboardPage() {
     DEPEN: '#9467bd',
     'SSP-DF': '#28b3f3ff',
     OUTROS: '#e377c2',
+    SSP: '#6a3d9a',
+    'DETRAN-DF': '#b2df8a',
+    PF: '#33a02c',
+    PPDF: '#fb9a99',
+    PPF: '#e31a1c',
+    PLDF: '#fdbf6f',
+    PLF: '#ff7f00',
+    SEJUS: '#cab2d6',
   };
 
   useEffect(() => {
@@ -70,7 +79,7 @@ export default function DashboardPage() {
           (item: any, index: number) => ({
             ...item,
             id: item.id || `id-${index}`,
-            status: ['Confirmado', 'Pendente', 'Cancelado'][index % 3],
+            status: ['aprovada', 'pendente', 'rejeitada'][index % 3],
           }),
         );
 
@@ -274,28 +283,8 @@ export default function DashboardPage() {
               </Card>
             </div>
 
-            {/* Tabela de Inscritos */}
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  Lista de Inscritos
-                  <span className='text-sm font-normal text-muted-foreground ml-2'>
-                    ({inscritosFiltrados.length} registros)
-                  </span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <DataTable
-                  columns={[]}
-                  data={inscritosFiltrados.map((i) => ({
-                    ...i,
-                    modalidades: modalidade
-                      ? i.modalidades.filter((m) => m === modalidade)
-                      : i.modalidades,
-                  }))}
-                />
-              </CardContent>
-            </Card>
+            {/* Tabela de Inscrições */}
+            <InscricoesTable />
           </div>
         );
     }

@@ -22,5 +22,5 @@ export type InscricoesTable = {
   lotacao: string;
   orgaoOrigem: string;
   modalidades: string[];
-  status: 'Pendente' | 'Confirmado' | 'Cancelado';
+  status: 'pendente' | 'aprovada' | 'rejeitada';
 };
