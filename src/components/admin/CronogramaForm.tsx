@@ -10,6 +10,13 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -24,13 +31,14 @@ import { DataTable } from '@/app/Dashboard/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Evento } from '@/types/cronograma';
+import { Modalidade } from '@/types/modalidade';
 
 const eventoSchema = z.object({
   atividade: z.string().min(1, 'Atividade é obrigatória'),
   inicio: z.string().min(1, 'Horário de início é obrigatório'),
   fim: z.string().min(1, 'Horário de fim é obrigatório'),
   detalhes: z.string().optional(),
-  modalidade: z.string().optional(),
+  modalidadeId: z.string().optional().nullable(),
 });
 
 type EventoFormData = z.infer<typeof eventoSchema>;
@@ -46,6 +54,16 @@ async function fetchEventos(): Promise<Evento[]> {
   return data.dados || data;
 }
 
+async function fetchModalidades(): Promise<Modalidade[]> {
+  const response = await fetch('/api/modalidades?estatisticas=false');
+  if (!response.ok) {
+    throw new Error('Erro ao carregar modalidades');
+  }
+  const data = await response.json();
+  console.log('Modalidades fetched:', data);
+  return data.dados || data;
+}
+
 export default function CronogramaForm() {
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -53,12 +71,22 @@ export default function CronogramaForm() {
 
   const {
     data: eventos = [],
-    isLoading,
-    isError,
-    error,
+    isLoading: isLoadingEventos,
+    isError: isErrorEventos,
+    error: errorEventos,
   } = useQuery<Evento[], Error>({
     queryKey: ['cronograma'],
     queryFn: fetchEventos,
+  });
+
+  const {
+    data: modalidades = [],
+    isLoading: isLoadingModalidades,
+    isError: isErrorModalidades,
+    error: errorModalidades,
+  } = useQuery<Modalidade[], Error>({
+    queryKey: ['modalidades'],
+    queryFn: fetchModalidades,
   });
 
   const {
@@ -66,6 +94,7 @@ export default function CronogramaForm() {
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<EventoFormData>({
     resolver: zodResolver(eventoSchema),
@@ -74,7 +103,7 @@ export default function CronogramaForm() {
       inicio: '',
       fim: '',
       detalhes: '',
-      modalidade: '',
+      modalidadeId: null,
     },
   });
 
@@ -129,13 +158,23 @@ export default function CronogramaForm() {
     mutation.mutate({ data, id: editingId });
   };
 
+  const toDatetimeLocal = (isoString: string) => {
+    const date = new Date(isoString);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   const handleEdit = (evento: Evento) => {
     setEditingId(evento.id);
     setValue('atividade', evento.atividade);
-    setValue('inicio', evento.inicio);
-    setValue('fim', evento.fim);
+    setValue('inicio', toDatetimeLocal(evento.inicio));
+    setValue('fim', toDatetimeLocal(evento.fim));
     setValue('detalhes', evento.detalhes || '');
-    setValue('modalidade', evento.modalidade || '');
+    setValue('modalidadeId', evento.modalidadeId || null);
     setIsDialogOpen(true);
   };
 
@@ -156,9 +195,9 @@ export default function CronogramaForm() {
     setIsDialogOpen(true);
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR');
+    return date.toLocaleString('pt-BR');
   };
 
   const columns: ColumnDef<Evento>[] = [
@@ -167,19 +206,19 @@ export default function CronogramaForm() {
       header: 'Atividade',
     },
     {
-      accessorKey: 'modalidade',
+      accessorKey: 'modalidadeRel.nome',
       header: 'Modalidade',
-      cell: ({ row }) => row.original.modalidade || 'N/A',
+      cell: ({ row }) => row.original.modalidadeRel?.nome || 'N/A',
     },
     {
       accessorKey: 'inicio',
       header: 'Início',
-      cell: ({ row }) => formatDate(row.original.inicio),
+      cell: ({ row }) => formatDateTime(row.original.inicio),
     },
     {
       accessorKey: 'fim',
       header: 'Fim',
-      cell: ({ row }) => formatDate(row.original.fim),
+      cell: ({ row }) => formatDateTime(row.original.fim),
     },
     {
       accessorKey: 'detalhes',
@@ -215,10 +254,10 @@ export default function CronogramaForm() {
 
   return (
     <QueryStateHandler
-      isLoading={isLoading}
-      isError={isError}
-      error={error}
-      loadingMessage='Carregando cronograma...'
+      isLoading={isLoadingEventos || isLoadingModalidades}
+      isError={isErrorEventos || isErrorModalidades}
+      error={errorEventos || errorModalidades}
+      loadingMessage='Carregando dados...'
     >
       <div className='space-y-6'>
         <Card>
@@ -269,17 +308,32 @@ export default function CronogramaForm() {
                 </div>
 
                 <div className='space-y-2'>
-                  <Label htmlFor='modalidade'>Modalidade</Label>
-                  <Input
-                    id='modalidade'
-                    {...register('modalidade')}
-                    placeholder='Ex: Futebol (opcional)'
-                  />
+                  <Label htmlFor='modalidadeId'>Modalidade</Label>
+                  <Select
+                    onValueChange={(value) => setValue('modalidadeId', value)}
+                    value={watch('modalidadeId') || ''}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder='Selecione (opcional)' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value=''>Nenhuma</SelectItem>
+                      {modalidades.map((m) => (
+                        <SelectItem key={m.id} value={m.id}>
+                          {m.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className='space-y-2'>
-                  <Label htmlFor='inicio'>Horário de Início *</Label>
-                  <Input id='inicio' type='time' {...register('inicio')} />
+                  <Label htmlFor='inicio'>Data e Hora de Início *</Label>
+                  <Input
+                    id='inicio'
+                    type='datetime-local'
+                    {...register('inicio')}
+                  />
                   {errors.inicio && (
                     <p className='text-sm text-vermelho-olinsesp'>
                       {errors.inicio.message}
@@ -288,8 +342,8 @@ export default function CronogramaForm() {
                 </div>
 
                 <div className='space-y-2'>
-                  <Label htmlFor='fim'>Horário de Fim *</Label>
-                  <Input id='fim' type='time' {...register('fim')} />
+                  <Label htmlFor='fim'>Data e Hora de Fim *</Label>
+                  <Input id='fim' type='datetime-local' {...register('fim')} />
                   {errors.fim && (
                     <p className='text-sm text-vermelho-olinsesp'>
                       {errors.fim.message}

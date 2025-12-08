@@ -1,16 +1,34 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { EventoEnriquecido, DiaCronograma, Evento } from '@/types/cronograma';
+import { EventoEnriquecido, DiaCronograma } from '@/types/cronograma';
 
 const eventoSchema = z.object({
   atividade: z.string().min(1, 'A atividade é obrigatória.'),
   inicio: z.string().min(1, 'A data de início é obrigatória.'),
   fim: z.string().min(1, 'A data de fim é obrigatória.'),
   detalhes: z.string().optional(),
-  modalidade: z.string().optional(),
-  modalidadeId: z.string().optional(),
+  modalidadeId: z.string().optional().nullable(),
 });
+
+function getTipo(
+  atividade: string,
+): 'cerimonia' | 'jogo' | 'final' | 'congresso' {
+  const lowerAtividade = atividade.toLowerCase();
+  if (
+    lowerAtividade.includes('cerimônia') ||
+    lowerAtividade.includes('cerimonia')
+  ) {
+    return 'cerimonia';
+  }
+  if (lowerAtividade.includes('congresso')) {
+    return 'congresso';
+  }
+  if (lowerAtividade.includes('final')) {
+    return 'final';
+  }
+  return 'jogo';
+}
 
 function enriquecerEvento(evento: any): EventoEnriquecido {
   const inicioDate = new Date(evento.inicio);
@@ -33,14 +51,15 @@ function enriquecerEvento(evento: any): EventoEnriquecido {
         : evento.inicio,
     fim: evento.fim instanceof Date ? evento.fim.toISOString() : evento.fim,
     detalhes: evento.detalhes,
-    modalidade: evento.modalidade || evento.modalidadeRel?.nome || null,
     horario: horarioFormatado,
-    tipo: evento.atividade.includes('Cerimônia') ? 'cerimonia' : 'jogo',
+    tipo: getTipo(evento.atividade),
     local: evento.detalhes || 'A definir',
     status: 'agendado' as const,
     participantes: 'Consulte detalhes',
     inicioFormatado,
     horarioFormatado,
+    // Adicione a propriedade modalidadeRel aqui se ela não estiver sendo incluída
+    modalidadeRel: evento.modalidadeRel,
   };
 }
 
@@ -97,8 +116,9 @@ export async function GET(request: Request) {
         inicio: e.inicio.toISOString(),
         fim: e.fim.toISOString(),
         detalhes: e.detalhes,
-        modalidade: e.modalidade || e.modalidadeRel?.nome || null,
-      })) as Evento[];
+        modalidadeId: e.modalidadeId,
+        modalidadeRel: e.modalidadeRel,
+      }));
     }
 
     const response: any = {};
@@ -130,7 +150,6 @@ export async function POST(req: Request) {
         inicio: new Date(validatedData.inicio),
         fim: new Date(validatedData.fim),
         detalhes: validatedData.detalhes || null,
-        modalidade: validatedData.modalidade || null,
         modalidadeId: validatedData.modalidadeId || null,
       },
       include: {
@@ -145,8 +164,7 @@ export async function POST(req: Request) {
         inicio: novoEvento.inicio.toISOString(),
         fim: novoEvento.fim.toISOString(),
         detalhes: novoEvento.detalhes,
-        modalidade:
-          novoEvento.modalidade || novoEvento.modalidadeRel?.nome || null,
+        modalidade: novoEvento.modalidadeRel?.nome || null,
       },
       { status: 201 },
     );

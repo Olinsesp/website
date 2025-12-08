@@ -1,36 +1,32 @@
-export interface Evento {
+import { Modalidade } from './modalidade';
+
+export type Evento = {
   id: string;
   atividade: string;
   inicio: string;
   fim: string;
   detalhes?: string | null;
-  horario?: string;
-  tipo?: string;
-  local?: string;
-  status?: 'agendado' | 'em_andamento' | 'finalizado';
-  participantes?: string;
-  modalidade?: string;
-  resultado?: string;
-  inicioFormatado?: string;
-  horarioFormatado?: string;
-}
+  dia?: string;
+  modalidadeId?: string | null;
+  modalidadeRel?: Modalidade;
+};
 
-export interface EventoEnriquecido extends Evento {
+export type EventoEnriquecido = Evento & {
   horario: string;
-  tipo: string;
+  tipo: 'cerimonia' | 'jogo' | 'final' | 'congresso';
   local: string;
-  status: 'agendado' | 'em_andamento' | 'finalizado';
+  status: 'agendado' | 'cancelado' | 'realizado';
   participantes: string;
   inicioFormatado: string;
   horarioFormatado: string;
-}
+};
 
 export interface DiaCronograma {
   id: string;
   data: string;
   titulo: string;
   descricao: string;
-  eventos: Evento[];
+  eventos: EventoEnriquecido[];
 }
 
 export interface CronogramaResponse {

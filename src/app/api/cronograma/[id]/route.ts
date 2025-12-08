@@ -6,9 +6,8 @@ const cronogramaUpdateSchema = z.object({
   atividade: z.string().min(1, 'A atividade é obrigatória.').optional(),
   inicio: z.string().optional(),
   fim: z.string().optional(),
-  detalhes: z.string().optional(),
-  modalidade: z.string().optional(),
-  modalidadeId: z.string().optional(),
+  detalhes: z.string().optional().nullable(),
+  modalidadeId: z.string().optional().nullable(),
 });
 
 export async function GET(
@@ -37,7 +36,8 @@ export async function GET(
       inicio: evento.inicio.toISOString(),
       fim: evento.fim.toISOString(),
       detalhes: evento.detalhes,
-      modalidade: evento.modalidade || evento.modalidadeRel?.nome || null,
+      modalidadeId: evento.modalidadeId,
+      modalidade: evento.modalidadeRel?.nome || null,
     });
   } catch (error) {
     console.error('Erro ao buscar atividade do cronograma:', error);
@@ -67,10 +67,10 @@ export async function PUT(
     if (validatedData.fim) updateData.fim = new Date(validatedData.fim);
     if (validatedData.detalhes !== undefined)
       updateData.detalhes = validatedData.detalhes;
-    if (validatedData.modalidade !== undefined)
-      updateData.modalidade = validatedData.modalidade;
-    if (validatedData.modalidadeId !== undefined)
+
+    if (validatedData.modalidadeId !== undefined) {
       updateData.modalidadeId = validatedData.modalidadeId;
+    }
 
     const eventoAtualizado = await prisma.evento.update({
       where: { id },
@@ -86,10 +86,8 @@ export async function PUT(
       inicio: eventoAtualizado.inicio.toISOString(),
       fim: eventoAtualizado.fim.toISOString(),
       detalhes: eventoAtualizado.detalhes,
-      modalidade:
-        eventoAtualizado.modalidade ||
-        eventoAtualizado.modalidadeRel?.nome ||
-        null,
+      modalidadeId: eventoAtualizado.modalidadeId,
+      modalidade: eventoAtualizado.modalidadeRel?.nome || null,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

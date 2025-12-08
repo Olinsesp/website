@@ -2,13 +2,13 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MapPin, Trophy, Users } from 'lucide-react';
+import { MapPin, Users } from 'lucide-react';
 import React from 'react';
 import { getStatusBadge, getTipoIcon } from './utils';
-import { Evento } from '@/types/cronograma';
+import { EventoEnriquecido } from '@/types/cronograma';
 
 type Props = {
-  evento: Evento;
+  evento: EventoEnriquecido;
 };
 
 export default function EventCard({ evento }: Props) {
@@ -24,7 +24,7 @@ export default function EventCard({ evento }: Props) {
               <div className='flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-gray-500'>
                 {getTipoIcon(evento.tipo)}
                 <span className='text-xs sm:text-sm font-medium text-center'>
-                  {evento.modalidade}
+                  {evento.modalidadeRel?.nome}
                 </span>
               </div>
             </div>
@@ -49,14 +49,14 @@ export default function EventCard({ evento }: Props) {
                 {evento.participantes}
               </span>
             </div>
-            {evento.resultado && (
+            {/* {evento.resultado && (
               <div className='flex items-center gap-2 text-verde-olinsesp font-semibold'>
                 <Trophy className='h-4 w-4 flex-shrink-0' />
                 <span className='text-sm sm:text-base'>
                   🏆 {evento.resultado}
                 </span>
               </div>
-            )}
+            )} */}
           </div>
 
           <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 pt-2 border-t border-gray-200'>

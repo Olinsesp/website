@@ -1,60 +1,46 @@
+import Image from 'next/image';
 import React from 'react';
-import {
-  Dumbbell,
-  Activity,
-  Bike,
-  Waves,
-  Volleyball,
-  Swords,
-  Target,
-  Puzzle,
-  ChessKing,
-  Spade,
-  Footprints,
-  BicepsFlexed,
-} from 'lucide-react';
-import SportsBasketballOutlinedIcon from '@mui/icons-material/SportsBasketballOutlined';
-import SportsSoccerOutlinedIcon from '@mui/icons-material/SportsSoccerOutlined';
-import SportsTennisOutlinedIcon from '@mui/icons-material/SportsTennisOutlined';
+
 interface Props {
   categoria: string;
 }
 
 export default function CategoryIcon({ categoria }: Props) {
-  const icons: Record<string, React.ReactNode> = {
-    Atletismo: <Footprints size={32} className='text-white' />,
-    'Corrida de Orientação': <Target size={32} className='text-white' />,
-    Triathlon: <Bike size={32} className='text-white' />,
-    Calistenia: <Dumbbell size={32} className='text-white' />,
-    Natação: <Waves size={32} className='text-white' />,
-    'Futebol de Campo': (
-      <SportsSoccerOutlinedIcon fontSize='large' className='text-white' />
-    ),
-    'Futebol de Salão': (
-      <SportsSoccerOutlinedIcon fontSize='large' className='text-white' />
-    ),
-    Basquetebol: (
-      <SportsBasketballOutlinedIcon fontSize='large' className='text-white' />
-    ),
-    'Vôlei de Quadra': <Volleyball size={32} className='text-white' />,
-    Futsal: (
-      <SportsSoccerOutlinedIcon fontSize='large' className='text-white' />
-    ),
-    'Vôlei de Praia': <Volleyball size={32} className='text-white' />,
-    'Beach Tênis': (
-      <SportsTennisOutlinedIcon fontSize='large' className='text-white' />
-    ),
-    Futevôlei: <Volleyball size={32} className='text-white' />,
-    Judô: <Swords size={32} className='text-white' />,
-    'Jiu-Jitsu': <Swords size={32} className='text-white' />,
-    'Tênis de Mesa': (
-      <SportsTennisOutlinedIcon fontSize='large' className='text-white' />
-    ),
-    Xadrez: <ChessKing size={32} className='text-white' />,
-    Dominó: <Puzzle size={32} className='text-white' />,
-    Truco: <Spade size={32} className='text-white' />,
-    'Cabo de Guerra': <BicepsFlexed size={32} className='text-white' />,
+  const iconMap: Record<string, string> = {
+    Atletismo: '/icons/Icones das modalidades_01 - Atletismo.jpg',
+    'Corrida de Orientação':
+      '/icons/Icones das modalidades_02 - Corrida de Orientação.jpg',
+    Triathlon: '/icons/Icones das modalidades_03 - Triathlon.jpg',
+    Calistenia: '/icons/Icones das modalidades_04 - Calistenia.jpg',
+    Natação: '/icons/Icones das modalidades_05 - Natação.jpg',
+    'Futebol de Campo':
+      '/icons/Icones das modalidades_06 -Futebol de Campo.jpg',
+    'Futebol de Salão': '/icons/Icones das modalidades_09 - Futsal.jpg',
+    Futsal: '/icons/Icones das modalidades_09 - Futsal.jpg',
+    Basquetebol: '/icons/Icones das modalidades_07 - Basquetebol.jpg',
+    'Vôlei de Quadra': '/icons/Icones das modalidades_08 - Vôlei de Quadra.jpg',
+    'Vôlei de Praia': '/icons/Icones das modalidades_10 - Vôlei de Praia.jpg',
+    Futevôlei: '/icons/Icones das modalidades_12 - Futevôlei.jpg',
+    'Beach Tênis': '/icons/Icones das modalidades_11 - Beach Tênis .jpg',
+    'Tênis de Mesa': '/icons/Icones das modalidades_15 - Tênis de Mesa.jpg',
+    Judô: '/icons/Icones das modalidades_13 - Judô.jpg',
+    'Jiu-Jitsu': '/icons/Icones das modalidades_14 - Jiu-Jitsu.jpg',
+    Xadrez: '/icons/Icones das modalidades_16 - Xadrez.jpg',
+    Dominó: '/icons/Icones das modalidades_17 - Dominó.jpg',
+    Truco: '/icons/Icones das modalidades_18 - Truco.jpg',
+    'Cabo de Guerra': '/icons/Icones das modalidades_19 - Cabo de Guerr-a.jpg',
   };
 
-  return icons[categoria] ?? <Activity size={32} className='text-white' />;
+  const defaultIcon = '/icons/default.svg';
+
+  const imageSrc = iconMap[categoria] ?? defaultIcon;
+  return (
+    <Image
+      src={imageSrc}
+      width={'80'}
+      height={'80'}
+      alt={categoria}
+      className='w-auto h-auto object-contain rounded-2xl'
+    />
+  );
 }

@@ -68,7 +68,6 @@ model Evento {
   inicio        DateTime
   fim           DateTime
   detalhes      String?
-  modalidade    String?
   modalidadeId  String?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt

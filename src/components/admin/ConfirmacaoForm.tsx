@@ -63,7 +63,10 @@ function formatDateTime(iso: string) {
   }
 }
 
-function matchesModalidade(eventMod?: string, inscricaoMods: string[] = []) {
+function matchesModalidade(
+  eventMod?: string | null,
+  inscricaoMods: string[] = [],
+) {
   if (!eventMod) return false;
   const norm = (s: string) =>
     s
@@ -121,7 +124,7 @@ export default function ConfirmacaoForm() {
   const elegiveis = useMemo(() => {
     if (!eventoSelecionado) return [] as Inscricao[];
     const list = inscricoes.filter((i) =>
-      matchesModalidade(eventoSelecionado.modalidade, i.modalidades),
+      matchesModalidade(eventoSelecionado.modalidadeId, i.modalidades),
     );
     if (!busca) return list;
     const q = busca.toLowerCase();
@@ -209,7 +212,7 @@ export default function ConfirmacaoForm() {
           : 'Não confirmado',
     }));
 
-    const tituloEvento = `${eventoSelecionado.modalidade ? `${eventoSelecionado.modalidade} - ` : ''}${eventoSelecionado.atividade}`;
+    const tituloEvento = `${eventoSelecionado.modalidadeRel?.nome ? `${eventoSelecionado.modalidadeRel.nome} - ` : ''}${eventoSelecionado.atividade}`;
     const linhasEvento = [
       tituloEvento,
       `Início: ${formatDateTime(eventoSelecionado.inicio)}`,
@@ -253,7 +256,9 @@ export default function ConfirmacaoForm() {
                 <SelectContent>
                   {eventos.map((e) => (
                     <SelectItem key={e.id} value={e.id}>
-                      {e.modalidade ? `${e.modalidade} - ` : ''}
+                      {e.modalidadeRel?.nome
+                        ? `${e.modalidadeRel.nome} - `
+                        : ''}
                       {e.atividade}
                     </SelectItem>
                   ))}
