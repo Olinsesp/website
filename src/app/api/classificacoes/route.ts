@@ -1,18 +1,31 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 const classificacaoSchema = z.object({
   modalidadeId: z.string().min(1, 'O ID da modalidade é obrigatório.'),
   posicao: z.number().min(1, 'A posição deve ser maior que 0.'),
   inscricaoId: z.string().optional(),
   lotacao: z.string().optional(),
-  pontuacao: z.number().min(0, 'A pontuação deve ser maior ou igual a 0.'),
   tempo: z.string().optional(),
   distancia: z.string().optional(),
   observacoes: z.string().optional(),
   atleta: z.string().optional(),
 });
+
+const pontuacaoMapa: Record<number, number> = {
+  1: 20,
+  2: 15,
+  3: 12,
+  4: 9,
+  5: 7,
+  6: 5,
+  7: 4,
+  8: 3,
+  9: 2,
+  10: 1,
+};
 
 async function enrichClassificacao(classificacao: any) {
   const modalidade = classificacao.modalidade
@@ -114,8 +127,12 @@ function calcularEstatisticas(classificacoesEnriquecidas: any[]) {
   };
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
+    const headerList = request.headers;
+    const userRole = headerList.get('x-user-role');
+    const userOrgao = headerList.get('x-user-orgao');
+
     const { searchParams } = new URL(request.url);
     const tipo = searchParams.get('tipo');
     const modalidade = searchParams.get('modalidade');
@@ -124,24 +141,35 @@ export async function GET(request: Request) {
     const incluirEstatisticas = searchParams.get('estatisticas') !== 'false';
     const incluirFiltros = searchParams.get('filtros') === 'true';
 
-    const where: any = {};
+    let where: Prisma.ClassificacaoWhereInput = {};
 
+    // Role-based filter
+    if (userRole === 'PONTOFOCAL' && userOrgao) {
+      where.OR = [
+        { inscricao: { orgaoOrigem: userOrgao } },
+        { lotacao: userOrgao },
+      ];
+    }
+
+    // Query param filters
+    const queryFilters: Prisma.ClassificacaoWhereInput = {};
     if (modalidade) {
-      where.modalidade = {
-        nome: modalidade,
-      };
+      queryFilters.modalidade = { nome: modalidade };
     }
     if (lotacao) {
-      where.lotacao = lotacao;
+      // This will override the PONTOFOCAL filter if a specific lotacao is requested
+      where = { ...where, lotacao: lotacao };
     }
     if (tipo === 'atletas') {
-      where.inscricaoId = { not: null };
+      queryFilters.inscricaoId = { not: null };
     } else if (tipo === 'equipes') {
-      where.inscricaoId = null;
+      queryFilters.inscricaoId = null;
     }
 
+    const finalWhere = { ...where, AND: queryFilters };
+
     const classificacoes = await prisma.classificacao.findMany({
-      where,
+      where: finalWhere,
       include: {
         modalidade: true,
         inscricao: true,
@@ -158,7 +186,19 @@ export async function GET(request: Request) {
     };
 
     if (incluirEstatisticas || incluirMedalhas || incluirFiltros) {
+      // The stats should also be filtered for PONTOFOCAL
+      const statsWhere =
+        userRole === 'PONTOFOCAL' && userOrgao
+          ? {
+              OR: [
+                { inscricao: { orgaoOrigem: userOrgao } },
+                { lotacao: userOrgao },
+              ],
+            }
+          : {};
+
       const todasClassificacoes = await prisma.classificacao.findMany({
+        where: statsWhere,
         include: {
           modalidade: true,
           inscricao: true,
@@ -200,13 +240,15 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const validatedData = classificacaoSchema.parse(body);
+    const pontuacaoCalculada = pontuacaoMapa[validatedData.posicao] ?? 0;
+
     const novaClassificacao = await prisma.classificacao.create({
       data: {
         modalidadeId: validatedData.modalidadeId,
         posicao: validatedData.posicao,
         inscricaoId: validatedData.inscricaoId || null,
         lotacao: validatedData.lotacao || null,
-        pontuacao: validatedData.pontuacao,
+        pontuacao: pontuacaoCalculada,
         tempo: validatedData.tempo || null,
         distancia: validatedData.distancia || null,
         observacoes: validatedData.observacoes || null,

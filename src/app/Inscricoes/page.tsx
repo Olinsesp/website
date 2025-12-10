@@ -282,8 +282,8 @@ export default function Inscricoes() {
                         <SelectValue placeholder='Selecione o sexo' />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value='m'>Masculino</SelectItem>
-                        <SelectItem value='f'>Feminino</SelectItem>
+                        <SelectItem value='Masculino'>Masculino</SelectItem>
+                        <SelectItem value='Feminino'>Feminino</SelectItem>
                       </SelectContent>
                     </Select>
                     {errors.sexo && (
@@ -311,12 +311,18 @@ export default function Inscricoes() {
                         <SelectValue placeholder='Selecione a lotação' />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value='PCDF'>PCDF</SelectItem>
                         <SelectItem value='PMDF'>PMDF</SelectItem>
                         <SelectItem value='CBMDF'>CBMDF</SelectItem>
-                        <SelectItem value='PF'>PF</SelectItem>
+                        <SelectItem value='PCDF'>PCDF</SelectItem>
                         <SelectItem value='PRF'>PRF</SelectItem>
-                        <SelectItem value='DEPEN'>DEPEN</SelectItem>
+                        <SelectItem value='SSP-DF'>SSP-DF</SelectItem>
+                        <SelectItem value='DETRAN-DF'>DETRAN-DF</SelectItem>
+                        <SelectItem value='PF'>PF</SelectItem>
+                        <SelectItem value='PPDF'>PPDF</SelectItem>
+                        <SelectItem value='PPF'>PPF</SelectItem>
+                        <SelectItem value='PLDF'>PLDF</SelectItem>
+                        <SelectItem value='PLF'>PLF</SelectItem>
+                        <SelectItem value='SEJUS'>SEJUS</SelectItem>
                       </SelectContent>
                     </Select>
                     {errors.lotacao && (
@@ -335,12 +341,18 @@ export default function Inscricoes() {
                         <SelectValue placeholder='Selecione o órgão' />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value='PCDF'>PCDF</SelectItem>
                         <SelectItem value='PMDF'>PMDF</SelectItem>
                         <SelectItem value='CBMDF'>CBMDF</SelectItem>
-                        <SelectItem value='PF'>PF</SelectItem>
+                        <SelectItem value='PCDF'>PCDF</SelectItem>
                         <SelectItem value='PRF'>PRF</SelectItem>
-                        <SelectItem value='DEPEN'>DEPEN</SelectItem>
+                        <SelectItem value='SSP-DF'>SSP-DF</SelectItem>
+                        <SelectItem value='DETRAN-DF'>DETRAN-DF</SelectItem>
+                        <SelectItem value='PF'>PF</SelectItem>
+                        <SelectItem value='PPDF'>PPDF</SelectItem>
+                        <SelectItem value='PPF'>PPF</SelectItem>
+                        <SelectItem value='PLDF'>PLDF</SelectItem>
+                        <SelectItem value='PLF'>PLF</SelectItem>
+                        <SelectItem value='SEJUS'>SEJUS</SelectItem>
                       </SelectContent>
                     </Select>
                     {errors.orgaoOrigem && (

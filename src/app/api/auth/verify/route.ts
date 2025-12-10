@@ -6,7 +6,7 @@ const SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key';
 
 export async function GET() {
   const cookieStore = await cookies();
-  const token = cookieStore.get('token');
+  const token = cookieStore.get('session');
 
   if (!token) {
     return NextResponse.json({ success: false }, { status: 401 });

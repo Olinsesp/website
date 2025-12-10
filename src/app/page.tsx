@@ -70,13 +70,13 @@ export default function Home() {
     },
     {
       icon: Trophy,
-      title: '15+',
+      title: '19',
       description: 'modalidades esportivas',
       color: 'text-azul-olinsesp',
     },
     {
       icon: Users,
-      title: '500+',
+      title: '2000+',
       description: 'atletas participantes',
       color: 'text-azul-olinsesp',
     },

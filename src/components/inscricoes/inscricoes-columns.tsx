@@ -41,7 +41,8 @@ export const getInscricoesBaseColumns = (): ColumnDef<Inscricao>[] => [
   {
     accessorKey: 'modalidades',
     header: 'Modalidades',
-    cell: ({ row }) => row.original.modalidades.join(', '),
+    cell: ({ row }) =>
+      row.original.modalidades.map((m: any) => m.nome).join(', '),
   },
   {
     accessorKey: 'status',

@@ -9,6 +9,7 @@ export interface Inscricao {
   lotacao: string;
   orgaoOrigem: string;
   matricula: string;
+  sexo: string;
   modalidades: string[];
   status?: 'aprovada' | 'pendente' | 'rejeitada';
   createdAt?: string;

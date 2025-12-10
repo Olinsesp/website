@@ -1,11 +1,58 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
+import bcrypt from 'bcrypt';
+import { UserRole } from '@prisma/client';
 
 async function main() {
+  console.log('Start seeding...');
+
+  // 1. LIMPAR DADOS EXISTENTES
+  console.log('Limpando dados existentes...');
+  await prisma.inscricaoModalidade.deleteMany({});
+  await prisma.inscricao.deleteMany({});
+  await prisma.modalidade.deleteMany({});
+  console.log('Dados limpos com sucesso.');
+
+  // 0. CRIAR USUÁRIOS PADRÃO
+  console.log('Criando usuários do sistema...');
+
+  const orgaos = [
+    'PMDF',
+    'CBMDF',
+    'PCDF',
+    'PRF',
+    'SSP-DF',
+    'DETRAN-DF',
+    'PF',
+    'PPDF',
+    'PPF',
+    'PLDF',
+    'PLF',
+    'SEJUS',
+  ];
+
+  const usuariosData = await Promise.all(
+    orgaos.map(async (o) => ({
+      nome: `Ponto Focal ${o}`,
+      username: o,
+      password: await bcrypt.hash(o, 10),
+      orgaoDeOrigem: o,
+      role: o === 'SSP-DF' ? UserRole.ADMIN : UserRole.PONTOFOCAL,
+    })),
+  );
+
+  await prisma.user.createMany({
+    data: usuariosData,
+  });
+
+  console.log('Usuários criados com sucesso!');
+
+  // 2. CRIAR MODALIDADES
+  console.log('Criando modalidades...');
   await prisma.modalidade.createMany({
     data: [
       // -----------------------------------------------------------
-      // XADREZ
+      // XADREZ (Categoria Mista)
       // -----------------------------------------------------------
       {
         nome: 'Xadrez',
@@ -18,13 +65,12 @@ async function main() {
         horario: '09:00',
         regras: ['Sistema suíço', 'Partidas rápidas'],
         premios: ['Medalhas', 'Troféu'],
-        modalidadesSexo: ['Masculino', 'Feminino'],
-        faixaEtaria: [],
+        modalidadesSexo: ['Misto'],
         divisoes: [],
       },
 
       // -----------------------------------------------------------
-      // FUTSAL
+      // FUTSAL (Masc + Fem)
       // -----------------------------------------------------------
       {
         nome: 'Futebol de Salão',
@@ -38,12 +84,11 @@ async function main() {
         regras: ['Partidas de 40 minutos', '5 jogadores em quadra'],
         premios: ['Medalhas', 'Troféu'],
         modalidadesSexo: ['Masculino', 'Feminino'],
-        faixaEtaria: [],
         divisoes: [],
       },
 
       // -----------------------------------------------------------
-      // FUTEBOL DE CAMPO
+      // FUTEBOL DE CAMPO (Somente Masculino)
       // -----------------------------------------------------------
       {
         nome: 'Futebol de Campo',
@@ -56,13 +101,13 @@ async function main() {
         horario: '16:00',
         regras: ['Onze jogadores', 'Dois tempos de 45 min'],
         premios: ['Medalhas', 'Troféu'],
-        modalidadesSexo: ['Masculino', 'Master 40+'],
+        modalidadesSexo: ['Masculino'],
         faixaEtaria: ['40+'],
         divisoes: [],
       },
 
       // -----------------------------------------------------------
-      // JIU-JITSU
+      // JIU-JITSU (Masc + Fem)
       // -----------------------------------------------------------
       {
         nome: 'Jiu-Jitsu',
@@ -86,43 +131,32 @@ async function main() {
           '40+ Fem',
         ],
         divisoes: [
-          // Faixa Branca – Masculino
           'Faixa Branca – Masculino – Até 66 kg',
           'Faixa Branca – Masculino – Até 73 kg',
           'Faixa Branca – Masculino – Até 81 kg',
           'Faixa Branca – Masculino – Até 90 kg',
           'Faixa Branca – Masculino – Até 100 kg',
           'Faixa Branca – Masculino – +100 kg',
-
-          // Faixa Branca – Feminino
           'Faixa Branca – Feminino – Até 57 kg',
           'Faixa Branca – Feminino – Até 63 kg',
           'Faixa Branca – Feminino – Até 70 kg',
           'Faixa Branca – Feminino – +70 kg',
-
-          // Faixa Azul e Faixa Roxa – Masculino
           'Faixa Azul e Faixa Roxa – Masculino – Até 66 kg',
           'Faixa Azul e Faixa Roxa – Masculino – Até 73 kg',
           'Faixa Azul e Faixa Roxa – Masculino – Até 81 kg',
           'Faixa Azul e Faixa Roxa – Masculino – Até 90 kg',
           'Faixa Azul e Faixa Roxa – Masculino – Até 100 kg',
           'Faixa Azul e Faixa Roxa – Masculino – +100 kg',
-
-          // Faixa Azul e Faixa Roxa – Feminino
           'Faixa Azul e Faixa Roxa – Feminino – Até 57 kg',
           'Faixa Azul e Faixa Roxa – Feminino – Até 63 kg',
           'Faixa Azul e Faixa Roxa – Feminino – Até 70 kg',
           'Faixa Azul e Faixa Roxa – Feminino – +70 kg',
-
-          // Faixa Marrom e Faixa Preta – Masculino
           'Faixa Marrom e Faixa Preta – Masculino – Até 66 kg',
           'Faixa Marrom e Faixa Preta – Masculino – Até 73 kg',
           'Faixa Marrom e Faixa Preta – Masculino – Até 81 kg',
           'Faixa Marrom e Faixa Preta – Masculino – Até 90 kg',
           'Faixa Marrom e Faixa Preta – Masculino – Até 100 kg',
           'Faixa Marrom e Faixa Preta – Masculino – +100 kg',
-
-          // Faixa Marrom e Faixa Preta – Feminino
           'Faixa Marrom e Faixa Preta – Feminino – Até 57 kg',
           'Faixa Marrom e Faixa Preta – Feminino – Até 63 kg',
           'Faixa Marrom e Faixa Preta – Feminino – Até 70 kg',
@@ -131,7 +165,7 @@ async function main() {
       },
 
       // -----------------------------------------------------------
-      // JUDÔ
+      // JUDÔ (Masc + Fem)
       // -----------------------------------------------------------
       {
         nome: 'Judô',
@@ -155,43 +189,32 @@ async function main() {
           '40+ Fem',
         ],
         divisoes: [
-          // Faixa Branca – Masculino
           'Faixa Branca – Masculino – Até 66 kg',
           'Faixa Branca – Masculino – Até 73 kg',
           'Faixa Branca – Masculino – Até 81 kg',
           'Faixa Branca – Masculino – Até 90 kg',
           'Faixa Branca – Masculino – Até 100 kg',
           'Faixa Branca – Masculino – +100 kg',
-
-          // Faixa Branca – Feminino
           'Faixa Branca – Feminino – Até 57 kg',
           'Faixa Branca – Feminino – Até 63 kg',
           'Faixa Branca – Feminino – Até 70 kg',
           'Faixa Branca – Feminino – +70 kg',
-
-          // Faixa Azul e Faixa Roxa – Masculino
           'Faixa Azul e Faixa Roxa – Masculino – Até 66 kg',
           'Faixa Azul e Faixa Roxa – Masculino – Até 73 kg',
           'Faixa Azul e Faixa Roxa – Masculino – Até 81 kg',
           'Faixa Azul e Faixa Roxa – Masculino – Até 90 kg',
           'Faixa Azul e Faixa Roxa – Masculino – Até 100 kg',
           'Faixa Azul e Faixa Roxa – Masculino – +100 kg',
-
-          // Faixa Azul e Faixa Roxa – Feminino
           'Faixa Azul e Faixa Roxa – Feminino – Até 57 kg',
           'Faixa Azul e Faixa Roxa – Feminino – Até 63 kg',
           'Faixa Azul e Faixa Roxa – Feminino – Até 70 kg',
           'Faixa Azul e Faixa Roxa – Feminino – +70 kg',
-
-          // Faixa Marrom e Faixa Preta – Masculino
           'Faixa Marrom e Faixa Preta – Masculino – Até 66 kg',
           'Faixa Marrom e Faixa Preta – Masculino – Até 73 kg',
           'Faixa Marrom e Faixa Preta – Masculino – Até 81 kg',
           'Faixa Marrom e Faixa Preta – Masculino – Até 90 kg',
           'Faixa Marrom e Faixa Preta – Masculino – Até 100 kg',
           'Faixa Marrom e Faixa Preta – Masculino – +100 kg',
-
-          // Faixa Marrom e Faixa Preta – Feminino
           'Faixa Marrom e Faixa Preta – Feminino – Até 57 kg',
           'Faixa Marrom e Faixa Preta – Feminino – Até 63 kg',
           'Faixa Marrom e Faixa Preta – Feminino – Até 70 kg',
@@ -200,7 +223,7 @@ async function main() {
       },
 
       // -----------------------------------------------------------
-      // NATAÇÃO
+      // NATAÇÃO (Masc + Fem)
       // -----------------------------------------------------------
       {
         nome: 'Natação',
@@ -213,7 +236,7 @@ async function main() {
         horario: '09:00',
         regras: ['Regras da FINA'],
         premios: ['Medalhas'],
-        modalidadesSexo: ['Masculino', 'Feminino', 'Master'],
+        modalidadesSexo: ['Masculino', 'Feminino'],
         faixaEtaria: ['Masculino 45+', 'Feminino 40+'],
         divisoes: [
           '50m Livre',
@@ -227,7 +250,7 @@ async function main() {
       },
 
       // -----------------------------------------------------------
-      // VÔLEI DE QUADRA
+      // VÔLEI DE QUADRA (Masc + Fem)
       // -----------------------------------------------------------
       {
         nome: 'Vôlei de Quadra',
@@ -241,12 +264,11 @@ async function main() {
         regras: ['Melhor de 5 sets'],
         premios: ['Medalhas', 'Troféu'],
         modalidadesSexo: ['Masculino', 'Feminino'],
-        faixaEtaria: [],
         divisoes: [],
       },
 
       // -----------------------------------------------------------
-      // VÔLEI DE PRAIA
+      // VÔLEI DE PRAIA (Masc + Fem)
       // -----------------------------------------------------------
       {
         nome: 'Vôlei de Praia',
@@ -260,12 +282,11 @@ async function main() {
         regras: ['Melhor de 3 sets'],
         premios: ['Medalhas', 'Troféu'],
         modalidadesSexo: ['Masculino', 'Feminino'],
-        faixaEtaria: [],
         divisoes: [],
       },
 
       // -----------------------------------------------------------
-      // DOMINÓ
+      // DOMINÓ (Misto)
       // -----------------------------------------------------------
       {
         nome: 'Dominó',
@@ -278,13 +299,12 @@ async function main() {
         horario: '13:00',
         regras: ['Melhor de 3 partidas'],
         premios: ['Medalhas'],
-        modalidadesSexo: ['Masculino', 'Feminino'],
-        faixaEtaria: [],
+        modalidadesSexo: ['Misto'],
         divisoes: [],
       },
 
       // -----------------------------------------------------------
-      // TÊNIS DE MESA
+      // TÊNIS DE MESA (Masc + Fem)
       // -----------------------------------------------------------
       {
         nome: 'Tênis de Mesa',
@@ -298,12 +318,11 @@ async function main() {
         regras: ['Melhor de 5 sets'],
         premios: ['Medalhas'],
         modalidadesSexo: ['Masculino', 'Feminino'],
-        faixaEtaria: [],
         divisoes: [],
       },
 
       // -----------------------------------------------------------
-      // TRIATHLON
+      // TRIATHLON (Masc + Fem)
       // -----------------------------------------------------------
       {
         nome: 'Triathlon',
@@ -322,7 +341,7 @@ async function main() {
       },
 
       // -----------------------------------------------------------
-      // CABO DE GUERRA
+      // CABO DE GUERRA (Masc + Fem)
       // -----------------------------------------------------------
       {
         nome: 'Cabo de Guerra',
@@ -336,12 +355,11 @@ async function main() {
         regras: ['Equipes de 6 atletas'],
         premios: ['Medalhas'],
         modalidadesSexo: ['Masculino', 'Feminino'],
-        faixaEtaria: [],
         divisoes: [],
       },
 
       // -----------------------------------------------------------
-      // ATLETISMO
+      // ATLETISMO (Masc + Fem)
       // -----------------------------------------------------------
       {
         nome: 'Atletismo',
@@ -354,13 +372,13 @@ async function main() {
         horario: '08:00',
         regras: ['Regras da World Athletics'],
         premios: ['Medalhas'],
-        modalidadesSexo: ['Masculino', 'Feminino', 'Master'],
+        modalidadesSexo: ['Masculino', 'Feminino'],
         faixaEtaria: ['Masculino 45+', 'Feminino 40+'],
         divisoes: ['100m', '200m', '400m', '800m', '1500m', '5000m', '10 km'],
       },
 
       // -----------------------------------------------------------
-      // BASQUETEBOL
+      // BASQUETEBOL (Masc + Fem)
       // -----------------------------------------------------------
       {
         nome: 'Basquetebol',
@@ -374,12 +392,11 @@ async function main() {
         regras: ['Partidas de 4 tempos'],
         premios: ['Medalhas', 'Troféu'],
         modalidadesSexo: ['Masculino', 'Feminino'],
-        faixaEtaria: [],
         divisoes: [],
       },
 
       // -----------------------------------------------------------
-      // BEACH TÊNIS
+      // BEACH TÊNIS (Masc + Fem)
       // -----------------------------------------------------------
       {
         nome: 'Beach Tênis',
@@ -393,12 +410,11 @@ async function main() {
         regras: ['Melhor de 3 sets'],
         premios: ['Medalhas'],
         modalidadesSexo: ['Masculino', 'Feminino'],
-        faixaEtaria: [],
         divisoes: [],
       },
 
       // -----------------------------------------------------------
-      // FUTEVÔLEI
+      // FUTEVÔLEI (Masc + Fem)
       // -----------------------------------------------------------
       {
         nome: 'Futevôlei',
@@ -412,12 +428,11 @@ async function main() {
         regras: ['Melhor de 3 sets'],
         premios: ['Medalhas'],
         modalidadesSexo: ['Masculino', 'Feminino'],
-        faixaEtaria: [],
         divisoes: [],
       },
 
       // -----------------------------------------------------------
-      // CALISTENIA
+      // CALISTENIA (Masc + Fem)
       // -----------------------------------------------------------
       {
         nome: 'Calistenia',
@@ -431,12 +446,11 @@ async function main() {
         regras: ['Regras específicas por aparelho'],
         premios: ['Medalhas'],
         modalidadesSexo: ['Masculino', 'Feminino'],
-        faixaEtaria: [],
         divisoes: [],
       },
 
       // -----------------------------------------------------------
-      // TRUCO
+      // TRUCO (Misto)
       // -----------------------------------------------------------
       {
         nome: 'Truco',
@@ -449,13 +463,12 @@ async function main() {
         horario: '14:00',
         regras: ['Melhor de 3 partidas'],
         premios: ['Medalhas'],
-        modalidadesSexo: ['Masculino', 'Feminino'],
-        faixaEtaria: [],
+        modalidadesSexo: ['Misto'],
         divisoes: [],
       },
 
       // -----------------------------------------------------------
-      // CORRIDA DE ORIENTAÇÃO
+      // CORRIDA DE ORIENTAÇÃO (Mista)
       // -----------------------------------------------------------
       {
         nome: 'Corrida de Orientação',
@@ -468,7 +481,7 @@ async function main() {
         horario: '07:00',
         regras: ['Prova Sprint e Floresta'],
         premios: ['Medalhas'],
-        modalidadesSexo: ['Masculino', 'Feminino'],
+        modalidadesSexo: ['Misto'],
         faixaEtaria: [
           'Mulheres até 40',
           'Homens até 40',
@@ -481,392 +494,12 @@ async function main() {
       },
     ],
   });
-
-  // ============================================================
-  // 2. BUSCA TODAS AS MODALIDADES PARA PEGAR OS IDs
-  // ============================================================
-  const modalidades = await prisma.modalidade.findMany();
-  const getId = (nome: string) =>
-    modalidades.find((m) => m.nome === nome)?.id || '';
-
-  // ============================================================
-  // 3. LISTA DE ÓRGÃOS
-  // ============================================================
-  const ORGAOS = [
-    'SSP',
-    'CBMDF',
-    'PMDF',
-    'PCDF',
-    'DETRAN-DF',
-    'PF',
-    'PPDF',
-    'PPF',
-    'PLDF',
-    'PLF',
-    'PRF',
-    'SEJUS',
-  ];
-
-  // ============================================================
-  // 4. CRIA INSCRIÇÕES (EXEMPLOS)
-  // ============================================================
-  const inscricoesCriadas = await prisma.inscricao.createMany({
-    data: [
-      {
-        nome: 'Ana Souza',
-        email: 'ana.souza@example.com',
-        cpf: '11111111111',
-        dataNascimento: new Date('1992-01-12'),
-        telefone: '61999110000',
-        sexo: 'Feminino',
-        camiseta: 'P',
-        lotacao: 'SSP',
-        orgaoOrigem: 'SSP',
-        matricula: '004',
-        status: 'pendente',
-      },
-      {
-        nome: 'Bruno Oliveira',
-        email: 'bruno.oliveira@example.com',
-        cpf: '22222222222',
-        dataNascimento: new Date('1988-03-22'),
-        telefone: '61999220000',
-        sexo: 'Masculino',
-        camiseta: 'M',
-        lotacao: 'CBMDF',
-        orgaoOrigem: 'CBMDF',
-        matricula: '005',
-        status: 'pendente',
-      },
-      {
-        nome: 'Carla Menezes',
-        email: 'carla.menezes@example.com',
-        cpf: '33333333333',
-        dataNascimento: new Date('1995-07-09'),
-        telefone: '61999330000',
-        sexo: 'Feminino',
-        camiseta: 'PP',
-        lotacao: 'PMDF',
-        orgaoOrigem: 'PMDF',
-        matricula: '006',
-        status: 'pendente',
-      },
-      {
-        nome: 'Diego Santos',
-        email: 'diego.santos@example.com',
-        cpf: '44444444444',
-        dataNascimento: new Date('1984-11-02'),
-        telefone: '61999440000',
-        sexo: 'Masculino',
-        camiseta: 'G',
-        lotacao: 'PCDF',
-        orgaoOrigem: 'PCDF',
-        matricula: '007',
-        status: 'pendente',
-      },
-      {
-        nome: 'Eduarda Martins',
-        email: 'eduarda.martins@example.com',
-        cpf: '55555555555',
-        dataNascimento: new Date('1991-12-20'),
-        telefone: '61999550000',
-        sexo: 'Feminino',
-        camiseta: 'M',
-        lotacao: 'DETRAN-DF',
-        orgaoOrigem: 'DETRAN-DF',
-        matricula: '008',
-        status: 'pendente',
-      },
-      {
-        nome: 'Felipe Ramos',
-        email: 'felipe.ramos@example.com',
-        cpf: '66666666666',
-        dataNascimento: new Date('1987-09-17'),
-        telefone: '61999660000',
-        sexo: 'Masculino',
-        camiseta: 'GG',
-        lotacao: 'PF',
-        orgaoOrigem: 'PF',
-        matricula: '009',
-        status: 'pendente',
-      },
-      {
-        nome: 'Gabriela Lima',
-        email: 'gabriela.lima@example.com',
-        cpf: '77777777777',
-        dataNascimento: new Date('1993-05-14'),
-        telefone: '61999770000',
-        sexo: 'Feminino',
-        camiseta: 'M',
-        lotacao: 'PPDF',
-        orgaoOrigem: 'PPDF',
-        matricula: '010',
-        status: 'pendente',
-      },
-      {
-        nome: 'Henrique Castro',
-        email: 'henrique.castro@example.com',
-        cpf: '88888888888',
-        dataNascimento: new Date('1989-04-10'),
-        telefone: '61999880000',
-        sexo: 'Masculino',
-        camiseta: 'G',
-        lotacao: 'PPF',
-        orgaoOrigem: 'PPF',
-        matricula: '011',
-        status: 'pendente',
-      },
-      {
-        nome: 'Isabela Rocha',
-        email: 'isabela.rocha@example.com',
-        cpf: '99999999999',
-        dataNascimento: new Date('1994-02-02'),
-        telefone: '61999990001',
-        sexo: 'Feminino',
-        camiseta: 'P',
-        lotacao: 'PLDF',
-        orgaoOrigem: 'PLDF',
-        matricula: '012',
-        status: 'pendente',
-      },
-      {
-        nome: 'João Pedro Almeida',
-        email: 'joaopedro.almeida@example.com',
-        cpf: '10101010101',
-        dataNascimento: new Date('1986-10-19'),
-        telefone: '61999990002',
-        sexo: 'Masculino',
-        camiseta: 'M',
-        lotacao: 'PLF',
-        orgaoOrigem: 'PLF',
-        matricula: '013',
-        status: 'pendente',
-      },
-      {
-        nome: 'Karen Luz',
-        email: 'karen.luz@example.com',
-        cpf: '12121212121',
-        dataNascimento: new Date('1990-08-30'),
-        telefone: '61999990003',
-        sexo: 'Feminino',
-        camiseta: 'PP',
-        lotacao: 'PRF',
-        orgaoOrigem: 'PRF',
-        matricula: '014',
-        status: 'pendente',
-      },
-      {
-        nome: 'Lucas Vieira',
-        email: 'lucas.vieira@example.com',
-        cpf: '13131313131',
-        dataNascimento: new Date('1982-07-03'),
-        telefone: '61999990004',
-        sexo: 'Masculino',
-        camiseta: 'GG',
-        lotacao: 'SEJUS',
-        orgaoOrigem: 'SEJUS',
-        matricula: '015',
-        status: 'pendente',
-      },
-      {
-        nome: 'Mariana Barros',
-        email: 'mariana.barros@example.com',
-        cpf: '14141414141',
-        dataNascimento: new Date('1996-06-11'),
-        telefone: '61999990005',
-        sexo: 'Feminino',
-        camiseta: 'M',
-        lotacao: 'SSP',
-        orgaoOrigem: 'SSP',
-        matricula: '016',
-        status: 'pendente',
-      },
-      {
-        nome: 'Nicolas Duarte',
-        email: 'nicolas.duarte@example.com',
-        cpf: '15151515151',
-        dataNascimento: new Date('1983-03-08'),
-        telefone: '61999990006',
-        sexo: 'Masculino',
-        camiseta: 'G',
-        lotacao: 'CBMDF',
-        orgaoOrigem: 'CBMDF',
-        matricula: '017',
-        status: 'pendente',
-      },
-      {
-        nome: 'Olivia Sena',
-        email: 'olivia.sena@example.com',
-        cpf: '16161616161',
-        dataNascimento: new Date('1991-04-27'),
-        telefone: '61999990007',
-        sexo: 'Feminino',
-        camiseta: 'P',
-        lotacao: 'PMDF',
-        orgaoOrigem: 'PMDF',
-        matricula: '018',
-        status: 'pendente',
-      },
-      {
-        nome: 'Paulo Gama',
-        email: 'paulo.gama@example.com',
-        cpf: '17171717171',
-        dataNascimento: new Date('1980-12-01'),
-        telefone: '61999990008',
-        sexo: 'Masculino',
-        camiseta: 'GG',
-        lotacao: 'PCDF',
-        orgaoOrigem: 'PCDF',
-        matricula: '019',
-        status: 'pendente',
-      },
-      {
-        nome: 'Queila Moreira',
-        email: 'queila.moreira@example.com',
-        cpf: '18181818181',
-        dataNascimento: new Date('1997-09-15'),
-        telefone: '61999990009',
-        sexo: 'Feminino',
-        camiseta: 'M',
-        lotacao: 'DETRAN-DF',
-        orgaoOrigem: 'DETRAN-DF',
-        matricula: '020',
-        status: 'pendente',
-      },
-      {
-        nome: 'Rodrigo Torres',
-        email: 'rodrigo.torres@example.com',
-        cpf: '19191919191',
-        dataNascimento: new Date('1988-01-22'),
-        telefone: '61999990010',
-        sexo: 'Masculino',
-        camiseta: 'G',
-        lotacao: 'PF',
-        orgaoOrigem: 'PF',
-        matricula: '021',
-        status: 'pendente',
-      },
-      {
-        nome: 'Sabrina Vidal',
-        email: 'sabrina.vidal@example.com',
-        cpf: '20202020202',
-        dataNascimento: new Date('1992-10-09'),
-        telefone: '61999990011',
-        sexo: 'Feminino',
-        camiseta: 'P',
-        lotacao: 'PPDF',
-        orgaoOrigem: 'PPDF',
-        matricula: '022',
-        status: 'pendente',
-      },
-      {
-        nome: 'Tiago Porto',
-        email: 'tiago.porto@example.com',
-        cpf: '21212121212',
-        dataNascimento: new Date('1984-02-18'),
-        telefone: '61999990012',
-        sexo: 'Masculino',
-        camiseta: 'M',
-        lotacao: 'PPF',
-        orgaoOrigem: 'PPF',
-        matricula: '023',
-        status: 'pendente',
-      },
-      {
-        nome: 'Úrsula Farias',
-        email: 'ursula.farias@example.com',
-        cpf: '23232323232',
-        dataNascimento: new Date('1993-11-29'),
-        telefone: '61999990013',
-        sexo: 'Feminino',
-        camiseta: 'PP',
-        lotacao: 'PLDF',
-        orgaoOrigem: 'PLDF',
-        matricula: '024',
-        status: 'pendente',
-      },
-      {
-        nome: 'Vitor Nunes',
-        email: 'vitor.nunes@example.com',
-        cpf: '24242424242',
-        dataNascimento: new Date('1985-07-06'),
-        telefone: '61999990014',
-        sexo: 'Masculino',
-        camiseta: 'G',
-        lotacao: 'PLF',
-        orgaoOrigem: 'PLF',
-        matricula: '025',
-        status: 'pendente',
-      },
-      {
-        nome: 'Wendy Azevedo',
-        email: 'wendy.azevedo@example.com',
-        cpf: '25252525252',
-        dataNascimento: new Date('1994-08-21'),
-        telefone: '61999990015',
-        sexo: 'Feminino',
-        camiseta: 'M',
-        lotacao: 'PRF',
-        orgaoOrigem: 'PRF',
-        matricula: '026',
-        status: 'pendente',
-      },
-      {
-        nome: 'Yago Ribeiro',
-        email: 'yago.ribeiro@example.com',
-        cpf: '26262626262',
-        dataNascimento: new Date('1983-06-19'),
-        telefone: '61999990016',
-        sexo: 'Masculino',
-        camiseta: 'GG',
-        lotacao: 'SEJUS',
-        orgaoOrigem: 'SEJUS',
-        matricula: '027',
-        status: 'pendente',
-      },
-    ],
-  });
-
-  console.log('Inscrições criadas!');
-
-  // ============================================================
-  // 5. RELACIONAR INSCRIÇÕES ÀS MODALIDADES
-  // ============================================================
-  const inscricoes = await prisma.inscricao.findMany();
-
-  await prisma.inscricaoModalidade.createMany({
-    data: [
-      // João Silva → Xadrez + Atletismo
-      {
-        inscricaoId: inscricoes[0].id,
-        modalidadeId: getId('Xadrez'),
-      },
-      {
-        inscricaoId: inscricoes[0].id,
-        modalidadeId: getId('Atletismo'),
-      },
-
-      // Maria Ferreira → Natação
-      {
-        inscricaoId: inscricoes[1].id,
-        modalidadeId: getId('Natação'),
-      },
-
-      // Carlos Andrade → Futebol de Salão
-      {
-        inscricaoId: inscricoes[2].id,
-        modalidadeId: getId('Futebol de Salão'),
-      },
-    ],
-  });
-
-  console.log('InscriçãoModalidade criada!');
-  console.log('Seed finalizado com sucesso!');
+  console.log('Modalidades criadas.');
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error('Erro durante o seeding:', e);
     process.exit(1);
   })
   .finally(async () => {

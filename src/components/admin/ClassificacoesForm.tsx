@@ -1,5 +1,3 @@
-'use client';
-
 import { useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -34,17 +32,17 @@ import { ColumnDef } from '@tanstack/react-table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const orgaos = [
-  'SSP',
-  'CBMDF',
   'PMDF',
+  'CBMDF',
   'PCDF',
+  'PRF',
+  'SSP-DF',
   'DETRAN-DF',
   'PF',
   'PPDF',
   'PPF',
   'PLDF',
   'PLF',
-  'PRF',
   'SEJUS',
 ];
 
@@ -53,7 +51,6 @@ const classificacaoSchema = z.object({
   posicao: z.coerce.number().min(1, 'Posição é obrigatória'),
   inscricaoId: z.string().optional(),
   lotacao: z.string().optional(),
-  pontuacao: z.coerce.number().min(0, 'Pontuação é obrigatória'),
   tempo: z.string().optional(),
   distancia: z.string().optional(),
   observacoes: z.string().optional(),
@@ -165,6 +162,7 @@ export default function ClassificacoesForm() {
   });
 
   const watchedModalidadeId = watch('modalidadeId');
+
   const watchedDynamicFields = useMemo(
     () => watch('dynamicFields') || {},
     [watch],
@@ -341,7 +339,10 @@ export default function ClassificacoesForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      if (!response.ok) throw new Error('Erro ao salvar classificação');
+      if (!response.ok) {
+        const errorBody = await response.json();
+        throw new Error(errorBody.error);
+      }
       return response;
     },
     onSuccess: () => {
@@ -381,7 +382,6 @@ export default function ClassificacoesForm() {
       header: 'Posição',
       cell: ({ row }) => `${row.original.posicao}º`,
     },
-    { accessorKey: 'pontuacao', header: 'Pontuação' },
     {
       accessorKey: 'lotacao',
       header: 'Lotação',
@@ -424,7 +424,6 @@ export default function ClassificacoesForm() {
     setValue('posicao', classificacao.posicao);
     setValue('inscricaoId', classificacao.inscricaoId || '');
     setValue('lotacao', classificacao.lotacao || '');
-    setValue('pontuacao', classificacao.pontuacao);
     setValue('tempo', classificacao.tempo || '');
     setValue('distancia', classificacao.distancia || '');
     setValue('observacoes', classificacao.observacoes || '');
@@ -593,21 +592,6 @@ export default function ClassificacoesForm() {
                     </p>
                   )}
                 </div>
-
-                <div className='space-y-2'>
-                  <Label htmlFor='pontuacao'>Pontuação *</Label>
-                  <Input
-                    id='pontuacao'
-                    type='number'
-                    {...register('pontuacao')}
-                  />
-                  {errors.pontuacao && (
-                    <p className='text-sm text-vermelho-olinsesp'>
-                      {errors.pontuacao.message}
-                    </p>
-                  )}
-                </div>
-
                 {tipoProva === 'Coletiva' && (
                   <div className='space-y-2'>
                     <Label htmlFor='atleta'>Equipe</Label>

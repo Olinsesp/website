@@ -1,26 +1,43 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const SECRET_KEY = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'your-secret-key',
-);
+const getJwtSecret = () => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET is not defined in environment variables.');
+  }
+  return new TextEncoder().encode(secret);
+};
 
-export async function middleware(req: NextRequest) {
-  const token = req.cookies.get('token')?.value;
+export async function middleware(request: NextRequest) {
+  const sessionCookie = request.cookies.get('session');
 
-  if (!token) {
-    return NextResponse.redirect(new URL('/login', req.url));
+  if (!sessionCookie) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   try {
-    await jwtVerify(token, SECRET_KEY);
-    return NextResponse.next();
-  } catch {
-    return NextResponse.redirect(new URL('/login', req.url));
+    const { payload } = await jwtVerify(sessionCookie.value, getJwtSecret());
+
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set('x-user-id', payload.id as string);
+    requestHeaders.set('x-user-role', payload.role as string);
+    requestHeaders.set('x-user-orgao', payload.orgaoDeOrigem as string);
+
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
+  } catch (error) {
+    console.error('Middleware JWT verification error:', error);
+    // Clear the invalid cookie
+    const response = NextResponse.redirect(new URL('/login', request.url));
+    response.cookies.set('session', '', { maxAge: -1 });
+    return response;
   }
 }
 
 export const config = {
-  matcher: '/Dashboard',
+  matcher: '/Dashboard/:path*',
 };

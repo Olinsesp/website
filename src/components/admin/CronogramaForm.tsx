@@ -60,7 +60,6 @@ async function fetchModalidades(): Promise<Modalidade[]> {
     throw new Error('Erro ao carregar modalidades');
   }
   const data = await response.json();
-  console.log('Modalidades fetched:', data);
   return data.dados || data;
 }
 
@@ -310,14 +309,16 @@ export default function CronogramaForm() {
                 <div className='space-y-2'>
                   <Label htmlFor='modalidadeId'>Modalidade</Label>
                   <Select
-                    onValueChange={(value) => setValue('modalidadeId', value)}
+                    onValueChange={(value) => {
+                      setValue('modalidadeId', value === 'none' ? null : value);
+                    }}
                     value={watch('modalidadeId') || ''}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder='Selecione (opcional)' />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value=''>Nenhuma</SelectItem>
+                      <SelectItem value='none'>Nenhuma</SelectItem>
                       {modalidades.map((m) => (
                         <SelectItem key={m.id} value={m.id}>
                           {m.nome}

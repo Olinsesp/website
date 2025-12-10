@@ -1,8 +1,17 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { z } from 'zod';
 import nodemailer from 'nodemailer';
 import { prisma } from '@/lib/prisma';
 import { Inscricao } from '@/types/inscricao';
+import { Prisma } from '@prisma/client';
+
+const modalidadeSelectionSchema = z.object({
+  modalidadeId: z.string(),
+  sexo: z.string().optional(),
+  divisao: z.string().optional(),
+  categoria: z.string().optional(),
+  faixaEtaria: z.string().optional(),
+});
 
 const inscricaoSchema = z.object({
   nome: z
@@ -11,58 +20,70 @@ const inscricaoSchema = z.object({
   email: z.email({ message: 'Email inválido.' }),
   cpf: z
     .string()
-    .min(11, { message: 'CPF deve ter 11 caracteres.' })
-    .max(11, { message: 'CPF deve ter 11 caracteres.' })
+    .length(11, { message: 'CPF deve ter 11 caracteres numéricos.' })
     .regex(/^\d+$/, { message: 'CPF deve conter apenas números.' }),
-  dataNascimento: z.coerce.date(),
+  dataNascimento: z.coerce
+    .date()
+    .refine((d) => d instanceof Date && !isNaN(d.getTime()), {
+      message: 'Data de nascimento inválida.',
+    }),
+
   telefone: z.string().min(10, { message: 'Telefone inválido.' }),
-  sexo: z.enum(['m', 'f']).optional(),
+  sexo: z.enum(['Masculino', 'Feminino']).optional(),
   camiseta: z.string().min(1, { message: 'Selecione um tamanho de camiseta.' }),
   lotacao: z.string(),
   orgaoOrigem: z.string(),
   matricula: z
     .string()
-    .min(5, { message: 'Matrícula deve ter ao menos 5 caracteres.' }),
+    .min(5, { message: 'Matrícula deve ter ao menos 5 caracteres.' })
+    .regex(/^\d+$/, { message: 'Matrícula deve conter apenas números.' }),
   modalidades: z
-    .array(z.string())
+    .array(modalidadeSelectionSchema)
     .min(1, { message: 'Selecione ao menos uma modalidade.' }),
+  status: z.enum(['pendente', 'aprovada', 'rejeitada']).optional(),
 });
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const headerList = request.headers;
+    const userRole = headerList.get('x-user-role');
+    const userOrgao = headerList.get('x-user-orgao');
+
+    let whereClause: Prisma.InscricaoWhereInput = {};
+
+    if (userRole === 'PONTOFOCAL' && userOrgao) {
+      whereClause = {
+        orgaoOrigem: userOrgao,
+      };
+    }
+
     const inscricoes = await prisma.inscricao.findMany({
+      where: whereClause,
       include: {
-        modalidades: {
-          include: {
-            modalidade: true,
-          },
-        },
+        modalidades: { include: { modalidade: true } },
       },
       orderBy: { createdAt: 'desc' },
     });
 
-    const inscricoesFormatadas = inscricoes.map((inscricao) => ({
-      id: inscricao.id,
-      nome: inscricao.nome,
-      email: inscricao.email,
-      cpf: inscricao.cpf,
-      dataNascimento: inscricao.dataNascimento.toISOString(),
-      telefone: inscricao.telefone,
-      sexo: inscricao.sexo,
-      camiseta: inscricao.camiseta,
-      lotacao: inscricao.lotacao,
-      orgaoOrigem: inscricao.orgaoOrigem,
-      matricula: inscricao.matricula,
-      modalidades: inscricao.modalidades.map((im) => im.modalidade.nome),
-      status: inscricao.status,
-      createdAt: inscricao.createdAt.toISOString(),
-    }));
-
-    return NextResponse.json(inscricoesFormatadas);
-  } catch (error) {
-    console.error('Erro ao buscar inscrições:', error);
     return NextResponse.json(
-      { error: 'Ocorreu um erro no servidor ao buscar as inscrições.' },
+      inscricoes.map((i) => ({
+        ...i,
+        dataNascimento: i.dataNascimento.toISOString(),
+        createdAt: i.createdAt.toISOString(),
+        modalidades: i.modalidades.map((m) => ({
+          modalidadeId: m.modalidadeId,
+          nome: m.modalidade.nome,
+          sexo: m.sexo,
+          divisao: m.divisao,
+          categoria: m.categoria,
+          faixaEtaria: m.faixaEtaria,
+        })),
+      })),
+    );
+  } catch (error) {
+    console.error('❌ Erro GET inscrições:', error);
+    return NextResponse.json(
+      { error: 'Falha ao buscar inscrições.' },
       { status: 500 },
     );
   }
@@ -70,33 +91,25 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const data = await req.json();
-    const validatedData = inscricaoSchema.parse(data);
+    const json = await req.json();
 
-    const { modalidades: modalidadesNomes, ...dadosInscricao } = validatedData;
+    // validação detalhada
+    const validatedData = inscricaoSchema.parse(json);
 
-    const modalidades = await prisma.modalidade.findMany({
-      where: {
-        nome: {
-          in: modalidadesNomes,
-        },
-      },
-    });
-
-    if (modalidades.length !== modalidadesNomes.length) {
-      return NextResponse.json(
-        { error: 'Uma ou mais modalidades não foram encontradas.' },
-        { status: 400 },
-      );
-    }
+    const { modalidades: modalidadesSelections, ...dadosInscricao } =
+      validatedData;
 
     const novaInscricao = await prisma.inscricao.create({
       data: {
         ...dadosInscricao,
         dataNascimento: new Date(dadosInscricao.dataNascimento),
         modalidades: {
-          create: modalidades.map((modalidade) => ({
-            modalidadeId: modalidade.id,
+          create: modalidadesSelections.map((m) => ({
+            modalidadeId: m.modalidadeId,
+            sexo: m.sexo,
+            divisao: m.divisao,
+            categoria: m.categoria,
+            faixaEtaria: m.faixaEtaria,
           })),
         },
       },
@@ -104,59 +117,82 @@ export async function POST(req: Request) {
         modalidades: { include: { modalidade: true } },
       },
     });
-
-    sendEmail({
+    const emailData = {
       ...validatedData,
+      modalidades: novaInscricao.modalidades.map((m) => m.modalidade.nome),
       id: novaInscricao.id,
       status: novaInscricao.status,
       createdAt: novaInscricao.createdAt,
-    }).catch((err) => {
-      console.error('Erro ao enviar email', err.message);
-    });
-
-    const inscricaoFormatada = {
-      id: novaInscricao.id,
-      nome: novaInscricao.nome,
-      email: novaInscricao.email,
-      cpf: novaInscricao.cpf,
-      dataNascimento: novaInscricao.dataNascimento.toISOString(),
-      telefone: novaInscricao.telefone,
-      sexo: novaInscricao.sexo,
-      camiseta: novaInscricao.camiseta,
-      lotacao: novaInscricao.lotacao,
-      orgaoOrigem: novaInscricao.orgaoOrigem,
-      matricula: novaInscricao.matricula,
-      modalidades: novaInscricao.modalidades.map((im) => im.modalidade.nome),
-      status: novaInscricao.status,
-      createdAt: novaInscricao.createdAt.toISOString(),
     };
 
-    return NextResponse.json(inscricaoFormatada, { status: 201 });
-  } catch (error) {
+    sendEmail(emailData).catch((err) =>
+      console.error('❌ Erro ao enviar email:', err.message),
+    );
+
+    const resposta = {
+      ...novaInscricao,
+      dataNascimento: novaInscricao.dataNascimento.toISOString(),
+      createdAt: novaInscricao.createdAt.toISOString(),
+      modalidades: novaInscricao.modalidades.map((m) => ({
+        modalidadeId: m.modalidadeId,
+        nome: m.modalidade.nome,
+        sexo: m.sexo,
+        divisao: m.divisao,
+        categoria: m.categoria,
+        faixaEtaria: m.faixaEtaria,
+      })),
+    };
+
+    return NextResponse.json(resposta, { status: 201 });
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Dados de entrada inválidos.', details: error.message },
+        {
+          error: 'Dados inválidos.',
+          details: error.issues,
+        },
         { status: 400 },
       );
     }
 
-    console.error('Erro ao criar inscrição', error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      console.error('⚠️ Erro Prisma:', error);
+      if (error.code === 'P2002') {
+        const target = error.meta?.target as string[];
+        let errorMessage =
+          'Já existe uma inscrição com um ou mais dados únicos.';
+
+        if (target) {
+          if (target.includes('cpf')) {
+            errorMessage = 'O CPF informado já está cadastrado.';
+          } else if (target.includes('matricula')) {
+            errorMessage = 'A matrícula informada já está cadastrada.';
+          } else if (target.includes('email')) {
+            errorMessage = 'O email informado já está cadastrado.';
+          }
+        }
+
+        return NextResponse.json(
+          { error: errorMessage, meta: error.meta },
+          { status: 409 },
+        );
+      }
+    }
+
+    console.error('❌ Erro ao criar inscrição:', error);
     return NextResponse.json(
-      { error: 'Ocorreu um erro no servidor ao processar a inscrição.' },
+      { error: 'Erro interno ao processar a inscrição.' },
       { status: 500 },
     );
   }
 }
-
 async function sendEmail(
   inscricao: Omit<Inscricao, 'id' | 'status' | 'createdAt'> & {
-    sexo?: 'm' | 'f';
+    sexo?: 'Masculino' | 'Feminino';
   },
 ) {
   if (!process.env.GMAIL_USER || !process.env.GMAIL_PASSWORD) {
-    console.log(
-      'Credenciais de email não configuradas. Email não será enviado.',
-    );
+    console.warn('⚠️ Email não enviado: credenciais ausentes.');
     return;
   }
 
@@ -169,34 +205,29 @@ async function sendEmail(
   });
 
   const modalidades = await prisma.modalidade.findMany({
-    where: {
-      nome: {
-        in: inscricao.modalidades,
-      },
-    },
+    where: { nome: { in: inscricao.modalidades } },
   });
 
   const modalidadesHTML = modalidades
-    .map((modalidade) => {
-      const dataInicio = modalidade.dataInicio
-        ? new Date(modalidade.dataInicio).toLocaleDateString('pt-BR')
+    .map((m) => {
+      const dataInicio = m.dataInicio
+        ? new Date(m.dataInicio).toLocaleDateString('pt-BR')
         : 'A definir';
 
-      const dataFim = modalidade.dataFim
-        ? new Date(modalidade.dataFim).toLocaleDateString('pt-BR')
+      const dataFim = m.dataFim
+        ? new Date(m.dataFim).toLocaleDateString('pt-BR')
         : null;
 
       return `
         <div style="margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
-          <h3 style="margin: 0; color: #2563eb;">${modalidade.nome}</h3>
-          <p>${modalidade.descricao}</p>
-
-          <p><strong>Local:</strong> ${modalidade.local || 'A definir'}</p>
-          <p><strong>Data:</strong> 
-            ${dataInicio}${dataFim && dataFim !== dataInicio ? ` a ${dataFim}` : ''}
-          </p>
-          <p><strong>Horário:</strong> ${modalidade.horario || 'A definir'}</p>
-          <p><strong>Categoria:</strong> ${modalidade.categoria?.join(', ') || 'N/A'}</p>
+          <h3 style="margin: 0; color: #2563eb;">${m.nome}</h3>
+          <p>${m.descricao}</p>
+          <p><strong>Local:</strong> ${m.local || 'A definir'}</p>
+          <p><strong>Data:</strong> ${dataInicio}${
+            dataFim && dataFim !== dataInicio ? ` a ${dataFim}` : ''
+          }</p>
+          <p><strong>Horário:</strong> ${m.horario || 'A definir'}</p>
+          <p><strong>Categoria:</strong> ${m.categoria?.join(', ') || 'N/A'}</p>
         </div>
       `;
     })
@@ -204,7 +235,7 @@ async function sendEmail(
 
   const emailHTML = `
     <h2>Olá, ${inscricao.nome}!</h2>
-    <p>Sua inscrição foi confirmada.</p>
+    <p>Sua inscrição foi confirmada com sucesso.</p>
     <h3>Modalidades Selecionadas:</h3>
     ${modalidadesHTML}
   `;

@@ -53,10 +53,7 @@ export default function DashboardPage() {
     CBMDF: '#ff7f0e',
     PCDF: '#0f450fff',
     PRF: '#d62728',
-    DEPEN: '#9467bd',
     'SSP-DF': '#28b3f3ff',
-    OUTROS: '#e377c2',
-    SSP: '#6a3d9a',
     'DETRAN-DF': '#b2df8a',
     PF: '#33a02c',
     PPDF: '#fb9a99',
@@ -98,7 +95,7 @@ export default function DashboardPage() {
     return inscritos.filter((i) => {
       const filtrolotacao = lotacao ? i.lotacao === lotacao : true;
       const filtroModalidade = modalidade
-        ? i.modalidades.includes(modalidade)
+        ? i.modalidades.some((m: any) => m.nome === modalidade)
         : true;
       return filtrolotacao && filtroModalidade;
     });
@@ -115,9 +112,9 @@ export default function DashboardPage() {
   const modalidadesCount = useMemo(() => {
     const map = new Map<string, number>();
     inscritosFiltrados.forEach((i) => {
-      i.modalidades.forEach((m) => {
-        if (!modalidade || m === modalidade) {
-          map.set(m, (map.get(m) || 0) + 1);
+      i.modalidades.forEach((m: any) => {
+        if (!modalidade || m.nome === modalidade) {
+          map.set(m.nome, (map.get(m.nome) || 0) + 1);
         }
       });
     });
@@ -201,7 +198,11 @@ export default function DashboardPage() {
                           Todas as Modalidades
                         </SelectItem>
                         {[
-                          ...new Set(inscritos.flatMap((i) => i.modalidades)),
+                          ...new Set(
+                            inscritos.flatMap((i) =>
+                              i.modalidades.map((mod: any) => mod.nome),
+                            ),
+                          ),
                         ].map((m) => (
                           <SelectItem key={m} value={m}>
                             {m}
@@ -215,9 +216,12 @@ export default function DashboardPage() {
                     onClick={() => {
                       const dadosParaPDF = inscritosFiltrados.map((i) => ({
                         ...i,
-                        modalidades: modalidade
-                          ? i.modalidades.filter((m) => m === modalidade)
-                          : i.modalidades,
+                        modalidades: (modalidade
+                          ? i.modalidades.filter(
+                              (m: any) => m.nome === modalidade,
+                            )
+                          : i.modalidades
+                        ).map((m: any) => m.nome),
                       }));
                       generatePDF(dadosParaPDF);
                     }}

@@ -22,6 +22,7 @@ import {
 import { generatePDF } from '@/lib/pdf-utils';
 import ClassificacoesFilters from '@/components/classificacoes/ClassificacoesFilters';
 import MedalTable from '@/components/classificacoes/MedalTable';
+import PointsTable from '@/components/classificacoes/PointsTable';
 import AthleteResultCard from '@/components/classificacoes/AthleteResultCard';
 import TeamResultCard from '@/components/classificacoes/TeamResultCard';
 import { ClassificacoesResponse } from '@/types/api';
@@ -182,6 +183,7 @@ export default function Classificacoes() {
 
           {/* Quadro de Medalhas */}
           <MedalTable rows={quadroMedalhas} />
+          <PointsTable />
 
           {/* Filtros e Botão de Exportar PDF */}
           <div className='flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mt-8 sm:mt-12'>

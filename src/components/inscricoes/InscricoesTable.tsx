@@ -358,7 +358,6 @@ export default function InscricoesTable() {
                       <SelectItem value='CBMDF'>CBMDF</SelectItem>
                       <SelectItem value='PF'>PF</SelectItem>
                       <SelectItem value='PRF'>PRF</SelectItem>
-                      <SelectItem value='DEPEN'>DEPEN</SelectItem>
                     </SelectContent>
                   </Select>
                   {errors.lotacao && (
@@ -382,7 +381,6 @@ export default function InscricoesTable() {
                       <SelectItem value='CBMDF'>CBMDF</SelectItem>
                       <SelectItem value='PF'>PF</SelectItem>
                       <SelectItem value='PRF'>PRF</SelectItem>
-                      <SelectItem value='DEPEN'>DEPEN</SelectItem>
                     </SelectContent>
                   </Select>
                   {errors.orgaoOrigem && (

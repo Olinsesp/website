@@ -24,32 +24,62 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { Plus, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import QueryStateHandler from '../ui/query-state-handler';
 import { DataTable } from '@/app/Dashboard/data-table';
 import { getInscricoesColumns } from '@/components/inscricoes/inscricoes-columns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Modalidade } from '@/types/modalidade';
+import { Inscricao } from '@/types/inscricao';
+
+const modalidadeSelectionSchema = z.object({
+  modalidadeId: z.string(),
+  sexo: z.string().optional(),
+  divisao: z.string().optional(),
+  categoria: z.string().optional(),
+  faixaEtaria: z.string().optional(),
+});
 
 const inscricaoSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório'),
-  email: z.string().email('Email inválido'),
+  email: z.email('Email inválido'),
   telefone: z.string().min(1, 'Telefone é obrigatório'),
-  cpf: z.string().min(11, 'CPF deve ter 11 dígitos'),
+  cpf: z
+    .string()
+    .min(11, 'CPF deve ter 11 dígitos')
+    .regex(/^\d+$/, 'CPF deve conter apenas números'),
   dataNascimento: z.string().min(1, 'Data de nascimento é obrigatória'),
   camiseta: z.string().min(1, 'Tamanho da camiseta é obrigatório'),
-  matricula: z.string().min(1, 'Matrícula é obrigatória'),
+  matricula: z
+    .string()
+    .min(1, 'Matrícula é obrigatória')
+    .regex(/^\d+$/, 'Matrícula deve conter apenas números'),
   lotacao: z.string().min(1, 'Lotação é obrigatória'),
+  sexo: z.string().min(1, 'Sexo é obrigatório'),
   orgaoOrigem: z.string().min(1, 'Órgão de Origem é obrigatório'),
   modalidades: z
-    .array(z.string())
+    .array(modalidadeSelectionSchema)
     .min(1, 'Selecione pelo menos uma modalidade'),
   status: z.enum(['pendente', 'aprovada', 'rejeitada']).optional(),
 });
 
-import { Inscricao } from '@/types/inscricao';
-
 type InscricaoFormData = z.infer<typeof inscricaoSchema>;
+
+async function fetchModalidades(): Promise<Modalidade[]> {
+  const response = await fetch('/api/modalidades');
+  if (!response.ok) {
+    throw new Error('Erro ao carregar modalidades');
+  }
+  const data = await response.json();
+  return data.dados || [];
+}
 
 async function fetchInscricoes(): Promise<Inscricao[]> {
   const response = await fetch('/api/inscricoes');
@@ -75,6 +105,16 @@ export default function InscricoesForm() {
   });
 
   const {
+    data: modalidadesData = [],
+    isLoading: isLoadingModalidades,
+    isError: isErrorModalidades,
+    error: errorModalidades,
+  } = useQuery<Modalidade[], Error>({
+    queryKey: ['modalidades'],
+    queryFn: fetchModalidades,
+  });
+
+  const {
     register,
     handleSubmit,
     reset,
@@ -93,6 +133,7 @@ export default function InscricoesForm() {
       matricula: '',
       lotacao: '',
       orgaoOrigem: '',
+      sexo: '',
       modalidades: [],
       status: 'pendente',
     },
@@ -108,22 +149,28 @@ export default function InscricoesForm() {
     mutationFn: async ({ data, id }) => {
       const url = id ? `/api/inscricoes/${id}` : '/api/inscricoes';
       const method = id ? 'PUT' : 'POST';
+
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
+
       if (!response.ok) {
-        throw new Error('Erro ao salvar inscrição');
+        const errorBody = await response.json();
+        throw new Error(errorBody.error || 'Erro ao salvar inscrição');
       }
+
       return response;
     },
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['inscricoes'] });
       toast.success(editingId ? 'Inscrição atualizada!' : 'Inscrição criada!');
       handleCancel();
     },
-    onError: (error) => {
+
+    onError: (error: Error) => {
       toast.error(error.message);
     },
   });
@@ -133,16 +180,21 @@ export default function InscricoesForm() {
       const response = await fetch(`/api/inscricoes/${id}`, {
         method: 'DELETE',
       });
+
       if (!response.ok) {
-        throw new Error('Erro ao excluir inscrição');
+        const errorBody = await response.json();
+        throw new Error(errorBody.error || 'Erro ao excluir inscrição');
       }
+
       return response;
     },
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['inscricoes'] });
       toast.success('Inscrição excluída!');
     },
-    onError: (error) => {
+
+    onError: (error: Error) => {
       toast.error(error.message);
     },
   });
@@ -159,15 +211,22 @@ export default function InscricoesForm() {
     setValue('cpf', inscricao.cpf);
     setValue(
       'dataNascimento',
-      inscricao.dataNascimento instanceof Date
-        ? inscricao.dataNascimento.toISOString().split('T')[0]
-        : inscricao.dataNascimento,
+      inscricao.dataNascimento
+        ? new Date(inscricao.dataNascimento).toISOString().split('T')[0]
+        : '',
     );
     setValue('camiseta', inscricao.camiseta);
     setValue('matricula', inscricao.matricula);
     setValue('lotacao', inscricao.lotacao);
     setValue('orgaoOrigem', inscricao.orgaoOrigem);
-    setValue('modalidades', inscricao.modalidades);
+    setValue('sexo', inscricao.sexo);
+    const modalidadesToSet = (inscricao.modalidades || []).map((mod: any) => {
+      if (typeof mod === 'string') {
+        return { modalidadeId: mod };
+      }
+      return mod;
+    });
+    setValue('modalidades', modalidadesToSet);
     setValue('status', inscricao.status);
 
     setIsDialogOpen(true);
@@ -190,12 +249,29 @@ export default function InscricoesForm() {
     setIsDialogOpen(true);
   };
 
-  const toggleModalidade = (modalidade: string) => {
+  const toggleModalidade = (modalidadeId: string, checked: boolean) => {
     const current = watchedModalidades || [];
-    const updated = current.includes(modalidade)
-      ? current.filter((m) => m !== modalidade)
-      : [...current, modalidade];
-    setValue('modalidades', updated);
+
+    const updated = checked
+      ? [...current, { modalidadeId }]
+      : current.filter((m) => m.modalidadeId !== modalidadeId);
+
+    setValue('modalidades', updated, { shouldValidate: true });
+  };
+
+  const handleModalidadeOptionChange = (
+    modalidadeId: string,
+    optionType: 'sexo' | 'divisao' | 'categoria' | 'faixaEtaria',
+    value: string,
+  ) => {
+    const current = watchedModalidades || [];
+    const updated = current.map((m) => {
+      if (m.modalidadeId === modalidadeId) {
+        return { ...m, [optionType]: value };
+      }
+      return m;
+    });
+    setValue('modalidades', updated, { shouldValidate: true });
   };
 
   return (
@@ -295,6 +371,30 @@ export default function InscricoesForm() {
                     </p>
                   )}
                 </div>
+                <div>
+                  <div className='space-y-2'>
+                    <Label htmlFor='sexo'>Sexo *</Label>
+                    <Select
+                      value={watch('sexo')}
+                      onValueChange={(value) =>
+                        setValue('sexo', value, { shouldValidate: true })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder='Selecione o sexo' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value='Masculino'>Masculino</SelectItem>
+                        <SelectItem value='Feminino'>Feminino</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.sexo && (
+                      <p className='text-sm text-vermelho-olinsesp'>
+                        {errors.sexo.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
 
                 <div className='space-y-2'>
                   <Label htmlFor='dataNascimento'>Data de Nascimento *</Label>
@@ -313,7 +413,10 @@ export default function InscricoesForm() {
                 <div className='space-y-2'>
                   <Label htmlFor='camiseta'>Tamanho da Camiseta *</Label>
                   <Select
-                    onValueChange={(value) => setValue('camiseta', value)}
+                    value={watch('camiseta')}
+                    onValueChange={(value) =>
+                      setValue('camiseta', value, { shouldValidate: true })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder='Selecione o tamanho' />
@@ -349,17 +452,28 @@ export default function InscricoesForm() {
 
                 <div className='space-y-2'>
                   <Label htmlFor='lotacao'>Lotação *</Label>
-                  <Select onValueChange={(value) => setValue('lotacao', value)}>
+                  <Select
+                    value={watch('lotacao')}
+                    onValueChange={(value) =>
+                      setValue('lotacao', value, { shouldValidate: true })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder='Selecione a lotação' />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value='PCDF'>PCDF</SelectItem>
                       <SelectItem value='PMDF'>PMDF</SelectItem>
                       <SelectItem value='CBMDF'>CBMDF</SelectItem>
-                      <SelectItem value='PF'>PF</SelectItem>
+                      <SelectItem value='PCDF'>PCDF</SelectItem>
                       <SelectItem value='PRF'>PRF</SelectItem>
-                      <SelectItem value='DEPEN'>DEPEN</SelectItem>
+                      <SelectItem value='SSP-DF'>SSP-DF</SelectItem>
+                      <SelectItem value='DETRAN-DF'>DETRAN-DF</SelectItem>
+                      <SelectItem value='PF'>PF</SelectItem>
+                      <SelectItem value='PPDF'>PPDF</SelectItem>
+                      <SelectItem value='PPF'>PPF</SelectItem>
+                      <SelectItem value='PLDF'>PLDF</SelectItem>
+                      <SelectItem value='PLF'>PLF</SelectItem>
+                      <SelectItem value='SEJUS'>SEJUS</SelectItem>
                     </SelectContent>
                   </Select>
                   {errors.lotacao && (
@@ -372,18 +486,27 @@ export default function InscricoesForm() {
                 <div className='space-y-2'>
                   <Label htmlFor='orgaoOrigem'>Órgão de Origem *</Label>
                   <Select
-                    onValueChange={(value) => setValue('orgaoOrigem', value)}
+                    value={watch('orgaoOrigem')}
+                    onValueChange={(value) =>
+                      setValue('orgaoOrigem', value, { shouldValidate: true })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder='Selecione o órgão de origem' />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value='PCDF'>PCDF</SelectItem>
                       <SelectItem value='PMDF'>PMDF</SelectItem>
                       <SelectItem value='CBMDF'>CBMDF</SelectItem>
-                      <SelectItem value='PF'>PF</SelectItem>
+                      <SelectItem value='PCDF'>PCDF</SelectItem>
                       <SelectItem value='PRF'>PRF</SelectItem>
-                      <SelectItem value='DEPEN'>DEPEN</SelectItem>
+                      <SelectItem value='SSP-DF'>SSP-DF</SelectItem>
+                      <SelectItem value='DETRAN-DF'>DETRAN-DF</SelectItem>
+                      <SelectItem value='PF'>PF</SelectItem>
+                      <SelectItem value='PPDF'>PPDF</SelectItem>
+                      <SelectItem value='PPF'>PPF</SelectItem>
+                      <SelectItem value='PLDF'>PLDF</SelectItem>
+                      <SelectItem value='PLF'>PLF</SelectItem>
+                      <SelectItem value='SEJUS'>SEJUS</SelectItem>
                     </SelectContent>
                   </Select>
                   {errors.orgaoOrigem && (
@@ -396,48 +519,215 @@ export default function InscricoesForm() {
 
               <div className='space-y-2'>
                 <Label>Modalidades *</Label>
-                <div className='grid grid-cols-2 md:grid-cols-3 gap-2'>
-                  {[
-                    'Futebol',
-                    'Vôlei',
-                    'Basquete',
-                    'Natação',
-                    'Atletismo',
-                    'Tênis',
-                  ].map((modalidade) => (
-                    <div
-                      key={modalidade}
-                      className='flex items-center space-x-2'
-                    >
-                      <Checkbox
-                        id={modalidade}
-                        checked={
-                          watchedModalidades?.includes(modalidade) || false
-                        }
-                        onCheckedChange={() => toggleModalidade(modalidade)}
-                      />
-                      <Label htmlFor={modalidade} className='text-sm'>
-                        {modalidade}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
+
+                <QueryStateHandler
+                  isLoading={isLoadingModalidades}
+                  isError={isErrorModalidades}
+                  error={errorModalidades}
+                  loadingMessage='Carregando modalidades...'
+                >
+                  <div className='space-y-2'>
+                    <Accordion type='multiple' className='w-full'>
+                      {modalidadesData.map((modalidade) => {
+                        const selectedModalidade = watchedModalidades?.find(
+                          (m) => m.modalidadeId === modalidade.id,
+                        );
+
+                        const isSelected = !!selectedModalidade;
+
+                        return (
+                          <AccordionItem
+                            value={modalidade.id}
+                            key={modalidade.id}
+                            className='border rounded-md px-4'
+                          >
+                            <div className='flex items-center py-3 justify-between'>
+                              <div className='flex items-center space-x-3'>
+                                <Checkbox
+                                  id={modalidade.id}
+                                  checked={isSelected}
+                                  className='border-2 border-azul-olinsesp'
+                                  onCheckedChange={(checked) =>
+                                    toggleModalidade(
+                                      modalidade.id,
+                                      checked === true,
+                                    )
+                                  }
+                                />
+                                <Label
+                                  htmlFor={modalidade.id}
+                                  className='font-medium'
+                                >
+                                  {modalidade.nome}
+                                </Label>
+                              </div>
+
+                              {/* Só deixa expandir se estiver selecionada */}
+                              {isSelected && (
+                                <AccordionTrigger className='ml-4'>
+                                  Opções
+                                </AccordionTrigger>
+                              )}
+                            </div>
+
+                            {isSelected && (
+                              <AccordionContent className='pb-4 space-y-4 pl-2'>
+                                {/* SEXO */}
+                                {modalidade.modalidadesSexo &&
+                                  modalidade.modalidadesSexo.length > 0 && (
+                                    <div className='space-y-1'>
+                                      <Label>Sexo</Label>
+                                      <Select
+                                        value={selectedModalidade?.sexo}
+                                        onValueChange={(value) =>
+                                          handleModalidadeOptionChange(
+                                            modalidade.id,
+                                            'sexo',
+                                            value,
+                                          )
+                                        }
+                                      >
+                                        <SelectTrigger>
+                                          <SelectValue placeholder='Selecione o sexo' />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          {modalidade.modalidadesSexo.map(
+                                            (sexo) => (
+                                              <SelectItem
+                                                key={sexo}
+                                                value={sexo}
+                                              >
+                                                {sexo}
+                                              </SelectItem>
+                                            ),
+                                          )}
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  )}
+
+                                {/* CATEGORIA */}
+                                {modalidade.categoria &&
+                                  modalidade.categoria.length > 0 && (
+                                    <div className='space-y-1'>
+                                      <Label>Categoria</Label>
+                                      <Select
+                                        value={selectedModalidade?.categoria}
+                                        onValueChange={(value) =>
+                                          handleModalidadeOptionChange(
+                                            modalidade.id,
+                                            'categoria',
+                                            value,
+                                          )
+                                        }
+                                      >
+                                        <SelectTrigger>
+                                          <SelectValue placeholder='Selecione a categoria' />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          {modalidade.categoria.map((cat) => (
+                                            <SelectItem key={cat} value={cat}>
+                                              {cat}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  )}
+
+                                {/* FAIXA ETÁRIA */}
+                                {modalidade.faixaEtaria &&
+                                  modalidade.faixaEtaria.length > 0 && (
+                                    <div className='space-y-1'>
+                                      <Label>Faixa Etária</Label>
+                                      <Select
+                                        value={selectedModalidade?.faixaEtaria}
+                                        onValueChange={(value) =>
+                                          handleModalidadeOptionChange(
+                                            modalidade.id,
+                                            'faixaEtaria',
+                                            value,
+                                          )
+                                        }
+                                      >
+                                        <SelectTrigger>
+                                          <SelectValue placeholder='Selecione a faixa etária' />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          {modalidade.faixaEtaria.map(
+                                            (faixa) => (
+                                              <SelectItem
+                                                key={faixa}
+                                                value={faixa}
+                                              >
+                                                {faixa}
+                                              </SelectItem>
+                                            ),
+                                          )}
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  )}
+
+                                {/* DIVISÃO */}
+                                {modalidade.divisoes &&
+                                  modalidade.divisoes.length > 0 && (
+                                    <div className='space-y-1'>
+                                      <Label>Divisão</Label>
+                                      <Select
+                                        value={selectedModalidade?.divisao}
+                                        onValueChange={(value) =>
+                                          handleModalidadeOptionChange(
+                                            modalidade.id,
+                                            'divisao',
+                                            value,
+                                          )
+                                        }
+                                      >
+                                        <SelectTrigger>
+                                          <SelectValue placeholder='Selecione a divisão' />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          {modalidade.divisoes.map((div) => (
+                                            <SelectItem key={div} value={div}>
+                                              {div}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  )}
+                              </AccordionContent>
+                            )}
+                          </AccordionItem>
+                        );
+                      })}
+                    </Accordion>
+                  </div>
+                </QueryStateHandler>
+
                 {errors.modalidades && (
                   <p className='text-sm text-vermelho-olinsesp'>
-                    {errors.modalidades.message}
+                    {typeof errors.modalidades.message === 'string'
+                      ? errors.modalidades.message
+                      : 'Um erro ocorreu nas modalidades'}
                   </p>
                 )}
               </div>
+
               <div className='space-y-2'>
                 <Label htmlFor='status'>Status</Label>
                 <Select
+                  value={watch('status')}
                   onValueChange={(value) =>
                     setValue(
                       'status',
                       value as 'pendente' | 'aprovada' | 'rejeitada',
+                      {
+                        shouldValidate: true,
+                      },
                     )
                   }
-                  defaultValue={watch('status')}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder='Selecione o status' />
@@ -448,6 +738,7 @@ export default function InscricoesForm() {
                     <SelectItem value='rejeitada'>Rejeitada</SelectItem>
                   </SelectContent>
                 </Select>
+
                 {errors.status && (
                   <p className='text-sm text-vermelho-olinsesp'>
                     {errors.status.message}

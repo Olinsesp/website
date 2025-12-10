@@ -2,6 +2,14 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 
+const modalidadeSelectionSchema = z.object({
+  modalidadeId: z.string(),
+  sexo: z.string().optional(),
+  divisao: z.string().optional(),
+  categoria: z.string().optional(),
+  faixaEtaria: z.string().optional(),
+});
+
 const inscricaoUpdateSchema = z.object({
   nome: z
     .string()
@@ -14,7 +22,7 @@ const inscricaoUpdateSchema = z.object({
   orgaoOrigem: z.string().optional(),
   status: z.enum(['aprovada', 'pendente', 'rejeitada']).optional(),
   modalidades: z
-    .array(z.string())
+    .array(modalidadeSelectionSchema)
     .min(1, { message: 'Selecione ao menos uma modalidade.' })
     .optional(),
 });
@@ -55,7 +63,14 @@ export async function GET(
       lotacao: inscricao.lotacao,
       orgaoOrigem: inscricao.orgaoOrigem,
       matricula: inscricao.matricula,
-      modalidades: inscricao.modalidades.map((im) => im.modalidade.nome),
+      modalidades: inscricao.modalidades.map((im) => ({
+        modalidadeId: im.modalidade.id,
+        nome: im.modalidade.nome,
+        sexo: im.sexo,
+        divisao: im.divisao,
+        categoria: im.categoria,
+        faixaEtaria: im.faixaEtaria,
+      })),
       status: inscricao.status,
       createdAt: inscricao.createdAt.toISOString(),
     };
@@ -79,34 +94,23 @@ export async function PUT(
     const data = await request.json();
     const validatedData = inscricaoUpdateSchema.parse(data);
 
-    const { modalidades: modalidadesNomes, ...dadosAtualizacao } =
+    const { modalidades: modalidadesSelections, ...dadosAtualizacao } =
       validatedData;
 
     const updateData: any = { ...dadosAtualizacao };
 
-    if (modalidadesNomes) {
-      const modalidades = await prisma.modalidade.findMany({
-        where: {
-          nome: {
-            in: modalidadesNomes,
-          },
-        },
-      });
-
-      if (modalidades.length !== modalidadesNomes.length) {
-        return NextResponse.json(
-          { error: 'Uma ou mais modalidades não foram encontradas.' },
-          { status: 400 },
-        );
-      }
-
+    if (modalidadesSelections) {
       await prisma.inscricaoModalidade.deleteMany({
         where: { inscricaoId: id },
       });
 
       updateData.modalidades = {
-        create: modalidades.map((modalidade) => ({
-          modalidadeId: modalidade.id,
+        create: modalidadesSelections.map((mod) => ({
+          modalidadeId: mod.modalidadeId,
+          sexo: mod.sexo,
+          divisao: mod.divisao,
+          categoria: mod.categoria,
+          faixaEtaria: mod.faixaEtaria,
         })),
       };
     }
@@ -135,9 +139,14 @@ export async function PUT(
       lotacao: inscricaoAtualizada.lotacao,
       orgaoOrigem: inscricaoAtualizada.orgaoOrigem,
       matricula: inscricaoAtualizada.matricula,
-      modalidades: inscricaoAtualizada.modalidades.map(
-        (im) => im.modalidade.nome,
-      ),
+      modalidades: inscricaoAtualizada.modalidades.map((im) => ({
+        modalidadeId: im.modalidade.id,
+        nome: im.modalidade.nome,
+        sexo: im.sexo,
+        divisao: im.divisao,
+        categoria: im.categoria,
+        faixaEtaria: im.faixaEtaria,
+      })),
       status: inscricaoAtualizada.status,
       createdAt: inscricaoAtualizada.createdAt.toISOString(),
     };

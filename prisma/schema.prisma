@@ -8,6 +8,22 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum UserRole {
+  ADMIN
+  PONTOFOCAL
+}
+
+model User {
+  id            String   @id @default(uuid())
+  nome          String
+  username      String   @unique
+  password      String
+  orgaoDeOrigem String
+  role          UserRole @default(PONTOFOCAL)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
 model Modalidade {
   id                  String                @id @default(uuid())
   nome                String
@@ -24,7 +40,7 @@ model Modalidade {
   status              String                @default("inscricoes-abertas")
   divisoes            String[]
   modalidadesSexo     String[]              @default([])
-  faixaEtaria         String[]              @default([])
+  faixaEtaria         String[]              @default(["Adulto"])
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
   classificacoes      Classificacao[]
@@ -36,14 +52,14 @@ model Inscricao {
   id             String                @id @default(uuid())
   nome           String
   email          String
-  cpf            String
+  cpf            String                @unique
   dataNascimento DateTime
   telefone       String
   sexo           String?
   camiseta       String
   lotacao        String
   orgaoOrigem    String
-  matricula      String
+  matricula      String                @unique
   status         String                @default("pendente")
   createdAt      DateTime              @default(now())
   updatedAt      DateTime              @updatedAt
@@ -55,6 +71,10 @@ model InscricaoModalidade {
   id           String     @id @default(uuid())
   inscricaoId  String
   modalidadeId String
+  sexo         String?
+  divisao      String?
+  categoria    String?
+  faixaEtaria  String?
   createdAt    DateTime   @default(now())
   inscricao    Inscricao  @relation(fields: [inscricaoId], references: [id], onDelete: Cascade)
   modalidade   Modalidade @relation(fields: [modalidadeId], references: [id], onDelete: Cascade)
