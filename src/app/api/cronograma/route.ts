@@ -58,7 +58,6 @@ function enriquecerEvento(evento: any): EventoEnriquecido {
     participantes: 'Consulte detalhes',
     inicioFormatado,
     horarioFormatado,
-    // Adicione a propriedade modalidadeRel aqui se ela não estiver sendo incluída
     modalidadeRel: evento.modalidadeRel,
   };
 }

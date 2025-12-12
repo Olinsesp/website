@@ -65,7 +65,7 @@ function formatDateTime(iso: string) {
 
 function matchesModalidade(
   eventMod?: string | null,
-  inscricaoMods: string[] = [],
+  inscricaoMods: any[] = [],
 ) {
   if (!eventMod) return false;
   const norm = (s: string) =>
@@ -75,7 +75,7 @@ function matchesModalidade(
       .replace(/\p{Diacritic}/gu, '');
   const ev = norm(eventMod);
   return inscricaoMods.some((m) => {
-    const im = norm(m);
+    const im = norm(m.nome);
     return ev.includes(im) || im.includes(ev);
   });
 }

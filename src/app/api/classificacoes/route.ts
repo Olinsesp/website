@@ -143,21 +143,17 @@ export async function GET(request: NextRequest) {
 
     let where: Prisma.ClassificacaoWhereInput = {};
 
-    // Role-based filter
     if (userRole === 'PONTOFOCAL' && userOrgao) {
       where.OR = [
         { inscricao: { orgaoOrigem: userOrgao } },
         { lotacao: userOrgao },
       ];
     }
-
-    // Query param filters
     const queryFilters: Prisma.ClassificacaoWhereInput = {};
     if (modalidade) {
       queryFilters.modalidade = { nome: modalidade };
     }
     if (lotacao) {
-      // This will override the PONTOFOCAL filter if a specific lotacao is requested
       where = { ...where, lotacao: lotacao };
     }
     if (tipo === 'atletas') {
@@ -186,7 +182,6 @@ export async function GET(request: NextRequest) {
     };
 
     if (incluirEstatisticas || incluirMedalhas || incluirFiltros) {
-      // The stats should also be filtered for PONTOFOCAL
       const statsWhere =
         userRole === 'PONTOFOCAL' && userOrgao
           ? {

@@ -10,7 +10,6 @@ services:
       - POSTGRESQL_PASSWORD=admin123
       - POSTGRESQL_DATABASE=meubanco
       - POSTGRESQL_POSTGRES_PASSWORD=admin123
-      # O Bitnami executa como não-root por padrão, essas variáveis acima bastam.
     volumes:
       - postgres_data:/bitnami/postgresql
 

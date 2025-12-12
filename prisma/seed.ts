@@ -21,8 +21,8 @@ async function main() {
     'CBMDF',
     'PCDF',
     'PRF',
-    'SSP-DF',
-    'DETRAN-DF',
+    'SSPDF',
+    'DETRANDF',
     'PF',
     'PPDF',
     'PPF',
@@ -37,7 +37,7 @@ async function main() {
       username: o,
       password: await bcrypt.hash(o, 10),
       orgaoDeOrigem: o,
-      role: o === 'SSP-DF' ? UserRole.ADMIN : UserRole.PONTOFOCAL,
+      role: o === 'SSPDF' ? UserRole.ADMIN : UserRole.PONTOFOCAL,
     })),
   );
 
@@ -102,7 +102,7 @@ async function main() {
         regras: ['Onze jogadores', 'Dois tempos de 45 min'],
         premios: ['Medalhas', 'Troféu'],
         modalidadesSexo: ['Masculino'],
-        faixaEtaria: ['40+'],
+        faixaEtaria: ['40+', 'Adulto'],
         divisoes: [],
       },
 
@@ -237,7 +237,7 @@ async function main() {
         regras: ['Regras da FINA'],
         premios: ['Medalhas'],
         modalidadesSexo: ['Masculino', 'Feminino'],
-        faixaEtaria: ['Masculino 45+', 'Feminino 40+'],
+        faixaEtaria: ['Masculino 45+', 'Feminino 40+', 'Adulto'],
         divisoes: [
           '50m Livre',
           '50m Borboleta',
@@ -373,7 +373,7 @@ async function main() {
         regras: ['Regras da World Athletics'],
         premios: ['Medalhas'],
         modalidadesSexo: ['Masculino', 'Feminino'],
-        faixaEtaria: ['Masculino 45+', 'Feminino 40+'],
+        faixaEtaria: ['Masculino 45+', 'Feminino 40+', 'Adulto'],
         divisoes: ['100m', '200m', '400m', '800m', '1500m', '5000m', '10 km'],
       },
 

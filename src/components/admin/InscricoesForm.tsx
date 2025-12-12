@@ -220,13 +220,7 @@ export default function InscricoesForm() {
     setValue('lotacao', inscricao.lotacao);
     setValue('orgaoOrigem', inscricao.orgaoOrigem);
     setValue('sexo', inscricao.sexo);
-    const modalidadesToSet = (inscricao.modalidades || []).map((mod: any) => {
-      if (typeof mod === 'string') {
-        return { modalidadeId: mod };
-      }
-      return mod;
-    });
-    setValue('modalidades', modalidadesToSet);
+    setValue('modalidades', inscricao.modalidades || []);
     setValue('status', inscricao.status);
 
     setIsDialogOpen(true);
@@ -294,7 +288,7 @@ export default function InscricoesForm() {
           </CardHeader>
           <CardContent>
             <DataTable
-              columns={getInscricoesColumns(handleEdit, handleDelete)}
+              columns={getInscricoesColumns(handleEdit, handleDelete, true)}
               data={inscricoes}
               filterColumn='nome'
             />
@@ -466,8 +460,8 @@ export default function InscricoesForm() {
                       <SelectItem value='CBMDF'>CBMDF</SelectItem>
                       <SelectItem value='PCDF'>PCDF</SelectItem>
                       <SelectItem value='PRF'>PRF</SelectItem>
-                      <SelectItem value='SSP-DF'>SSP-DF</SelectItem>
-                      <SelectItem value='DETRAN-DF'>DETRAN-DF</SelectItem>
+                      <SelectItem value='SSPDF'>SSPDF</SelectItem>
+                      <SelectItem value='DETRANDF'>DETRANDF</SelectItem>
                       <SelectItem value='PF'>PF</SelectItem>
                       <SelectItem value='PPDF'>PPDF</SelectItem>
                       <SelectItem value='PPF'>PPF</SelectItem>
@@ -499,8 +493,8 @@ export default function InscricoesForm() {
                       <SelectItem value='CBMDF'>CBMDF</SelectItem>
                       <SelectItem value='PCDF'>PCDF</SelectItem>
                       <SelectItem value='PRF'>PRF</SelectItem>
-                      <SelectItem value='SSP-DF'>SSP-DF</SelectItem>
-                      <SelectItem value='DETRAN-DF'>DETRAN-DF</SelectItem>
+                      <SelectItem value='SSPDF'>SSPDF</SelectItem>
+                      <SelectItem value='DETRANDF'>DETRANDF</SelectItem>
                       <SelectItem value='PF'>PF</SelectItem>
                       <SelectItem value='PPDF'>PPDF</SelectItem>
                       <SelectItem value='PPF'>PPF</SelectItem>

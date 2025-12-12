@@ -1,3 +1,12 @@
+export interface ModalidadeSelection {
+  modalidadeId: string;
+  sexo?: string;
+  divisao?: string;
+  categoria?: string;
+  faixaEtaria?: string;
+  nome?: string;
+}
+
 export interface Inscricao {
   id: string;
   nome: string;
@@ -10,7 +19,7 @@ export interface Inscricao {
   orgaoOrigem: string;
   matricula: string;
   sexo: string;
-  modalidades: string[];
+  modalidades: ModalidadeSelection[];
   status?: 'aprovada' | 'pendente' | 'rejeitada';
   createdAt?: string;
   [key: string]: any;
@@ -22,6 +31,6 @@ export type InscricoesTable = {
   email: string;
   lotacao: string;
   orgaoOrigem: string;
-  modalidades: string[];
+  modalidades: ModalidadeSelection[];
   status: 'pendente' | 'aprovada' | 'rejeitada';
 };

@@ -127,11 +127,13 @@ const data = {
 };
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  userRole?: string | null;
   activeTab?: string;
   onTabChange?: (tab: string) => void;
 }
 
 export function AppSidebar({
+  userRole,
   activeTab = 'dashboard',
   onTabChange,
   ...props
@@ -143,6 +145,11 @@ export function AppSidebar({
     router.push('/login');
   };
 
+  const navItems =
+    userRole === 'PONTOFOCAL'
+      ? data.navMain.filter((item) => item.title === 'Dashboard')
+      : data.navMain;
+
   return (
     <Sidebar variant='inset' {...props}>
       <SidebarHeader>
@@ -152,20 +159,25 @@ export function AppSidebar({
           </div>
           <div className='grid flex-1 text-left text-sm leading-tight'>
             <span className='truncate font-semibold'>VIII Olinsesp</span>
-            <span className='truncate text-xs'>Dashboard Admin</span>
+            <span className='truncate text-xs'>
+              {userRole === 'PONTOFOCAL' ? 'Ponto Focal' : 'Dashboard Admin'}
+            </span>
           </div>
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Administração</SidebarGroupLabel>
+          <SidebarGroupLabel>
+            {userRole === 'PONTOFOCAL' ? 'Menu' : 'Administração'}
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {data.navMain.map((item) => (
+              {navItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     onClick={() => onTabChange?.(item.title.toLowerCase())}
                     isActive={activeTab === item.title.toLowerCase()}
+                    disabled={userRole === 'PONTOFOCAL'}
                   >
                     <item.icon />
                     <span>{item.title}</span>

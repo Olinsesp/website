@@ -31,7 +31,6 @@ export async function middleware(request: NextRequest) {
     });
   } catch (error) {
     console.error('Middleware JWT verification error:', error);
-    // Clear the invalid cookie
     const response = NextResponse.redirect(new URL('/login', request.url));
     response.cookies.set('session', '', { maxAge: -1 });
     return response;

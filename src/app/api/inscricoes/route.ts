@@ -45,15 +45,14 @@ const inscricaoSchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
-    const headerList = request.headers;
-    const userRole = headerList.get('x-user-role');
-    const userOrgao = headerList.get('x-user-orgao');
+    const searchParams = request.nextUrl.searchParams;
+    const orgaoDeOrigem = searchParams.get('orgaoDeOrigem');
 
     let whereClause: Prisma.InscricaoWhereInput = {};
 
-    if (userRole === 'PONTOFOCAL' && userOrgao) {
+    if (orgaoDeOrigem) {
       whereClause = {
-        orgaoOrigem: userOrgao,
+        orgaoOrigem: orgaoDeOrigem,
       };
     }
 
@@ -93,7 +92,6 @@ export async function POST(req: Request) {
   try {
     const json = await req.json();
 
-    // validação detalhada
     const validatedData = inscricaoSchema.parse(json);
 
     const { modalidades: modalidadesSelections, ...dadosInscricao } =

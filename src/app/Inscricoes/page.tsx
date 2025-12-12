@@ -315,8 +315,8 @@ export default function Inscricoes() {
                         <SelectItem value='CBMDF'>CBMDF</SelectItem>
                         <SelectItem value='PCDF'>PCDF</SelectItem>
                         <SelectItem value='PRF'>PRF</SelectItem>
-                        <SelectItem value='SSP-DF'>SSP-DF</SelectItem>
-                        <SelectItem value='DETRAN-DF'>DETRAN-DF</SelectItem>
+                        <SelectItem value='SSPDF'>SSPDF</SelectItem>
+                        <SelectItem value='DETRANDF'>DETRANDF</SelectItem>
                         <SelectItem value='PF'>PF</SelectItem>
                         <SelectItem value='PPDF'>PPDF</SelectItem>
                         <SelectItem value='PPF'>PPF</SelectItem>
@@ -345,8 +345,8 @@ export default function Inscricoes() {
                         <SelectItem value='CBMDF'>CBMDF</SelectItem>
                         <SelectItem value='PCDF'>PCDF</SelectItem>
                         <SelectItem value='PRF'>PRF</SelectItem>
-                        <SelectItem value='SSP-DF'>SSP-DF</SelectItem>
-                        <SelectItem value='DETRAN-DF'>DETRAN-DF</SelectItem>
+                        <SelectItem value='SSPDF'>SSPDF</SelectItem>
+                        <SelectItem value='DETRANDF'>DETRANDF</SelectItem>
                         <SelectItem value='PF'>PF</SelectItem>
                         <SelectItem value='PPDF'>PPDF</SelectItem>
                         <SelectItem value='PPF'>PPF</SelectItem>

@@ -6,6 +6,7 @@ type PdfRow = {
   lotacao: string;
   modalidades: string[];
   email: string;
+  telefone: string;
 };
 
 type ClassificacaoRow = {
@@ -119,12 +120,13 @@ export function generatePDF(
     const tableData = sorted.map((row) => [
       row.nome,
       row.lotacao,
-      row.modalidades.join(', '),
+      row.modalidades,
       row.email,
+      row.telefone,
     ]);
 
     autoTable(doc, {
-      head: [['Nome', 'Lotação', 'Modalidades', 'Email']],
+      head: [['Nome', 'Lotação', 'Modalidades', 'Email', 'Telefone']],
       body: tableData,
       startY: 30,
       styles: { fontSize: 12 },

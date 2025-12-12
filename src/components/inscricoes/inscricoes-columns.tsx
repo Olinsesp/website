@@ -41,8 +41,7 @@ export const getInscricoesBaseColumns = (): ColumnDef<Inscricao>[] => [
   {
     accessorKey: 'modalidades',
     header: 'Modalidades',
-    cell: ({ row }) =>
-      row.original.modalidades.map((m: any) => m.nome).join(', '),
+    cell: ({ row }) => row.original.modalidades.map((m) => m.nome).join(', '),
   },
   {
     accessorKey: 'status',
@@ -60,34 +59,38 @@ export const getInscricoesBaseColumns = (): ColumnDef<Inscricao>[] => [
 export const getInscricoesColumns = (
   handleEdit: (inscricao: Inscricao) => void,
   handleDelete: (id: string) => void,
+  showActions: boolean = false,
 ): ColumnDef<Inscricao>[] => {
   const baseColumns = getInscricoesBaseColumns();
-  return [
-    ...baseColumns,
-    {
-      id: 'actions',
-      header: 'Ações',
-      cell: ({ row }) => {
-        const inscricao = row.original;
-        return (
-          <div className='flex gap-2 justify-end'>
-            <Button
-              size='sm'
-              variant='outline'
-              onClick={() => handleEdit(inscricao)}
-            >
-              <Edit className='h-4 w-4' />
-            </Button>
-            <Button
-              size='sm'
-              variant='destructive'
-              onClick={() => handleDelete(inscricao.id)}
-            >
-              <Trash2 className='h-4 w-4' />
-            </Button>
-          </div>
-        );
+  if (showActions) {
+    return [
+      ...baseColumns,
+      {
+        id: 'actions',
+        header: 'Ações',
+        cell: ({ row }) => {
+          const inscricao = row.original;
+          return (
+            <div className='flex gap-2 justify-end'>
+              <Button
+                size='sm'
+                variant='outline'
+                onClick={() => handleEdit(inscricao)}
+              >
+                <Edit className='h-4 w-4' />
+              </Button>
+              <Button
+                size='sm'
+                variant='destructive'
+                onClick={() => handleDelete(inscricao.id)}
+              >
+                <Trash2 className='h-4 w-4' />
+              </Button>
+            </div>
+          );
+        },
       },
-    },
-  ];
+    ];
+  }
+  return baseColumns;
 };
