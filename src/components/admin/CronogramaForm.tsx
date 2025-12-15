@@ -38,6 +38,7 @@ const eventoSchema = z.object({
   inicio: z.string().min(1, 'Horário de início é obrigatório'),
   fim: z.string().min(1, 'Horário de fim é obrigatório'),
   detalhes: z.string().optional(),
+  local: z.string().optional(),
   modalidadeId: z.string().optional().nullable(),
 });
 
@@ -102,6 +103,7 @@ export default function CronogramaForm() {
       inicio: '',
       fim: '',
       detalhes: '',
+      local: '',
       modalidadeId: null,
     },
   });
@@ -157,22 +159,13 @@ export default function CronogramaForm() {
     mutation.mutate({ data, id: editingId });
   };
 
-  const toDatetimeLocal = (isoString: string) => {
-    const date = new Date(isoString);
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  };
-
   const handleEdit = (evento: Evento) => {
     setEditingId(evento.id);
     setValue('atividade', evento.atividade);
-    setValue('inicio', toDatetimeLocal(evento.inicio));
-    setValue('fim', toDatetimeLocal(evento.fim));
+    setValue('inicio', evento.inicio.slice(0, 16));
+    setValue('fim', evento.fim.slice(0, 16));
     setValue('detalhes', evento.detalhes || '');
+    setValue('local', evento.local || '');
     setValue('modalidadeId', evento.modalidadeId || null);
     setIsDialogOpen(true);
   };
@@ -208,6 +201,11 @@ export default function CronogramaForm() {
       accessorKey: 'modalidadeRel.nome',
       header: 'Modalidade',
       cell: ({ row }) => row.original.modalidadeRel?.nome || 'N/A',
+    },
+    {
+      accessorKey: 'local',
+      header: 'Local',
+      cell: ({ row }) => row.original.local || 'N/A',
     },
     {
       accessorKey: 'inicio',
@@ -350,6 +348,17 @@ export default function CronogramaForm() {
                       {errors.fim.message}
                     </p>
                   )}
+                </div>
+              </div>
+
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div className='space-y-2'>
+                  <Label htmlFor='local'>Local</Label>
+                  <Input
+                    id='local'
+                    {...register('local')}
+                    placeholder='Ex: Ginásio Principal'
+                  />
                 </div>
               </div>
 

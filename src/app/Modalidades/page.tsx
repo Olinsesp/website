@@ -8,7 +8,6 @@ import {
   Target,
   Calendar,
   MapPin,
-  Clock,
   Award,
   Star,
   TrendingUp,
@@ -164,28 +163,33 @@ export default function Modalidades() {
                         </p>
 
                         <div className='flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500'>
-                          <div className='flex items-center gap-2'>
-                            <Calendar className='h-3 w-3 sm:h-4 sm:w-4 text-azul-olinsesp shrink-0' />
-                            <span>
-                              {new Date(
-                                modalidade.dataInicio,
-                              ).toLocaleDateString('pt-BR')}{' '}
-                              -{' '}
-                              {new Date(modalidade.dataFim).toLocaleDateString(
-                                'pt-BR',
-                              )}
-                            </span>
-                          </div>
-
-                          <div className='flex items-center gap-2'>
-                            <MapPin className='h-3 w-3 sm:h-4 sm:w-4 text-verde-olinsesp shrink-0' />
-                            <span>{modalidade.local}</span>
-                          </div>
-
-                          <div className='flex items-center gap-2'>
-                            <Clock className='h-3 w-3 sm:h-4 sm:w-4 text-laranja-olinsesp shrink-0' />
-                            <span>{modalidade.horario}</span>
-                          </div>
+                          {modalidade.eventos &&
+                          modalidade.eventos.length > 0 ? (
+                            modalidade.eventos.map((evento) => (
+                              <div
+                                key={evento.id}
+                                className='flex items-center gap-2'
+                              >
+                                <Calendar className='h-3 w-3 sm:h-4 sm:w-4 text-azul-olinsesp shrink-0' />
+                                <span>
+                                  {new Date(evento.inicio).toLocaleDateString(
+                                    'pt-BR',
+                                  )}{' '}
+                                  -{' '}
+                                  {new Date(evento.fim).toLocaleDateString(
+                                    'pt-BR',
+                                  )}
+                                </span>
+                                <MapPin className='h-3 w-3 sm:h-4 sm:w-4 text-verde-olinsesp shrink-0 ml-2' />
+                                <span>{evento.local}</span>
+                              </div>
+                            ))
+                          ) : (
+                            <div className='flex items-center gap-2'>
+                              <Calendar className='h-3 w-3 sm:h-4 sm:w-4 text-azul-olinsesp shrink-0' />
+                              <span>Nenhum evento agendado.</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>

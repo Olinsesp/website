@@ -31,10 +31,6 @@ model Modalidade {
   categoria           String[]              @default([])
   maxParticipantes    Int
   participantesAtuais Int                   @default(0)
-  dataInicio          String?
-  dataFim             String?
-  local               String?
-  horario             String?
   regras              String[]              @default([])
   premios             String[]              @default([])
   status              String                @default("inscricoes-abertas")
@@ -87,6 +83,7 @@ model Evento {
   atividade     String
   inicio        DateTime
   fim           DateTime
+  local         String?
   detalhes      String?
   modalidadeId  String?
   createdAt     DateTime    @default(now())

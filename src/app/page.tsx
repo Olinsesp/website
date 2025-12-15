@@ -121,22 +121,41 @@ export default function Home() {
   return (
     <div className='min-h-screen bg-none'>
       {/* Hero Section */}
-      <section className='w-full h-screen relative overflow-hidden m-0 p-0 flex items-center justify-center'>
+      <section
+        className='
+    w-full
+    min-h-svh
+    md:min-h-screen
+    relative
+    overflow-hidden
+    flex
+    items-center
+    justify-center
+    pt-[env(safe-area-inset-top)]
+  '
+      >
         <Image
           src='/sports-hero.jpeg'
           alt='hero'
           fill
-          className='w-full h-full object-cover object-bottom m-0 p-0 hidden md:block'
           priority
+          className='hidden md:block object-cover object-center'
         />
+
         <Image
           src='/sports-hero-mobile.jpeg'
           alt='hero-mobile'
           fill
-          className='w-full h-full object-cover object-bottom m-0 p-0 block md:hidden'
           priority
+          className='
+    block md:hidden
+    object-cover
+    object-top
+    max-h-svh
+  '
         />
-        <div className='absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center'>
+
+        <div className='absolute inset-0 flex flex-col items-center justify-center z-10 px-4 text-center'>
           <div className='flex flex-col sm:flex-row gap-4 justify-center mb-12 pt-11 lg:pt-64'>
             <Link href='/Inscricoes'>
               <Button

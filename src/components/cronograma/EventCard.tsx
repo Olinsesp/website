@@ -17,10 +17,7 @@ export default function EventCard({ evento }: Props) {
       <CardContent className='p-4 sm:p-6'>
         <div className='flex flex-col gap-4 sm:gap-6'>
           <div className='flex items-start gap-4'>
-            <div className='flex flex-col items-center min-w-[80px] sm:min-w-[100px]'>
-              <div className='text-xl sm:text-2xl font-bold text-azul-olinsesp mb-1 sm:mb-2'>
-                {evento.horario}
-              </div>
+            <div className='flex flex-col items-center min-w-20 sm:min-w-[100px]'>
               <div className='flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-gray-500'>
                 {getTipoIcon(evento.tipo)}
                 <span className='text-xs sm:text-sm font-medium text-center'>

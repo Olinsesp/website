@@ -1,3 +1,5 @@
+import { Evento } from '@/types/cronograma';
+
 export interface PesoCategoria {
   masculino?: string[];
   feminino?: string[];
@@ -15,10 +17,6 @@ export interface Modalidade {
   categoria: string[];
   maxParticipantes: number;
   participantesAtuais: number;
-  dataInicio: string;
-  dataFim: string;
-  local: string;
-  horario: string;
   regras: string[];
   premios: string[];
   status:
@@ -29,4 +27,5 @@ export interface Modalidade {
   divisoes?: string[];
   modalidadesSexo?: string[];
   faixaEtaria?: string[];
+  eventos?: Evento[];
 }

@@ -14,10 +14,6 @@ const modalidadeUpdateSchema = z.object({
     .number()
     .min(0, 'O número de participantes atuais deve ser maior ou igual a 0.')
     .optional(),
-  dataInicio: z.string().optional(),
-  dataFim: z.string().optional(),
-  local: z.string().optional(),
-  horario: z.string().optional(),
   regras: z.array(z.string()).optional(),
   faixaEtaria: z.array(z.string()).optional(),
   premios: z.array(z.string()).optional(),

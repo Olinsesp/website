@@ -7,6 +7,7 @@ const cronogramaUpdateSchema = z.object({
   inicio: z.string().optional(),
   fim: z.string().optional(),
   detalhes: z.string().optional().nullable(),
+  local: z.string().optional(),
   modalidadeId: z.string().optional().nullable(),
 });
 
@@ -67,6 +68,7 @@ export async function PUT(
     if (validatedData.fim) updateData.fim = new Date(validatedData.fim);
     if (validatedData.detalhes !== undefined)
       updateData.detalhes = validatedData.detalhes;
+    if (validatedData.local) updateData.local = validatedData.local;
 
     if (validatedData.modalidadeId !== undefined) {
       updateData.modalidadeId = validatedData.modalidadeId;

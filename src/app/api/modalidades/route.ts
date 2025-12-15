@@ -13,10 +13,6 @@ const modalidadeSchema = z.object({
     .number()
     .min(0, 'O número de participantes atuais deve ser maior ou igual a 0.')
     .optional(),
-  dataInicio: z.string().optional(),
-  dataFim: z.string().optional(),
-  local: z.string().optional(),
-  horario: z.string().optional(),
   regras: z.array(z.string()).optional(),
   premios: z.array(z.string()).optional(),
   divisoes: z.string().array().optional(),
@@ -64,6 +60,7 @@ export async function GET(request: Request) {
 
     const modalidades = await prisma.modalidade.findMany({
       orderBy: { nome: 'asc' },
+      include: { eventos: true },
     });
 
     const response: any = {
@@ -96,10 +93,6 @@ export async function POST(req: Request) {
         categoria: validatedData.categoria,
         maxParticipantes: validatedData.maxParticipantes,
         participantesAtuais: validatedData.participantesAtuais ?? 0,
-        dataInicio: validatedData.dataInicio ?? null,
-        dataFim: validatedData.dataFim ?? null,
-        local: validatedData.local ?? null,
-        horario: validatedData.horario ?? null,
         regras: validatedData.regras ?? [],
         premios: validatedData.premios ?? [],
         divisoes: validatedData.divisoes ?? [],

@@ -6,13 +6,13 @@ export type Evento = {
   inicio: string;
   fim: string;
   detalhes?: string | null;
+  local?: string | null;
   dia?: string;
   modalidadeId?: string | null;
   modalidadeRel?: Modalidade;
 };
 
 export type EventoEnriquecido = Evento & {
-  horario: string;
   tipo: 'cerimonia' | 'jogo' | 'final' | 'congresso';
   local: string;
   status: 'agendado' | 'cancelado' | 'realizado';

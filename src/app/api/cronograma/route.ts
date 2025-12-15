@@ -8,6 +8,7 @@ const eventoSchema = z.object({
   inicio: z.string().min(1, 'A data de início é obrigatória.'),
   fim: z.string().min(1, 'A data de fim é obrigatória.'),
   detalhes: z.string().optional(),
+  local: z.string().optional(),
   modalidadeId: z.string().optional().nullable(),
 });
 
@@ -51,7 +52,6 @@ function enriquecerEvento(evento: any): EventoEnriquecido {
         : evento.inicio,
     fim: evento.fim instanceof Date ? evento.fim.toISOString() : evento.fim,
     detalhes: evento.detalhes,
-    horario: horarioFormatado,
     tipo: getTipo(evento.atividade),
     local: evento.detalhes || 'A definir',
     status: 'agendado' as const,
@@ -116,6 +116,7 @@ export async function GET(request: Request) {
         fim: e.fim.toISOString(),
         detalhes: e.detalhes,
         modalidadeId: e.modalidadeId,
+        local: e.local,
         modalidadeRel: e.modalidadeRel,
       }));
     }
@@ -149,6 +150,7 @@ export async function POST(req: Request) {
         inicio: new Date(validatedData.inicio),
         fim: new Date(validatedData.fim),
         detalhes: validatedData.detalhes || null,
+        local: validatedData.local || null,
         modalidadeId: validatedData.modalidadeId || null,
       },
       include: {

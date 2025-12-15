@@ -204,28 +204,39 @@ async function sendEmail(
 
   const modalidades = await prisma.modalidade.findMany({
     where: { nome: { in: inscricao.modalidades } },
+    include: {
+      eventos: true,
+    },
   });
 
   const modalidadesHTML = modalidades
     .map((m) => {
-      const dataInicio = m.dataInicio
-        ? new Date(m.dataInicio).toLocaleDateString('pt-BR')
-        : 'A definir';
+      const eventosHTML = m.eventos
+        .map((e) => {
+          const dataInicio = e.inicio
+            ? new Date(e.inicio).toLocaleDateString('pt-BR')
+            : 'A definir';
 
-      const dataFim = m.dataFim
-        ? new Date(m.dataFim).toLocaleDateString('pt-BR')
-        : null;
+          const dataFim = e.fim
+            ? new Date(e.fim).toLocaleDateString('pt-BR')
+            : null;
+
+          return `
+            <div style="margin-bottom: 10px; padding-left: 15px; border-left: 2px solid #ccc;">
+              <p><strong>Atividade:</strong> ${e.atividade}</p>
+              <p><strong>Local:</strong> ${e.local || 'A definir'}</p>
+              <p><strong>Data:</strong> ${dataInicio}${
+                dataFim && dataFim !== dataInicio ? ` a ${dataFim}` : ''
+              }</p>
+            </div>
+          `;
+        })
+        .join('');
 
       return `
         <div style="margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
           <h3 style="margin: 0; color: #2563eb;">${m.nome}</h3>
-          <p>${m.descricao}</p>
-          <p><strong>Local:</strong> ${m.local || 'A definir'}</p>
-          <p><strong>Data:</strong> ${dataInicio}${
-            dataFim && dataFim !== dataInicio ? ` a ${dataFim}` : ''
-          }</p>
-          <p><strong>Horário:</strong> ${m.horario || 'A definir'}</p>
-          <p><strong>Categoria:</strong> ${m.categoria?.join(', ') || 'N/A'}</p>
+          ${eventosHTML || '<p>Nenhum evento agendado para esta modalidade.</p>'}
         </div>
       `;
     })
@@ -234,7 +245,7 @@ async function sendEmail(
   const emailHTML = `
     <h2>Olá, ${inscricao.nome}!</h2>
     <p>Sua inscrição foi confirmada com sucesso.</p>
-    <h3>Modalidades Selecionadas:</h3>
+    <h3>Modalidades Selecionadas e seus eventos:</h3>
     ${modalidadesHTML}
   `;
 
