@@ -57,7 +57,7 @@ const inscricaoSchema = z.object({
 type InscricaoFormData = z.infer<typeof inscricaoSchema>;
 
 interface InscricoesTableProps {
-  userRole: string | null;
+  equipeRole: string | null;
   orgaoDeOrigem: string | null;
   data: Inscricao[];
   columns: any[];
@@ -65,7 +65,7 @@ interface InscricoesTableProps {
 }
 
 export default function InscricoesTable({
-  userRole,
+  equipeRole,
   orgaoDeOrigem,
   data,
   columns,
@@ -165,7 +165,7 @@ export default function InscricoesTable({
         <CardHeader>
           <div className='flex items-center justify-between'>
             <CardTitle>Inscrições</CardTitle>
-            {showNewButton && userRole !== 'PONTOFOCAL' && (
+            {showNewButton && equipeRole !== 'PONTOFOCAL' && (
               <Button onClick={handleAddNew}>
                 <Plus className='h-4 w-4 mr-2' />
                 Nova Inscrição

@@ -1,9 +1,9 @@
 export interface ModalidadeSelection {
   modalidadeId: string;
   sexo?: string;
-  divisao?: string;
-  categoria?: string;
-  faixaEtaria?: string;
+  divisao?: string[];
+  categoria?: string[];
+  faixaEtaria?: string[];
   nome?: string;
 }
 

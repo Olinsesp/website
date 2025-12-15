@@ -27,6 +27,8 @@ Sistema completo de gerenciamento desenvolvido com [Next.js](https://nextjs.org)
 - ✅ Classificação por modalidade e categoria
 - ✅ Pontuação e tempos registrados
 - ✅ Visualização por atletas e equipes
+- ✅ Filtragem dinâmica de modalidades por categoria (Individual/Coletiva)
+- ✅ Entrada de atleta/equipe condicional (Atleta para modalidades individuais, Equipe para coletivas)
 
 ### 🎮 **Modalidades Esportivas**
 

@@ -133,6 +133,8 @@ O sistema deve gerenciar todo o ciclo de vida do evento esportivo, desde as insc
   - Validação de dados numéricos
   - Suporte a diferentes tipos de pontuação
   - Observações adicionais
+  - Filtragem dinâmica de modalidades por categoria
+  - Entrada condicional de atleta (para modalidades individuais) ou equipe (para modalidades coletivas)
 
 #### RF-017: Quadro de Medalhas
 

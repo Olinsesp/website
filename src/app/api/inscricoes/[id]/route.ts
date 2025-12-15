@@ -5,9 +5,9 @@ import { prisma } from '@/lib/prisma';
 const modalidadeSelectionSchema = z.object({
   modalidadeId: z.string(),
   sexo: z.string().optional(),
-  divisao: z.string().optional(),
-  categoria: z.string().optional(),
-  faixaEtaria: z.string().optional(),
+  divisao: z.array(z.string()).optional(),
+  categoria: z.array(z.string()).optional(),
+  faixaEtaria: z.array(z.string()).optional(),
 });
 
 const inscricaoUpdateSchema = z.object({

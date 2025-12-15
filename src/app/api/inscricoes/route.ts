@@ -8,9 +8,9 @@ import { Prisma } from '@prisma/client';
 const modalidadeSelectionSchema = z.object({
   modalidadeId: z.string(),
   sexo: z.string().optional(),
-  divisao: z.string().optional(),
-  categoria: z.string().optional(),
-  faixaEtaria: z.string().optional(),
+  divisao: z.array(z.string()).optional(),
+  categoria: z.array(z.string()).optional(),
+  faixaEtaria: z.array(z.string()).optional(),
 });
 
 const inscricaoSchema = z.object({
@@ -97,18 +97,41 @@ export async function POST(req: Request) {
     const { modalidades: modalidadesSelections, ...dadosInscricao } =
       validatedData;
 
+    const modalidadeIds = modalidadesSelections.map((m) => m.modalidadeId);
+    const existingModalidades = await prisma.modalidade.findMany({
+      where: {
+        id: {
+          in: modalidadeIds,
+        },
+      },
+    });
+
     const novaInscricao = await prisma.inscricao.create({
       data: {
         ...dadosInscricao,
         dataNascimento: new Date(dadosInscricao.dataNascimento),
         modalidades: {
-          create: modalidadesSelections.map((m) => ({
-            modalidadeId: m.modalidadeId,
-            sexo: m.sexo,
-            divisao: m.divisao,
-            categoria: m.categoria,
-            faixaEtaria: m.faixaEtaria,
-          })),
+          create: modalidadesSelections.map((m) => {
+            const modalidade = existingModalidades.find(
+              (em) => em.id === m.modalidadeId,
+            );
+            if (!modalidade) {
+              throw new Error(
+                `Modalidade with ID ${m.modalidadeId} not found.`,
+              );
+            }
+            return {
+              modalidade: {
+                connect: {
+                  id: modalidade.id,
+                },
+              },
+              sexo: m.sexo,
+              divisao: m.divisao,
+              categoria: m.categoria,
+              faixaEtaria: m.faixaEtaria,
+            };
+          }),
         },
       },
       include: {
@@ -140,7 +163,6 @@ export async function POST(req: Request) {
         faixaEtaria: m.faixaEtaria,
       })),
     };
-
     return NextResponse.json(resposta, { status: 201 });
   } catch (error: any) {
     if (error instanceof z.ZodError) {

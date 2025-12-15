@@ -23,18 +23,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const user = await prisma.user.findUnique({
+    const equipe = await prisma.equipe.findUnique({
       where: { username },
     });
 
-    if (!user) {
+    if (!equipe) {
       return NextResponse.json(
         { message: 'Invalid credentials' },
         { status: 401 },
       );
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, equipe.password);
 
     if (!isPasswordValid) {
       return NextResponse.json(
@@ -46,9 +46,9 @@ export async function POST(req: NextRequest) {
     const cookieStore = await cookies();
 
     const jwt = await new SignJWT({
-      id: user.id,
-      role: user.role,
-      orgaoDeOrigem: user.orgaoDeOrigem,
+      id: equipe.id,
+      role: equipe.role,
+      orgaoDeOrigem: equipe.orgaoDeOrigem,
     })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()

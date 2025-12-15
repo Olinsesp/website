@@ -20,9 +20,9 @@ export async function middleware(request: NextRequest) {
     const { payload } = await jwtVerify(sessionCookie.value, getJwtSecret());
 
     const requestHeaders = new Headers(request.headers);
-    requestHeaders.set('x-user-id', payload.id as string);
-    requestHeaders.set('x-user-role', payload.role as string);
-    requestHeaders.set('x-user-orgao', payload.orgaoDeOrigem as string);
+    requestHeaders.set('x-equipe-id', payload.id as string);
+    requestHeaders.set('x-equipe-role', payload.role as string);
+    requestHeaders.set('x-equipe-orgao', payload.orgaoDeOrigem as string);
 
     return NextResponse.next({
       request: {

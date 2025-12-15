@@ -4,9 +4,11 @@ import autoTable from 'jspdf-autotable';
 type PdfRow = {
   nome: string;
   lotacao: string;
-  modalidades: string[];
+  modalidades: string;
   email: string;
   telefone: string;
+  camiseta: string;
+  sexo: string;
 };
 
 type ClassificacaoRow = {
@@ -26,7 +28,8 @@ export function generatePDF(
     | 'inscritos'
     | 'classificacoes-atletas'
     | 'classificacoes-equipes'
-    | 'confirmacao' = 'inscritos',
+    | 'confirmacao'
+    | 'inscritos-por-modalidade' = 'inscritos',
   options?: {
     title?: string;
     subtitle?: string;
@@ -107,6 +110,46 @@ export function generatePDF(
       styles: { fontSize: 12 },
       headStyles: { fillColor: [41, 128, 185], textColor: 255 },
     });
+  } else if (type === 'inscritos-por-modalidade') {
+    doc.setFontSize(18);
+    doc.text('Relatório de Inscritos por Modalidade', 14, 20);
+
+    const tableData = data.map((row) => [
+      row.modalidade,
+      row.atleta,
+      row.lotacao,
+      row.camiseta,
+      row.telefone,
+      row.sexo_modalidade,
+      row.categoria,
+      row.faixaEtaria,
+      row.divisao,
+    ]);
+
+    autoTable(doc, {
+      head: [
+        [
+          'Modalidade',
+          'Atleta',
+          'Lotação',
+          'Camiseta',
+          'Telefone',
+          'Sexo (Mod.)',
+          'Categoria',
+          'Faixa Etária',
+          'Divisão',
+        ],
+      ],
+      body: tableData,
+      startY: 30,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+      didParseCell: function (data) {
+        if (data.section === 'body') {
+          data.cell.styles.fillColor = data.row.index % 2 === 0 ? 245 : 255;
+        }
+      },
+    });
   } else {
     doc.setFontSize(18);
     doc.text('Relatório de Inscritos', 14, 20);
@@ -123,13 +166,25 @@ export function generatePDF(
       row.modalidades,
       row.email,
       row.telefone,
+      row.camiseta,
+      row.sexo,
     ]);
 
     autoTable(doc, {
-      head: [['Nome', 'Lotação', 'Modalidades', 'Email', 'Telefone']],
+      head: [
+        [
+          'Nome',
+          'Lotação',
+          'Modalidades',
+          'Email',
+          'Telefone',
+          'Camiseta',
+          'Sexo',
+        ],
+      ],
       body: tableData,
       startY: 30,
-      styles: { fontSize: 12 },
+      styles: { fontSize: 10 },
       headStyles: { fillColor: [41, 128, 185], textColor: 255 },
     });
   }

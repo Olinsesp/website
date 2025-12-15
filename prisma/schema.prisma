@@ -8,37 +8,32 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum UserRole {
-  ADMIN
-  PONTOFOCAL
-}
-
-model User {
-  id            String   @id @default(uuid())
+model Equipe {
+  id            String     @id @default(uuid())
   nome          String
-  username      String   @unique
+  username      String     @unique
   password      String
   orgaoDeOrigem String
-  role          UserRole @default(PONTOFOCAL)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  role          EquipeRole @default(PONTOFOCAL)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 }
 
 model Modalidade {
   id                  String                @id @default(uuid())
   nome                String
   descricao           String
-  categoria           String[]              @default([])
   maxParticipantes    Int
   participantesAtuais Int                   @default(0)
   regras              String[]              @default([])
   premios             String[]              @default([])
   status              String                @default("inscricoes-abertas")
-  divisoes            String[]
   modalidadesSexo     String[]              @default([])
   faixaEtaria         String[]              @default(["Adulto"])
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
+  divisoes            String[]
+  categoria           String[]              @default([])
   classificacoes      Classificacao[]
   eventos             Evento[]
   inscricoes          InscricaoModalidade[]
@@ -67,11 +62,11 @@ model InscricaoModalidade {
   id           String     @id @default(uuid())
   inscricaoId  String
   modalidadeId String
-  sexo         String?
-  divisao      String?
-  categoria    String?
-  faixaEtaria  String?
   createdAt    DateTime   @default(now())
+  sexo         String?
+  categoria    String[]
+  divisao      String[]
+  faixaEtaria  String[]
   inscricao    Inscricao  @relation(fields: [inscricaoId], references: [id], onDelete: Cascade)
   modalidade   Modalidade @relation(fields: [modalidadeId], references: [id], onDelete: Cascade)
 
@@ -83,11 +78,11 @@ model Evento {
   atividade     String
   inicio        DateTime
   fim           DateTime
-  local         String?
   detalhes      String?
   modalidadeId  String?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+  local         String?
   modalidadeRel Modalidade? @relation(fields: [modalidadeId], references: [id])
 
   @@index([inicio])
@@ -126,4 +121,9 @@ model Midia {
 
   @@index([tipo])
   @@index([destaque])
+}
+
+enum EquipeRole {
+  ADMIN
+  PONTOFOCAL
 }

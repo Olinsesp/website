@@ -66,7 +66,7 @@ async function fetchDashboardSummary(
 export default function DashboardPage() {
   const [lotacao, setLotacao] = useState<string | null>(null);
   const [modalidade, setModalidade] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [equipeRole, setequipeRole] = useState<string | null>(null);
   const [userOrgao, setUserOrgao] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
 
@@ -86,12 +86,12 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    const fetchUserRole = async () => {
+    const fetchequipeRole = async () => {
       try {
         const verifyRes = await fetch('/api/auth/verify');
         if (!verifyRes.ok) throw new Error('Falha ao verificar usuário');
         const verifyData = await verifyRes.json();
-        setUserRole(verifyData.role);
+        setequipeRole(verifyData.role);
         setUserOrgao(verifyData.orgaoDeOrigem);
 
         if (verifyData.role === 'PONTOFOCAL') {
@@ -102,7 +102,7 @@ export default function DashboardPage() {
       }
     };
 
-    fetchUserRole();
+    fetchequipeRole();
   }, []);
 
   const {
@@ -111,14 +111,18 @@ export default function DashboardPage() {
     isError: isErrorSummary,
     error: errorSummary,
   } = useQuery<DashboardSummary, Error>({
-    queryKey: ['dashboardSummary', userOrgao, userRole],
+    queryKey: ['dashboardSummary', userOrgao, equipeRole],
     queryFn: () =>
-      fetchDashboardSummary(userRole === 'ADMIN' ? null : userOrgao),
-    enabled: !!userRole && (userRole === 'ADMIN' || !!userOrgao),
+      fetchDashboardSummary(equipeRole === 'ADMIN' ? null : userOrgao),
+    enabled: !!equipeRole && (equipeRole === 'ADMIN' || !!userOrgao),
   });
 
   const handleTabChange = (tab: string) => {
-    if (userRole !== 'PONTOFOCAL') {
+    if (
+      equipeRole !== 'PONTOFOCAL' ||
+      tab === 'inscrições' ||
+      tab === 'dashboard'
+    ) {
       setActiveTab(tab);
     }
   };
@@ -260,6 +264,8 @@ export default function DashboardPage() {
                           modalidades: i.modalidades
                             .map((m) => m.nome)
                             .join(', '),
+                          camiseta: i.camiseta,
+                          sexo: i.sexo,
                         }));
                         generatePDF(dadosParaPDF);
                       }}
@@ -336,7 +342,7 @@ export default function DashboardPage() {
                   false,
                 )}
                 data={inscritosFiltrados}
-                userRole={userRole}
+                equipeRole={equipeRole}
                 orgaoDeOrigem={userOrgao}
                 showNewButton={false}
               />
@@ -356,7 +362,7 @@ export default function DashboardPage() {
       }
     >
       <AppSidebar
-        userRole={userRole}
+        equipeRole={equipeRole}
         activeTab={activeTab}
         onTabChange={handleTabChange}
       />

@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 import bcrypt from 'bcrypt';
-import { UserRole } from '@prisma/client';
+import { EquipeRole } from '@prisma/client';
 
 async function main() {
   console.log('Start seeding...');
@@ -12,7 +12,7 @@ async function main() {
   await prisma.inscricaoModalidade.deleteMany({});
   await prisma.inscricao.deleteMany({});
   await prisma.modalidade.deleteMany({});
-  await prisma.user.deleteMany({});
+  await prisma.equipe.deleteMany({});
   console.log('Dados limpos com sucesso.');
 
   // 0. CRIAR USUÁRIOS PADRÃO
@@ -39,11 +39,11 @@ async function main() {
       username: o,
       password: await bcrypt.hash(o, 10),
       orgaoDeOrigem: o,
-      role: o === 'SSPDF' ? UserRole.ADMIN : UserRole.PONTOFOCAL,
+      role: o === 'SSPDF' ? EquipeRole.ADMIN : EquipeRole.PONTOFOCAL,
     })),
   );
 
-  await prisma.user.createMany({
+  await prisma.equipe.createMany({
     data: usuariosData,
   });
 

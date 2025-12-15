@@ -130,8 +130,8 @@ function calcularEstatisticas(classificacoesEnriquecidas: any[]) {
 export async function GET(request: NextRequest) {
   try {
     const headerList = request.headers;
-    const userRole = headerList.get('x-user-role');
-    const userOrgao = headerList.get('x-user-orgao');
+    const equipeRole = headerList.get('x-equipe-role');
+    const equipeOrgao = headerList.get('x-equipe-orgao');
 
     const { searchParams } = new URL(request.url);
     const tipo = searchParams.get('tipo');
@@ -143,10 +143,10 @@ export async function GET(request: NextRequest) {
 
     let where: Prisma.ClassificacaoWhereInput = {};
 
-    if (userRole === 'PONTOFOCAL' && userOrgao) {
+    if (equipeRole === 'PONTOFOCAL' && equipeOrgao) {
       where.OR = [
-        { inscricao: { orgaoOrigem: userOrgao } },
-        { lotacao: userOrgao },
+        { inscricao: { orgaoOrigem: equipeOrgao } },
+        { lotacao: equipeOrgao },
       ];
     }
     const queryFilters: Prisma.ClassificacaoWhereInput = {};
@@ -183,11 +183,11 @@ export async function GET(request: NextRequest) {
 
     if (incluirEstatisticas || incluirMedalhas || incluirFiltros) {
       const statsWhere =
-        userRole === 'PONTOFOCAL' && userOrgao
+        equipeRole === 'PONTOFOCAL' && equipeOrgao
           ? {
               OR: [
-                { inscricao: { orgaoOrigem: userOrgao } },
-                { lotacao: userOrgao },
+                { inscricao: { orgaoOrigem: equipeOrgao } },
+                { lotacao: equipeOrgao },
               ],
             }
           : {};

@@ -124,9 +124,6 @@ export default function ClassificacoesForm() {
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [modalidadeTypeFilter, setModalidadeTypeFilter] = useState<
-    'all' | 'individual' | 'coletiva'
-  >('all');
 
   const {
     data: classificacoes = [],
@@ -147,6 +144,17 @@ export default function ClassificacoesForm() {
     queryKey: ['modalidades'],
     queryFn: fetchModalidades,
   });
+
+  const [modalidadeTypeFilter, setModalidadeTypeFilter] =
+    useState<string>('all');
+
+  const uniqueCategories = useMemo(() => {
+    const categories = new Set<string>();
+    modalidades.forEach((m) => {
+      m.categoria.forEach((c) => categories.add(c));
+    });
+    return Array.from(categories);
+  }, [modalidades]);
 
   const {
     register,
@@ -175,11 +183,9 @@ export default function ClassificacoesForm() {
   });
 
   const filteredModalidades = useMemo(() => {
-    return modalidades.filter(() => {
+    return modalidades.filter((modalidade) => {
       if (modalidadeTypeFilter === 'all') return true;
-      if (modalidadeTypeFilter === 'individual') return false;
-      if (modalidadeTypeFilter === 'coletiva') return false;
-      return true;
+      return modalidade.categoria.includes(modalidadeTypeFilter);
     });
   }, [modalidades, modalidadeTypeFilter]);
 
@@ -449,8 +455,10 @@ export default function ClassificacoesForm() {
   }
 
   const tipoProva = useMemo(() => {
-    if (!selectedModalidade) return 'Individual';
-    return 'Individual';
+    if (!selectedModalidade) return ''; // No modality selected, no type
+    return selectedModalidade.categoria.includes('Individual')
+      ? 'Individual'
+      : 'Coletiva';
   }, [selectedModalidade]);
 
   return (
@@ -493,21 +501,22 @@ export default function ClassificacoesForm() {
                 <div className='space-y-2'>
                   <Label>Tipo de Modalidade</Label>
                   <Select
-                    onValueChange={(
-                      value: 'all' | 'individual' | 'coletiva',
-                    ) => {
+                    onValueChange={(value) => {
                       setModalidadeTypeFilter(value);
                       setValue('modalidadeId', '');
                     }}
                     value={modalidadeTypeFilter}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder='Filtrar por tipo' />
+                      <SelectValue placeholder='Filtrar por categoria' />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value='all'>Todas</SelectItem>
-                      <SelectItem value='individual'>Individual</SelectItem>
-                      <SelectItem value='coletiva'>Coletiva</SelectItem>
+                      <SelectItem value='all'>Todas as Categorias</SelectItem>
+                      {uniqueCategories.map((cat) => (
+                        <SelectItem key={cat} value={cat}>
+                          {cat}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -592,19 +601,17 @@ export default function ClassificacoesForm() {
                     </p>
                   )}
                 </div>
-                {tipoProva === 'Coletiva' && (
-                  <div className='space-y-2'>
-                    <Label htmlFor='atleta'>Equipe</Label>
-                    <Input id='atleta' {...register('atleta')} />
-                  </div>
-                )}
 
                 <SelectField
                   name='lotacao'
                   control={control}
-                  label='Lotação'
+                  label={tipoProva === 'Coletiva' ? 'Equipe' : 'Lotação'}
                   options={orgaos.map((o) => ({ value: o, label: o }))}
-                  placeholder='Selecione a lotação'
+                  placeholder={
+                    tipoProva === 'Coletiva'
+                      ? 'Selecione a equipe'
+                      : 'Selecione a lotação'
+                  }
                 />
 
                 <div className='space-y-2'>
