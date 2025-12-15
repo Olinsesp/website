@@ -63,7 +63,7 @@ async function fetchDashboardSummary(
   return response.json();
 }
 
-export default function DashboardPage() {
+export default function Dashboard() {
   const [lotacao, setLotacao] = useState<string | null>(null);
   const [modalidade, setModalidade] = useState<string | null>(null);
   const [equipeRole, setequipeRole] = useState<string | null>(null);
