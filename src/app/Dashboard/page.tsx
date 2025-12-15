@@ -118,11 +118,14 @@ export default function DashboardPage() {
   });
 
   const handleTabChange = (tab: string) => {
-    if (
-      equipeRole !== 'PONTOFOCAL' ||
-      tab === 'inscrições' ||
-      tab === 'dashboard'
-    ) {
+    if (equipeRole === 'PONTOFOCAL') {
+      if (tab === 'dashboard' || tab === 'inscrições') {
+        setActiveTab(tab);
+      } else {
+        // Default to dashboard if PONTOFOCAL tries to access unauthorized tab
+        setActiveTab('dashboard');
+      }
+    } else {
       setActiveTab(tab);
     }
   };

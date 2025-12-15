@@ -147,7 +147,9 @@ export function AppSidebar({
 
   const navItems =
     equipeRole === 'PONTOFOCAL'
-      ? data.navMain.filter((item) => item.title === 'Dashboard')
+      ? data.navMain.filter(
+          (item) => item.title === 'Dashboard' || item.title === 'Inscrições',
+        )
       : data.navMain;
 
   return (
@@ -177,7 +179,6 @@ export function AppSidebar({
                   <SidebarMenuButton
                     onClick={() => onTabChange?.(item.title.toLowerCase())}
                     isActive={activeTab === item.title.toLowerCase()}
-                    disabled={equipeRole === 'PONTOFOCAL'}
                   >
                     <item.icon />
                     <span>{item.title}</span>
