@@ -1,9 +1,8 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { z } from 'zod';
-import nodemailer from 'nodemailer';
 import { prisma } from '@/lib/prisma';
-import { Inscricao } from '@/types/inscricao';
 import { Prisma } from '@prisma/client';
+import { sendMassEmail } from '@/lib/email-utils';
 
 const modalidadeSelectionSchema = z.object({
   modalidadeId: z.string(),
@@ -138,18 +137,50 @@ export async function POST(req: Request) {
         modalidades: { include: { modalidade: true } },
       },
     });
-    const emailData = {
-      ...validatedData,
-      modalidades: novaInscricao.modalidades.map((m) => m.modalidade.nome),
-      id: novaInscricao.id,
-      status: novaInscricao.status,
-      createdAt: novaInscricao.createdAt,
-    };
+    try {
+      const inscricaoModalidadesDetalhes =
+        await prisma.inscricaoModalidade.findMany({
+          where: {
+            inscricaoId: novaInscricao.id,
+          },
+          include: {
+            modalidade: true,
+          },
+        });
 
-    sendEmail(emailData).catch((err) =>
-      console.error('❌ Erro ao enviar email:', err.message),
-    );
+      const modalidadesHTML = inscricaoModalidadesDetalhes
+        .map((im) => {
+          const optionsHTML = `
+                ${im.sexo ? `<p><strong>Sexo:</strong> ${im.sexo}</p>` : ''}
+                ${im.divisao && im.divisao.length > 0 ? `<p><strong>Divisão:</strong> ${im.divisao.join(', ')}</p>` : ''}
+                ${im.categoria && im.categoria.length > 0 ? `<p><strong>Categoria:</strong> ${im.categoria.join(', ')}</p>` : ''}
+                ${im.faixaEtaria && im.faixaEtaria.length > 0 ? `<p><strong>Faixa Etária:</strong> ${im.faixaEtaria.join(', ')}</p>` : ''}
+              `;
 
+          return `
+                <div style="margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
+                  <h3 style="margin: 0; color: #2563eb;">${im.modalidade.nome}</h3>
+                  ${optionsHTML || '<p>Nenhuma opção específica selecionada.</p>'}
+                </div>
+              `;
+        })
+        .join('');
+
+      const emailHTML = `
+            <h2>Olá, ${novaInscricao.nome}!</h2>
+            <p>Sua inscrição foi confirmada com sucesso.</p>
+            <h3>Detalhes das Modalidades Selecionadas:</h3>
+            ${modalidadesHTML}
+          `;
+
+      await sendMassEmail(
+        [novaInscricao.email],
+        'Confirmação de Inscrição - VIII Olinsesp',
+        emailHTML,
+      );
+    } catch (emailError) {
+      console.error('❌ Erro ao enviar email de confirmação:', emailError);
+    }
     const resposta = {
       ...novaInscricao,
       dataNascimento: novaInscricao.dataNascimento.toISOString(),
@@ -205,76 +236,4 @@ export async function POST(req: Request) {
       { status: 500 },
     );
   }
-}
-async function sendEmail(
-  inscricao: Omit<Inscricao, 'id' | 'status' | 'createdAt'> & {
-    sexo?: 'Masculino' | 'Feminino';
-  },
-) {
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_PASSWORD) {
-    console.warn('⚠️ Email não enviado: credenciais ausentes.');
-    return;
-  }
-
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_PASSWORD,
-    },
-  });
-
-  const modalidades = await prisma.modalidade.findMany({
-    where: { nome: { in: inscricao.modalidades } },
-    include: {
-      eventos: true,
-    },
-  });
-
-  const modalidadesHTML = modalidades
-    .map((m) => {
-      const eventosHTML = m.eventos
-        .map((e) => {
-          const dataInicio = e.inicio
-            ? new Date(e.inicio).toLocaleDateString('pt-BR')
-            : 'A definir';
-
-          const dataFim = e.fim
-            ? new Date(e.fim).toLocaleDateString('pt-BR')
-            : null;
-
-          return `
-            <div style="margin-bottom: 10px; padding-left: 15px; border-left: 2px solid #ccc;">
-              <p><strong>Atividade:</strong> ${e.atividade}</p>
-              <p><strong>Local:</strong> ${e.local || 'A definir'}</p>
-              <p><strong>Data:</strong> ${dataInicio}${
-                dataFim && dataFim !== dataInicio ? ` a ${dataFim}` : ''
-              }</p>
-            </div>
-          `;
-        })
-        .join('');
-
-      return `
-        <div style="margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
-          <h3 style="margin: 0; color: #2563eb;">${m.nome}</h3>
-          ${eventosHTML || '<p>Nenhum evento agendado para esta modalidade.</p>'}
-        </div>
-      `;
-    })
-    .join('');
-
-  const emailHTML = `
-    <h2>Olá, ${inscricao.nome}!</h2>
-    <p>Sua inscrição foi confirmada com sucesso.</p>
-    <h3>Modalidades Selecionadas e seus eventos:</h3>
-    ${modalidadesHTML}
-  `;
-
-  await transporter.sendMail({
-    from: `"Organização VIII Olinsesp" <${process.env.GMAIL_USER}>`,
-    to: inscricao.email,
-    subject: 'Confirmação de Inscrição - VIII Olinsesp',
-    html: emailHTML,
-  });
 }

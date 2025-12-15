@@ -64,20 +64,14 @@ function formatDateTime(iso: string) {
 }
 
 function matchesModalidade(
-  eventMod?: string | null,
-  inscricaoMods: any[] = [],
+  eventModalidadeId?: string | null,
+  inscricaoModalidades: { modalidadeId: string }[] = [],
 ) {
-  if (!eventMod) return false;
-  const norm = (s: string) =>
-    s
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/\p{Diacritic}/gu, '');
-  const ev = norm(eventMod);
-  return inscricaoMods.some((m) => {
-    const im = norm(m.nome);
-    return ev.includes(im) || im.includes(ev);
-  });
+  if (!eventModalidadeId) return true;
+
+  return inscricaoModalidades.some(
+    (im) => im.modalidadeId === eventModalidadeId,
+  );
 }
 
 export default function ConfirmacaoForm() {

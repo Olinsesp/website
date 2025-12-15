@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { EventoEnriquecido, DiaCronograma } from '@/types/cronograma';
+import { sendMassEmail } from '@/lib/email-utils';
 
 const eventoSchema = z.object({
   atividade: z.string().min(1, 'A atividade é obrigatória.'),
@@ -157,6 +158,66 @@ export async function POST(req: Request) {
         modalidadeRel: true,
       },
     });
+
+    let recipientEmails: string[] = [];
+    const inicioFormatted = new Date(novoEvento.inicio).toLocaleString(
+      'pt-BR',
+      { dateStyle: 'full', timeStyle: 'short' },
+    );
+    const fimFormatted = new Date(novoEvento.fim).toLocaleString('pt-BR', {
+      dateStyle: 'full',
+      timeStyle: 'short',
+    });
+
+    const subject = `Novo Evento no Cronograma Olinsesp: ${novoEvento.atividade}`;
+    const emailHtml = `
+      <h1>Novo Evento Adicionado ao Cronograma da VIII Olinsesp!</h1>
+      <p>Um novo evento foi adicionado ao cronograma:</p>
+      <ul>
+        <li><strong>Atividade:</strong> ${novoEvento.atividade}</li>
+        <li><strong>Início:</strong> ${inicioFormatted}</li>
+        <li><strong>Fim:</strong> ${fimFormatted}</li>
+        ${novoEvento.local ? `<li><strong>Local:</strong> ${novoEvento.local}</li>` : ''}
+        ${novoEvento.detalhes ? `<li><strong>Detalhes:</strong> ${novoEvento.detalhes}</li>` : ''}
+        ${novoEvento.modalidadeRel ? `<li><strong>Modalidade:</strong> ${novoEvento.modalidadeRel.nome}</li>` : ''}
+      </ul>
+      <p>Confira o cronograma completo no site para mais detalhes.</p>
+      <p>Atenciosamente,</p>
+      <p>A Equipe Olinsesp</p>
+    `;
+
+    if (novoEvento.modalidadeId) {
+      const inscricoesModalidade = await prisma.inscricaoModalidade.findMany({
+        where: {
+          modalidadeId: novoEvento.modalidadeId,
+        },
+        include: {
+          inscricao: {
+            select: {
+              email: true,
+            },
+          },
+        },
+      });
+      recipientEmails = inscricoesModalidade
+        .map((im) => im.inscricao.email)
+        .filter((email): email is string => !!email);
+    } else {
+      const allInscricoes = await prisma.inscricao.findMany({
+        select: {
+          email: true,
+        },
+      });
+      recipientEmails = allInscricoes
+        .map((i) => i.email)
+        .filter((email): email is string => !!email);
+    }
+
+    try {
+      await sendMassEmail(recipientEmails, subject, emailHtml);
+    } catch (emailError) {
+      console.error('❌ Erro ao enviar e-mails de notificação:', emailError);
+    }
 
     return NextResponse.json(
       {

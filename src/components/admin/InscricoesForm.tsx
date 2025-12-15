@@ -728,7 +728,6 @@ export default function InscricoesForm() {
                                 </Label>
                               </div>
 
-                              {/* Só deixa expandir se estiver selecionada */}
                               {isSelected && (
                                 <AccordionTrigger className='ml-4'>
                                   Opções
@@ -897,36 +896,38 @@ export default function InscricoesForm() {
                 )}
               </div>
 
-              <div className='space-y-2'>
-                <Label htmlFor='status'>Status</Label>
-                <Select
-                  value={watch('status')}
-                  onValueChange={(value) =>
-                    setValue(
-                      'status',
-                      value as 'pendente' | 'aprovada' | 'rejeitada',
-                      {
-                        shouldValidate: true,
-                      },
-                    )
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder='Selecione o status' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='pendente'>Pendente</SelectItem>
-                    <SelectItem value='aprovada'>Aprovada</SelectItem>
-                    <SelectItem value='rejeitada'>Rejeitada</SelectItem>
-                  </SelectContent>
-                </Select>
+              {equipeRole === 'ADMIN' && (
+                <div className='space-y-2'>
+                  <Label htmlFor='status'>Status</Label>
+                  <Select
+                    value={watch('status')}
+                    onValueChange={(value) =>
+                      setValue(
+                        'status',
+                        value as 'pendente' | 'aprovada' | 'rejeitada',
+                        {
+                          shouldValidate: true,
+                        },
+                      )
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder='Selecione o status' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='pendente'>Pendente</SelectItem>
+                      <SelectItem value='aprovada'>Aprovada</SelectItem>
+                      <SelectItem value='rejeitada'>Rejeitada</SelectItem>
+                    </SelectContent>
+                  </Select>
 
-                {errors.status && (
-                  <p className='text-sm text-vermelho-olinsesp'>
-                    {errors.status.message}
-                  </p>
-                )}
-              </div>
+                  {errors.status && (
+                    <p className='text-sm text-vermelho-olinsesp'>
+                      {errors.status.message}
+                    </p>
+                  )}
+                </div>
+              )}
 
               <DialogFooter>
                 <Button type='button' variant='outline' onClick={handleCancel}>

@@ -12,13 +12,9 @@ const getJwtSecret = () => {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Liberar o caminho exato de login
   if (pathname === '/login') {
     return NextResponse.next();
   }
-
-  // Redirecionar para o caminho canônico do Dashboard (com 'D' maiúsculo)
-  // Isso resolve problemas de case-sensitivity em alguns ambientes de produção
   if (
     pathname.toLowerCase().startsWith('/dashboard') &&
     !pathname.startsWith('/Dashboard')

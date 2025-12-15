@@ -162,8 +162,21 @@ export default function CronogramaForm() {
   const handleEdit = (evento: Evento) => {
     setEditingId(evento.id);
     setValue('atividade', evento.atividade);
-    setValue('inicio', evento.inicio.slice(0, 16));
-    setValue('fim', evento.fim.slice(0, 16));
+
+    const inicioDate = new Date(evento.inicio);
+    const fimDate = new Date(evento.fim);
+
+    const formatForDateTimeLocal = (date: Date) => {
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
+    setValue('inicio', formatForDateTimeLocal(inicioDate));
+    setValue('fim', formatForDateTimeLocal(fimDate));
     setValue('detalhes', evento.detalhes || '');
     setValue('local', evento.local || '');
     setValue('modalidadeId', evento.modalidadeId || null);

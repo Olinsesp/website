@@ -122,7 +122,6 @@ export default function Dashboard() {
       if (tab === 'dashboard' || tab === 'inscrições') {
         setActiveTab(tab);
       } else {
-        // Default to dashboard if PONTOFOCAL tries to access unauthorized tab
         setActiveTab('dashboard');
       }
     } else {

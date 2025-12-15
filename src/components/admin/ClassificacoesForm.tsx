@@ -455,7 +455,7 @@ export default function ClassificacoesForm() {
   }
 
   const tipoProva = useMemo(() => {
-    if (!selectedModalidade) return ''; // No modality selected, no type
+    if (!selectedModalidade) return '';
     return selectedModalidade.categoria.includes('Individual')
       ? 'Individual'
       : 'Coletiva';
