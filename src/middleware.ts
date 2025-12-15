@@ -10,6 +10,13 @@ const getJwtSecret = () => {
 };
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // liberar login
+  if (pathname.startsWith('/login')) {
+    return NextResponse.next();
+  }
+
   const sessionCookie = request.cookies.get('session');
 
   if (!sessionCookie) {
@@ -17,26 +24,27 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    const { payload } = await jwtVerify(sessionCookie.value, getJwtSecret());
+    const { payload } = await jwtVerify(
+      sessionCookie.value,
+      getJwtSecret()
+    );
 
     const requestHeaders = new Headers(request.headers);
-    requestHeaders.set('x-equipe-id', payload.id as string);
-    requestHeaders.set('x-equipe-role', payload.role as string);
-    requestHeaders.set('x-equipe-orgao', payload.orgaoDeOrigem as string);
+    requestHeaders.set('x-equipe-id', String(payload.id));
+    requestHeaders.set('x-equipe-role', String(payload.role));
+    requestHeaders.set('x-equipe-orgao', String(payload.orgaoDeOrigem));
 
     return NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
+      request: { headers: requestHeaders },
     });
-  } catch (error) {
-    console.error('Middleware JWT verification error:', error);
+  } catch {
     const response = NextResponse.redirect(new URL('/login', request.url));
     response.cookies.set('session', '', { maxAge: -1 });
     return response;
   }
 }
 
+
 export const config = {
-  matcher: '/Dashboard/:path*',
+  matcher: ['/Dashboard/:path*', '/dashboard/:path*'],
 };
