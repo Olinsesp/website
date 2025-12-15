@@ -12,9 +12,19 @@ const getJwtSecret = () => {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // liberar login
-  if (pathname.startsWith('/login')) {
+  // Liberar o caminho exato de login
+  if (pathname === '/login') {
     return NextResponse.next();
+  }
+
+  // Redirecionar para o caminho canônico do Dashboard (com 'D' maiúsculo)
+  // Isso resolve problemas de case-sensitivity em alguns ambientes de produção
+  if (
+    pathname.toLowerCase().startsWith('/dashboard') &&
+    !pathname.startsWith('/Dashboard')
+  ) {
+    const newPath = '/Dashboard' + pathname.substring('/dashboard'.length);
+    return NextResponse.redirect(new URL(newPath, request.url));
   }
 
   const sessionCookie = request.cookies.get('session');
@@ -24,10 +34,7 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    const { payload } = await jwtVerify(
-      sessionCookie.value,
-      getJwtSecret()
-    );
+    const { payload } = await jwtVerify(sessionCookie.value, getJwtSecret());
 
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set('x-equipe-id', String(payload.id));
@@ -44,7 +51,11 @@ export async function middleware(request: NextRequest) {
   }
 }
 
-
 export const config = {
-  matcher: ['/Dashboard/:path*', '/dashboard/:path*'],
+  matcher: [
+    '/Dashboard/:path*',
+    '/dashboard/:path*',
+    '/Dashboard',
+    '/dashboard',
+  ],
 };
