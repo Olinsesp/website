@@ -16,6 +16,7 @@ export interface Inscricao {
   telefone: string;
   camiseta: string;
   lotacao: string;
+  equipeId: string;
   orgaoOrigem: string;
   matricula: string;
   sexo: string;

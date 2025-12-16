@@ -40,6 +40,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Modalidade } from '@/types/modalidade';
 import { Inscricao } from '@/types/inscricao';
 
+interface Equipe {
+  id: string;
+  nome: string;
+}
+
 const modalidadeSelectionSchema = z.object({
   modalidadeId: z.string(),
   sexo: z.string().optional(),
@@ -65,6 +70,7 @@ const inscricaoSchema = z.object({
   lotacao: z.string().min(1, 'Lotação é obrigatória'),
   sexo: z.string().min(1, 'Sexo é obrigatório'),
   orgaoOrigem: z.string().min(1, 'Órgão de Origem é obrigatório'),
+  equipeId: z.string().min(1, 'Equipe é obrigatória'),
   modalidades: z
     .array(modalidadeSelectionSchema)
     .min(1, 'Selecione pelo menos uma modalidade'),
@@ -82,11 +88,17 @@ async function fetchModalidades(): Promise<Modalidade[]> {
   return data.dados || [];
 }
 
-async function fetchInscricoes(
-  orgaoDeOrigem?: string | null,
-): Promise<Inscricao[]> {
-  const url = orgaoDeOrigem
-    ? `/api/inscricoes?orgaoDeOrigem=${orgaoDeOrigem}`
+async function fetchEquipes(): Promise<Equipe[]> {
+  const response = await fetch('/api/equipes');
+  if (!response.ok) {
+    throw new Error('Erro ao carregar equipes');
+  }
+  return response.json();
+}
+
+async function fetchInscricoes(equipeId?: string | null): Promise<Inscricao[]> {
+  const url = equipeId
+    ? `/api/inscricoes?equipeId=${equipeId}`
     : '/api/inscricoes';
   const response = await fetch(url);
   if (!response.ok) {
@@ -100,7 +112,8 @@ export default function InscricoesForm() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [equipeRole, setEquipeRole] = useState<string | null>(null);
-  const [equipeOrgao, setEquipeOrgao] = useState<string | null>(null);
+  const [equipeNome, setEquipeNome] = useState<string | null>(null);
+  const [loggedInEquipeId, setLoggedInEquipeId] = useState<string | null>(null);
   const [selectedModalidade, setSelectedModalidade] = useState<string | null>(
     null,
   );
@@ -112,7 +125,8 @@ export default function InscricoesForm() {
         if (!res.ok) throw new Error('Não autenticado');
         const data = await res.json();
         setEquipeRole(data.role);
-        setEquipeOrgao(data.orgaoDeOrigem);
+        setEquipeNome(data.equipeNome);
+        setLoggedInEquipeId(data.equipeId);
       } catch (error) {
         console.error('Falha ao verificar o usuário:', error);
       }
@@ -126,9 +140,16 @@ export default function InscricoesForm() {
     isError,
     error,
   } = useQuery<Inscricao[], Error>({
-    queryKey: ['inscricoes', equipeOrgao],
-    queryFn: () => fetchInscricoes(equipeRole === 'ADMIN' ? null : equipeOrgao),
-    enabled: !!equipeRole && (equipeRole === 'ADMIN' || !!equipeOrgao),
+    queryKey: ['inscricoes', loggedInEquipeId],
+    queryFn: () =>
+      fetchInscricoes(equipeRole === 'ADMIN' ? null : loggedInEquipeId),
+    enabled: !!equipeRole && (equipeRole === 'ADMIN' || !!loggedInEquipeId),
+  });
+
+  const { data: equipes = [] } = useQuery<Equipe[]>({
+    queryKey: ['equipes'],
+    queryFn: fetchEquipes,
+    enabled: true,
   });
 
   const {
@@ -169,6 +190,7 @@ export default function InscricoesForm() {
       matricula: '',
       lotacao: '',
       orgaoOrigem: '',
+      equipeId: '',
       sexo: '',
       modalidades: [],
       status: 'pendente',
@@ -196,7 +218,6 @@ export default function InscricoesForm() {
         const errorBody = await response.json();
         throw errorBody;
       }
-
       return response;
     },
 
@@ -265,6 +286,7 @@ export default function InscricoesForm() {
     setValue('matricula', inscricao.matricula);
     setValue('lotacao', inscricao.lotacao);
     setValue('orgaoOrigem', inscricao.orgaoOrigem);
+    setValue('equipeId', inscricao.equipeId || '');
     setValue('sexo', inscricao.sexo);
     setValue('modalidades', inscricao.modalidades || []);
     setValue('status', inscricao.status);
@@ -282,7 +304,6 @@ export default function InscricoesForm() {
     setEditingId(null);
     setIsDialogOpen(false);
   };
-
   const handleAddNew = () => {
     reset({
       nome: '',
@@ -292,8 +313,9 @@ export default function InscricoesForm() {
       dataNascimento: '',
       camiseta: '',
       matricula: '',
-      lotacao: equipeRole === 'PONTOFOCAL' ? (equipeOrgao ?? '') : '',
-      orgaoOrigem: equipeRole === 'PONTOFOCAL' ? (equipeOrgao ?? '') : '',
+      lotacao: '',
+      orgaoOrigem: '',
+      equipeId: equipeRole === 'PONTOFOCAL' ? (loggedInEquipeId ?? '') : '',
       sexo: '',
       modalidades: [],
       status: 'pendente',
@@ -429,7 +451,10 @@ export default function InscricoesForm() {
                   <Download className='h-4 w-4 mr-2' />
                   PDF por Modalidade
                 </Button>
-                <Button onClick={handleAddNew}>
+                <Button
+                  onClick={handleAddNew}
+                  disabled={equipeRole === 'PONTOFOCAL' && !loggedInEquipeId}
+                >
                   <Plus className='h-4 w-4 mr-2' />
                   Nova Inscrição
                 </Button>
@@ -601,34 +626,25 @@ export default function InscricoesForm() {
                     onValueChange={(value) =>
                       setValue('lotacao', value, { shouldValidate: true })
                     }
-                    disabled={equipeRole === 'PONTOFOCAL'}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder='Selecione a lotação' />
                     </SelectTrigger>
                     <SelectContent>
-                      {equipeRole === 'ADMIN' ? (
-                        <>
-                          <SelectItem value='PMDF'>PMDF</SelectItem>
-                          <SelectItem value='CBMDF'>CBMDF</SelectItem>
-                          <SelectItem value='PCDF'>PCDF</SelectItem>
-                          <SelectItem value='PRF'>PRF</SelectItem>
-                          <SelectItem value='SSPDF'>SSPDF</SelectItem>
-                          <SelectItem value='DETRANDF'>DETRANDF</SelectItem>
-                          <SelectItem value='PF'>PF</SelectItem>
-                          <SelectItem value='PPDF'>PPDF</SelectItem>
-                          <SelectItem value='PPF'>PPF</SelectItem>
-                          <SelectItem value='PLDF'>PLDF</SelectItem>
-                          <SelectItem value='PLF'>PLF</SelectItem>
-                          <SelectItem value='SEJUS'>SEJUS</SelectItem>
-                        </>
-                      ) : (
-                        equipeOrgao && (
-                          <SelectItem value={equipeOrgao}>
-                            {equipeOrgao}
-                          </SelectItem>
-                        )
-                      )}
+                      <>
+                        <SelectItem value='PMDF'>PMDF</SelectItem>
+                        <SelectItem value='CBMDF'>CBMDF</SelectItem>
+                        <SelectItem value='PCDF'>PCDF</SelectItem>
+                        <SelectItem value='PRF'>PRF</SelectItem>
+                        <SelectItem value='SSPDF'>SSPDF</SelectItem>
+                        <SelectItem value='DETRANDF'>DETRANDF</SelectItem>
+                        <SelectItem value='PF'>PF</SelectItem>
+                        <SelectItem value='PPDF'>PPDF</SelectItem>
+                        <SelectItem value='PPF'>PPF</SelectItem>
+                        <SelectItem value='PLDF'>PLDF</SelectItem>
+                        <SelectItem value='PLF'>PLF</SelectItem>
+                        <SelectItem value='SEJUS'>SEJUS</SelectItem>
+                      </>
                     </SelectContent>
                   </Select>
                   {errors.lotacao && (
@@ -645,39 +661,64 @@ export default function InscricoesForm() {
                     onValueChange={(value) =>
                       setValue('orgaoOrigem', value, { shouldValidate: true })
                     }
-                    disabled={equipeRole === 'PONTOFOCAL'}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder='Selecione o órgão de origem' />
                     </SelectTrigger>
                     <SelectContent>
-                      {equipeRole === 'ADMIN' ? (
-                        <>
-                          <SelectItem value='PMDF'>PMDF</SelectItem>
-                          <SelectItem value='CBMDF'>CBMDF</SelectItem>
-                          <SelectItem value='PCDF'>PCDF</SelectItem>
-                          <SelectItem value='PRF'>PRF</SelectItem>
-                          <SelectItem value='SSPDF'>SSPDF</SelectItem>
-                          <SelectItem value='DETRANDF'>DETRANDF</SelectItem>
-                          <SelectItem value='PF'>PF</SelectItem>
-                          <SelectItem value='PPDF'>PPDF</SelectItem>
-                          <SelectItem value='PPF'>PPF</SelectItem>
-                          <SelectItem value='PLDF'>PLDF</SelectItem>
-                          <SelectItem value='PLF'>PLF</SelectItem>
-                          <SelectItem value='SEJUS'>SEJUS</SelectItem>
-                        </>
-                      ) : (
-                        equipeOrgao && (
-                          <SelectItem value={equipeOrgao}>
-                            {equipeOrgao}
-                          </SelectItem>
-                        )
-                      )}
+                      <>
+                        <SelectItem value='PMDF'>PMDF</SelectItem>
+                        <SelectItem value='CBMDF'>CBMDF</SelectItem>
+                        <SelectItem value='PCDF'>PCDF</SelectItem>
+                        <SelectItem value='PRF'>PRF</SelectItem>
+                        <SelectItem value='SSPDF'>SSPDF</SelectItem>
+                        <SelectItem value='DETRANDF'>DETRANDF</SelectItem>
+                        <SelectItem value='PF'>PF</SelectItem>
+                        <SelectItem value='PPDF'>PPDF</SelectItem>
+                        <SelectItem value='PPF'>PPF</SelectItem>
+                        <SelectItem value='PLDF'>PLDF</SelectItem>
+                        <SelectItem value='PLF'>PLF</SelectItem>
+                        <SelectItem value='SEJUS'>SEJUS</SelectItem>
+                      </>
                     </SelectContent>
                   </Select>
                   {errors.orgaoOrigem && (
                     <p className='text-sm text-vermelho-olinsesp'>
                       {errors.orgaoOrigem.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className='space-y-2'>
+                  <Label htmlFor='equipeId'>Equipe *</Label>
+                  <Select
+                    value={watch('equipeId')}
+                    onValueChange={(value) =>
+                      setValue('equipeId', value, { shouldValidate: true })
+                    }
+                    disabled={equipeRole === 'PONTOFOCAL'}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder='Selecione a equipe' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {equipeRole === 'ADMIN'
+                        ? equipes.map((equipe) => (
+                            <SelectItem key={equipe.id} value={equipe.id}>
+                              {equipe.nome}
+                            </SelectItem>
+                          ))
+                        : loggedInEquipeId &&
+                          equipeNome && (
+                            <SelectItem value={loggedInEquipeId}>
+                              {equipeNome.split(' - ')[1] || equipeNome}
+                            </SelectItem>
+                          )}
+                    </SelectContent>
+                  </Select>
+                  {errors.equipeId && (
+                    <p className='text-sm text-vermelho-olinsesp'>
+                      {errors.equipeId.message}
                     </p>
                   )}
                 </div>

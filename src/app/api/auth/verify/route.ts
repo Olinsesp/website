@@ -16,7 +16,7 @@ export async function GET() {
 
   if (!token) {
     return NextResponse.json(
-      { success: false, role: null, orgaoDeOrigem: null },
+      { success: false, role: null, equipeId: null, equipeNome: null },
       { status: 401 },
     );
   }
@@ -26,11 +26,12 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       role: payload.role,
-      orgaoDeOrigem: payload.orgaoDeOrigem,
+      equipeId: payload.equipeId,
+      equipeNome: payload.equipeNome,
     });
   } catch {
     return NextResponse.json(
-      { success: false, role: null, orgaoDeOrigem: null },
+      { success: false, role: null, equipeId: null, equipeNome: null },
       { status: 401 },
     );
   }

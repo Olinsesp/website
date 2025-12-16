@@ -32,6 +32,7 @@ const inscricaoSchema = z.object({
   camiseta: z.string().min(1, { message: 'Selecione um tamanho de camiseta.' }),
   lotacao: z.string(),
   orgaoOrigem: z.string(),
+  equipeId: z.string().min(1, { message: 'Equipe é obrigatória.' }),
   matricula: z
     .string()
     .min(5, { message: 'Matrícula deve ter ao menos 5 caracteres.' })
@@ -45,13 +46,13 @@ const inscricaoSchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const orgaoDeOrigem = searchParams.get('orgaoDeOrigem');
+    const equipeId = searchParams.get('equipeId');
 
     let whereClause: Prisma.InscricaoWhereInput = {};
 
-    if (orgaoDeOrigem) {
+    if (equipeId) {
       whereClause = {
-        orgaoOrigem: orgaoDeOrigem,
+        equipeId: equipeId,
       };
     }
 
@@ -90,11 +91,21 @@ export async function GET(request: NextRequest) {
 export async function POST(req: Request) {
   try {
     const json = await req.json();
-
     const validatedData = inscricaoSchema.parse(json);
 
     const { modalidades: modalidadesSelections, ...dadosInscricao } =
       validatedData;
+
+    const equipe = await prisma.equipe.findUnique({
+      where: { id: validatedData.equipeId },
+    });
+
+    if (!equipe) {
+      return NextResponse.json(
+        { error: 'Equipe não encontrada.' },
+        { status: 404 },
+      );
+    }
 
     const modalidadeIds = modalidadesSelections.map((m) => m.modalidadeId);
     const existingModalidades = await prisma.modalidade.findMany({

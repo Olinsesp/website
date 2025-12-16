@@ -9,14 +9,14 @@ datasource db {
 }
 
 model Equipe {
-  id            String     @id @default(uuid())
-  nome          String
-  username      String     @unique
-  password      String
-  orgaoDeOrigem String
-  role          EquipeRole @default(PONTOFOCAL)
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  id         String      @id @default(uuid())
+  nome       String
+  username   String      @unique
+  password   String
+  role       EquipeRole  @default(PONTOFOCAL)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  inscricoes Inscricao[]
 }
 
 model Modalidade {
@@ -56,6 +56,10 @@ model Inscricao {
   updatedAt      DateTime              @updatedAt
   classificacoes Classificacao[]
   modalidades    InscricaoModalidade[]
+  equipeId       String?
+  equipe         Equipe?               @relation(fields: [equipeId], references: [id])
+
+  @@index([equipeId])
 }
 
 model InscricaoModalidade {

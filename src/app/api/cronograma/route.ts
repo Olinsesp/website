@@ -54,7 +54,7 @@ function enriquecerEvento(evento: any): EventoEnriquecido {
     fim: evento.fim instanceof Date ? evento.fim.toISOString() : evento.fim,
     detalhes: evento.detalhes,
     tipo: getTipo(evento.atividade),
-    local: evento.detalhes || 'A definir',
+    local: evento.local || 'A definir',
     status: 'agendado' as const,
     participantes: 'Consulte detalhes',
     inicioFormatado,

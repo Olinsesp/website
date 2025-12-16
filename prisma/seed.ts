@@ -35,10 +35,9 @@ async function main() {
 
   const usuariosData = await Promise.all(
     orgaos.map(async (o) => ({
-      nome: `Ponto Focal ${o}`,
+      nome: `${o}`,
       username: o,
       password: await bcrypt.hash(o, 10),
-      orgaoDeOrigem: o,
       role: o === 'SSPDF' ? EquipeRole.ADMIN : EquipeRole.PONTOFOCAL,
     })),
   );
