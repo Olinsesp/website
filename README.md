@@ -141,14 +141,27 @@ pnpm install
 
 ### 3. **Configure as Variáveis de Ambiente**
 
-Crie um arquivo `.env.local` na raiz do projeto para configurar variáveis de produção (como serviços de email, banco de dados remoto, etc.).
+Crie um arquivo chamado `.env.local` na raiz do projeto. Este arquivo centralizará todas as chaves de API e segredos necessários para a aplicação.
+
+Copie e cole o conteúdo abaixo no seu `.env.local` e substitua os valores de exemplo pelos seus.
 
 ```bash
-# O arquivo .env.local é opcional para o ambiente de desenvolvimento,
-# pois o Prisma está pré-configurado para conectar a um banco local.
-# Exemplo de conteúdo para produção:
-DATABASE_URL="postgresql://user:password@host:port/database"
-NEXTAUTH_SECRET="seu-secret-aqui"
+# .env.local
+
+# URL de conexão do banco de dados (PostgreSQL recomendado)
+# Formato: postgresql://USER:PASSWORD@HOST:PORT/DATABASE
+DATABASE_URL="postgresql://docker:docker@localhost:5432/olinsesp"
+
+# Segredo para assinatura dos tokens JWT (JSON Web Tokens)
+# Use um valor longo, aleatório e seguro. Pode ser gerado com: openssl rand -base64 32
+JWT_SECRET="COLOQUE_SEU_SEGREDO_AQUI"
+
+# Credenciais para envio de emails via Gmail
+# É altamente recomendável usar uma "Senha de App" gerada no Google, não sua senha principal.
+GMAIL_HOST='smtp.gmail.com'
+GMAIL_USER="seu-email@gmail.com"
+GMAIL_PASSWORD="sua-senha-de-app-do-google"
+
 ```
 
 ### 4. **Execute o Banco de Dados e as Migrações**
