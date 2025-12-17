@@ -1,8 +1,9 @@
 'use client';
 
-import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CheckCircle, Phone, Mail } from 'lucide-react';
 import CountdownTimer from '@/components/ui/CountdownTimer';
+import { pontosFocais } from './pontosFocais';
 
 export default function Inscricoes() {
   return (
@@ -40,6 +41,42 @@ export default function Inscricoes() {
             Agradecemos o seu interesse e esperamos vê-lo(a) nos jogos!
           </p>
         </Card>
+        <div className='mt-12'>
+          <h2 className='text-2xl font-bold text-gray-800 mb-6 text-center'>
+            Pontos Focais por Órgão
+          </h2>
+
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+            {pontosFocais?.map((ponto, index) => (
+              <Card
+                key={index}
+                className='bg-white border border-gray-200 shadow-md hover:shadow-lg transition'
+              >
+                <CardHeader>
+                  <CardTitle className='text-lg text-azul-olinsesp'>
+                    {ponto.orgao}
+                  </CardTitle>
+                </CardHeader>
+
+                <CardContent className='space-y-3'>
+                  <p className='font-semibold text-gray-800'>{ponto.nome}</p>
+
+                  <div className='flex items-center gap-2 text-gray-600 text-sm'>
+                    <Phone className='h-4 w-4' />
+                    <span>{ponto.telefone}</span>
+                  </div>
+
+                  {ponto.email && (
+                    <div className='flex items-center gap-2 text-gray-600 text-sm break-all'>
+                      <Mail className='h-4 w-4' />
+                      <span>{ponto.email}</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
