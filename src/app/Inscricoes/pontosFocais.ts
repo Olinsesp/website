@@ -57,7 +57,7 @@ export const pontosFocais = [
     orgao: 'DETRAN/DF',
     nome: 'Erandi da Cruz Silva',
     telefone: '(61) 99927-7067',
-    email: null,
+    email: 'erandi.silva@gmail.com',
   },
   {
     orgao: 'DETRAN/DF',
@@ -92,13 +92,13 @@ export const pontosFocais = [
   {
     orgao: 'PPF',
     nome: 'Débora Ribeiro Lopes',
-    telefone: null,
+    telefone: '(61) 99335-7506',
     email: 'debora.lopes@mj.gov.br',
   },
   {
     orgao: 'PPF',
     nome: 'Brenno Elton Campos Vieira',
-    telefone: null,
+    telefone: '(86) 99817-8142',
     email: 'brenno.campos@mj.gov.br',
   },
   {
@@ -144,6 +144,12 @@ export const pontosFocais = [
     email: 'isabella.araujo@senado.leg.br',
   },
   {
+    orgao: 'PLSF',
+    nome: 'Mayra Beçon Kussakawa',
+    telefone: '(61) 98281-0005',
+    email: 'mkussaka@senado.leg.br',
+  },
+  {
     orgao: 'PLCD',
     nome: 'Joyce',
     telefone: '(61) 98597-1785',
@@ -151,8 +157,8 @@ export const pontosFocais = [
   },
   {
     orgao: 'PLCD',
-    nome: 'Antônio Fortunato Júnior',
+    nome: 'Antônio Fortunato de A. Júnior',
     telefone: '(61) 98400-9362',
-    email: null,
+    email: 'antonio.fortunato@camara.leg.br',
   },
 ];
