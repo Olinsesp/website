@@ -97,34 +97,73 @@ export async function PUT(
     const { modalidades: modalidadesSelections, ...dadosAtualizacao } =
       validatedData;
 
-    const updateData: any = { ...dadosAtualizacao };
+    const inscricaoAtual = await prisma.inscricao.findUnique({
+      where: { id },
+      select: { modalidades: { select: { modalidadeId: true } } },
+    });
 
-    if (modalidadesSelections) {
-      await prisma.inscricaoModalidade.deleteMany({
-        where: { inscricaoId: id },
-      });
-
-      updateData.modalidades = {
-        create: modalidadesSelections.map((mod) => ({
-          modalidadeId: mod.modalidadeId,
-          sexo: mod.sexo,
-          divisao: mod.divisao,
-          categoria: mod.categoria,
-          faixaEtaria: mod.faixaEtaria,
-        })),
-      };
+    if (!inscricaoAtual) {
+      return NextResponse.json(
+        { error: 'Inscrição não encontrada.' },
+        { status: 404 },
+      );
     }
 
-    const inscricaoAtualizada = await prisma.inscricao.update({
-      where: { id },
-      data: updateData,
-      include: {
-        modalidades: {
-          include: {
-            modalidade: true,
+    const oldModalidadeIds = inscricaoAtual.modalidades.map(
+      (m) => m.modalidadeId,
+    );
+    const newModalidadeIds =
+      modalidadesSelections?.map((m) => m.modalidadeId) || [];
+
+    const inscricaoAtualizada = await prisma.$transaction(async (tx) => {
+      // Decrement from old modalities
+      if (oldModalidadeIds.length > 0) {
+        await tx.modalidade.updateMany({
+          where: { id: { in: oldModalidadeIds } },
+          data: { participantesAtuais: { decrement: 1 } },
+        });
+      }
+
+      // Update inscription and its modalities
+      const updateData: any = { ...dadosAtualizacao };
+
+      if (modalidadesSelections) {
+        await tx.inscricaoModalidade.deleteMany({
+          where: { inscricaoId: id },
+        });
+
+        updateData.modalidades = {
+          create: modalidadesSelections.map((mod) => ({
+            modalidadeId: mod.modalidadeId,
+            sexo: mod.sexo,
+            divisao: mod.divisao,
+            categoria: mod.categoria,
+            faixaEtaria: mod.faixaEtaria,
+          })),
+        };
+      }
+
+      const updatedInscricao = await tx.inscricao.update({
+        where: { id },
+        data: updateData,
+        include: {
+          modalidades: {
+            include: {
+              modalidade: true,
+            },
           },
         },
-      },
+      });
+
+      // Increment for new modalities
+      if (newModalidadeIds.length > 0) {
+        await tx.modalidade.updateMany({
+          where: { id: { in: newModalidadeIds } },
+          data: { participantesAtuais: { increment: 1 } },
+        });
+      }
+
+      return updatedInscricao;
     });
 
     const inscricaoFormatada = {
@@ -183,8 +222,45 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    await prisma.inscricao.delete({
+    const inscricao = await prisma.inscricao.findUnique({
       where: { id },
+      include: {
+        modalidades: {
+          select: {
+            modalidadeId: true,
+          },
+        },
+      },
+    });
+
+    if (!inscricao) {
+      return NextResponse.json(
+        { error: 'Inscrição não encontrada.' },
+        { status: 404 },
+      );
+    }
+
+    const modalidadeIds = inscricao.modalidades.map((m) => m.modalidadeId);
+
+    await prisma.$transaction(async (tx) => {
+      if (modalidadeIds.length > 0) {
+        await tx.modalidade.updateMany({
+          where: {
+            id: {
+              in: modalidadeIds,
+            },
+          },
+          data: {
+            participantesAtuais: {
+              decrement: 1,
+            },
+          },
+        });
+      }
+
+      await tx.inscricao.delete({
+        where: { id },
+      });
     });
 
     return new NextResponse(null, { status: 204 });

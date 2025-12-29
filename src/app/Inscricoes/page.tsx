@@ -42,7 +42,7 @@ export default function Inscricoes() {
           </p>
         </Card>
         <div className='mt-12'>
-          <h2 className='text-2xl font-bold text-gray-800 mb-6 text-center'>
+          <h2 className='text-3xl font-bold text-white mb-6 text-center p-3 rounded-md bg-azul-olinsesp'>
             Pontos Focais por Órgão
           </h2>
 

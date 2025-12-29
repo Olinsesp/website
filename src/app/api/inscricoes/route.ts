@@ -116,37 +116,52 @@ export async function POST(req: Request) {
       },
     });
 
-    const novaInscricao = await prisma.inscricao.create({
-      data: {
-        ...dadosInscricao,
-        dataNascimento: new Date(dadosInscricao.dataNascimento),
-        modalidades: {
-          create: modalidadesSelections.map((m) => {
-            const modalidade = existingModalidades.find(
-              (em) => em.id === m.modalidadeId,
-            );
-            if (!modalidade) {
-              throw new Error(
-                `Modalidade with ID ${m.modalidadeId} not found.`,
+    const novaInscricao = await prisma.$transaction(async (tx) => {
+      const inscricao = await tx.inscricao.create({
+        data: {
+          ...dadosInscricao,
+          dataNascimento: new Date(dadosInscricao.dataNascimento),
+          modalidades: {
+            create: modalidadesSelections.map((m) => {
+              const modalidade = existingModalidades.find(
+                (em) => em.id === m.modalidadeId,
               );
-            }
-            return {
-              modalidade: {
-                connect: {
-                  id: modalidade.id,
+              if (!modalidade) {
+                throw new Error(
+                  `Modalidade with ID ${m.modalidadeId} not found.`,
+                );
+              }
+              return {
+                modalidade: {
+                  connect: {
+                    id: modalidade.id,
+                  },
                 },
-              },
-              sexo: m.sexo,
-              divisao: m.divisao,
-              categoria: m.categoria,
-              faixaEtaria: m.faixaEtaria,
-            };
-          }),
+                sexo: m.sexo,
+                divisao: m.divisao,
+                categoria: m.categoria,
+                faixaEtaria: m.faixaEtaria,
+              };
+            }),
+          },
         },
-      },
-      include: {
-        modalidades: { include: { modalidade: true } },
-      },
+        include: {
+          modalidades: { include: { modalidade: true } },
+        },
+      });
+
+      for (const selection of modalidadesSelections) {
+        await tx.modalidade.update({
+          where: { id: selection.modalidadeId },
+          data: {
+            participantesAtuais: {
+              increment: 1,
+            },
+          },
+        });
+      }
+
+      return inscricao;
     });
     try {
       const inscricaoModalidadesDetalhes =
