@@ -6,15 +6,6 @@ import { EquipeRole } from '@prisma/client';
 async function main() {
   console.log('Start seeding...');
 
-  // 1. LIMPAR DADOS EXISTENTES
-  console.log('Limpando dados existentes...');
-  await prisma.evento.deleteMany({});
-  await prisma.inscricaoModalidade.deleteMany({});
-  await prisma.inscricao.deleteMany({});
-  await prisma.modalidade.deleteMany({});
-  await prisma.equipe.deleteMany({});
-  console.log('Dados limpos com sucesso.');
-
   // 0. CRIAR USUÁRIOS PADRÃO
   console.log('Criando usuários do sistema...');
 
