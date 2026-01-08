@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 
 const midiaSchema = z.object({
   tipo: z.enum(['foto', 'video', 'release']),
@@ -67,8 +68,68 @@ export async function GET(request: Request) {
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const validatedData = midiaSchema.parse(body);
+    const formData = await req.formData();
+    const tipo = formData.get('tipo') as 'foto' | 'video' | 'release';
+    const titulo = formData.get('titulo') as string | null;
+    const destaque = formData.get('destaque') === 'true';
+    const file = formData.get('file') as File | null;
+    const url = formData.get('url') as string | null;
+
+    let finalUrl: string;
+
+    if (file) {
+      if (tipo === 'foto' && !file.type.startsWith('image/')) {
+        return NextResponse.json(
+          { error: 'Tipo de arquivo inválido para foto. Esperado imagem.' },
+          { status: 400 },
+        );
+      }
+
+      if (tipo === 'video' && !file.type.startsWith('video/')) {
+        return NextResponse.json(
+          { error: 'Tipo de arquivo inválido para vídeo. Esperado vídeo.' },
+          { status: 400 },
+        );
+      }
+
+      if (tipo === 'release' && file.type !== 'application/pdf') {
+        return NextResponse.json(
+          { error: 'Tipo de arquivo inválido para release. Esperado PDF.' },
+          { status: 400 },
+        );
+      }
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('midias')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        throw new Error(
+          `Erro no upload para o Supabase: ${uploadError.message}`,
+        );
+      }
+
+      const { data } = supabase.storage.from('midias').getPublicUrl(fileName);
+
+      finalUrl = data.publicUrl;
+    } else if (url) {
+      finalUrl = url;
+    } else {
+      return NextResponse.json(
+        { error: 'URL ou arquivo é obrigatório.' },
+        { status: 400 },
+      );
+    }
+
+    const validatedData = midiaSchema.parse({
+      tipo,
+      titulo,
+      destaque,
+      url: finalUrl,
+    });
 
     const novaMidia = await prisma.midia.create({
       data: {
@@ -97,6 +158,7 @@ export async function POST(req: Request) {
         { status: 400 },
       );
     }
+
     console.error('Erro ao criar mídia:', error);
     return NextResponse.json(
       { error: 'Ocorreu um erro no servidor ao criar a mídia.' },

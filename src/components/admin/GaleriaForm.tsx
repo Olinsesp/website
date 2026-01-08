@@ -43,30 +43,12 @@ import { DataTable } from '@/app/Dashboard/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-const midiaSchema = z
-  .object({
-    tipo: z.enum(['foto', 'video', 'release']),
-    url: z.string().min(1, 'Campo obrigatório'),
-    titulo: z.string().optional(),
-    destaque: z.boolean(),
-  })
-  .refine(
-    (data) => {
-      if (data.tipo === 'release') {
-        return data.url.length > 0;
-      }
-      try {
-        new URL(data.url);
-        return true;
-      } catch {
-        return false;
-      }
-    },
-    {
-      message: 'Informe uma URL válida',
-      path: ['url'],
-    },
-  );
+const midiaSchema = z.object({
+  tipo: z.enum(['foto', 'video', 'release']),
+  url: z.any(),
+  titulo: z.string().optional(),
+  destaque: z.boolean(),
+});
 
 type MidiaFormData = z.infer<typeof midiaSchema>;
 
@@ -119,15 +101,39 @@ export default function GaleriaForm() {
     { data: MidiaFormData; id?: string | null }
   >({
     mutationFn: async ({ data, id }) => {
-      const url = id ? `/api/midias/${id}` : '/api/midias';
-      const method = id ? 'PUT' : 'POST';
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+      if (id) {
+        const response = await fetch(`/api/midias/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+          throw new Error('Erro ao atualizar mídia');
+        }
+        return response;
+      }
+
+      const formData = new FormData();
+      formData.append('tipo', data.tipo);
+      formData.append('titulo', data.titulo || '');
+      formData.append('destaque', String(data.destaque));
+
+      const isFileUpload = data.url && (data.url as FileList).length > 0;
+
+      if (isFileUpload) {
+        formData.append('file', (data.url as FileList)[0]);
+      } else if (typeof data.url === 'string') {
+        formData.append('url', data.url);
+      }
+
+      const response = await fetch('/api/midias', {
+        method: 'POST',
+        body: formData,
       });
+
       if (!response.ok) {
-        throw new Error('Erro ao salvar mídia');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao salvar mídia');
       }
       return response;
     },
@@ -161,7 +167,26 @@ export default function GaleriaForm() {
   });
 
   const onSubmit = (data: MidiaFormData) => {
-    mutation.mutate({ data, id: editingId });
+    if (editingId) {
+      mutation.mutate({ data, id: editingId });
+      return;
+    }
+
+    const isFileUploadType =
+      data.tipo === 'foto' || data.tipo === 'video' || data.tipo === 'release';
+
+    if (isFileUploadType) {
+      if (!data.url || (data.url as FileList).length === 0) {
+        toast.error('Por favor, selecione um arquivo.');
+        return;
+      }
+    } else {
+      if (!data.url || data.url === '') {
+        toast.error('O campo URL é obrigatório.');
+        return;
+      }
+    }
+    mutation.mutate({ data, id: null });
   };
 
   const handleEdit = (midia: Midia) => {
@@ -412,22 +437,52 @@ export default function GaleriaForm() {
 
                 <div className='space-y-2'>
                   <Label htmlFor='url'>
-                    {watch('tipo') === 'release'
-                      ? 'Texto ou URL do Release *'
-                      : 'URL *'}
+                    {watch('tipo') === 'foto'
+                      ? 'Arquivo de Imagem *'
+                      : watch('tipo') === 'video'
+                        ? 'Arquivo de Vídeo *'
+                        : watch('tipo') === 'release'
+                          ? 'Arquivo PDF *'
+                          : 'URL *'}
                   </Label>
-                  <Input
-                    id='url'
-                    {...register('url')}
-                    placeholder={
-                      watch('tipo') === 'release'
-                        ? 'Digite o release ou cole o link'
-                        : 'https://exemplo.com/imagem.jpg'
-                    }
-                  />
+                  {watch('tipo') === 'foto' ||
+                  watch('tipo') === 'video' ||
+                  watch('tipo') === 'release' ? (
+                    <>
+                      <Input
+                        id='url'
+                        type='file'
+                        accept={
+                          watch('tipo') === 'foto'
+                            ? 'image/*'
+                            : watch('tipo') === 'video'
+                              ? 'video/*'
+                              : 'application/pdf'
+                        }
+                        {...register('url')}
+                        disabled={!!editingId}
+                      />
+                      {editingId && (
+                        <p className='text-sm text-gray-500'>
+                          Para alterar o arquivo, exclua esta mídia e adicione
+                          uma nova.
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <Input
+                      id='url'
+                      {...register('url')}
+                      placeholder={
+                        watch('tipo') === 'release'
+                          ? 'Digite o release ou cole o link'
+                          : 'https://exemplo.com/recurso.ext'
+                      }
+                    />
+                  )}
                   {errors.url && (
                     <p className='text-sm text-vermelho-olinsesp'>
-                      {errors.url.message}
+                      {errors.url.message as string}
                     </p>
                   )}
                 </div>
