@@ -188,7 +188,7 @@ export default function Dashboard() {
               <SectionCards
                 inscritosCount={summaryData?.inscritosCount || 0}
                 modalidadesCount={summaryData?.uniqueModalidades.length || 0}
-                lotacoesCount={summaryData?.uniqueLotacoes.length || 0}
+                equipesCount={summaryData?.uniqueEquipes.length || 0}
               />
 
               {/* Filtros e Controles */}

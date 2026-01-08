@@ -253,7 +253,10 @@ export default function ConfirmacaoForm() {
                       {e.modalidadeRel?.nome
                         ? `${e.modalidadeRel.nome} - `
                         : ''}
-                      {e.atividade}
+                      {e.atividade}{' '}
+                      <span className='text-xs text-muted-foreground'>
+                        ({formatDateTime(e.inicio)})
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -385,7 +388,16 @@ export default function ConfirmacaoForm() {
                           </TableCell>
                           <TableCell>
                             <div className='text-xs text-muted-foreground'>
-                              {i.modalidades.join(', ')}
+                              {Array.isArray(i.modalidades)
+                                ? i.modalidades
+                                    .map((m) =>
+                                      typeof m === 'string'
+                                        ? m
+                                        : m?.nome || m?.modalidadeId || '',
+                                    )
+                                    .filter(Boolean)
+                                    .join(', ')
+                                : ''}
                             </div>
                           </TableCell>
                           <TableCell>

@@ -15,7 +15,6 @@ import {
   Users,
   TrendingUp,
   Download,
-  Share2,
   Shield,
   Crown,
 } from 'lucide-react';
@@ -244,24 +243,24 @@ export default function Classificacoes() {
 
           {/* Classificações Tabs */}
           <Tabs
-            defaultValue='atletas'
+            value={activeTab}
             onValueChange={handleTabChange}
             className='w-full'
           >
-            <TabsList className='grid w-full grid-cols-2 bg-gray-200/60 p-1 rounded-lg'>
+            <TabsList className='grid w-full grid-cols-2 bg-gradient-to-r from-azul-olinsesp/10 to-verde-olinsesp/10 p-1 rounded-xl shadow-md border border-gray-200 mb-4'>
               <TabsTrigger
                 value='atletas'
-                className='py-2 sm:py-2.5 text-xs sm:text-sm font-semibold leading-5 text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-azul-olinsesp data-[state=active]:shadow-md transition-all'
+                className='py-3 sm:py-3.5 text-sm sm:text-base font-bold leading-5 rounded-lg transition-all flex items-center justify-center gap-2 data-[state=active]:bg-azul-olinsesp data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 text-azul-olinsesp hover:bg-azul-olinsesp/20 hover:text-azul-olinsesp focus:outline-none focus:ring-2 focus:ring-azul-olinsesp/40'
               >
-                <Users className='mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4' />
+                <Users className='h-5 w-5' />
                 <span className='hidden sm:inline'>Resultados de Atletas</span>
                 <span className='sm:hidden'>Atletas</span>
               </TabsTrigger>
               <TabsTrigger
                 value='equipes'
-                className='py-2 sm:py-2.5 text-xs sm:text-sm font-semibold leading-5 text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-azul-olinsesp data-[state=active]:shadow-md transition-all'
+                className='py-3 sm:py-3.5 text-sm sm:text-base font-bold leading-5 rounded-lg transition-all flex items-center justify-center gap-2 data-[state=active]:bg-verde-olinsesp data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 text-verde-olinsesp hover:bg-verde-olinsesp/20 hover:text-verde-olinsesp focus:outline-none focus:ring-2 focus:ring-verde-olinsesp/40'
               >
-                <Shield className='mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4' />
+                <Shield className='h-5 w-5' />
                 <span className='hidden sm:inline'>Resultados de Equipes</span>
                 <span className='sm:hidden'>Equipes</span>
               </TabsTrigger>
@@ -347,17 +346,6 @@ export default function Classificacoes() {
               </Card>
             </TabsContent>
           </Tabs>
-
-          {/* Botão de Compartilhar */}
-          <div className='flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mt-8 sm:mt-12'>
-            <Button
-              variant='outline'
-              className='border-2 border-laranja-olinsesp text-laranja-olinsesp hover:bg-laranja-olinsesp/10 hover:border-laranja-olinsesp transition-colors px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base'
-            >
-              <Share2 className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
-              Compartilhar
-            </Button>
-          </div>
         </div>
       </div>
     </QueryStateHandler>

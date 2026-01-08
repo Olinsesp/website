@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, Trophy, Users } from 'lucide-react';
+import { Trophy, Users } from 'lucide-react';
 
 import {
   Card,
@@ -13,13 +13,13 @@ import {
 interface SectionCardsProps {
   inscritosCount?: number;
   modalidadesCount?: number;
-  lotacoesCount?: number;
+  equipesCount?: number;
 }
 
 export function SectionCards({
   inscritosCount = 0,
   modalidadesCount = 0,
-  lotacoesCount = 0,
+  equipesCount = 0,
 }: SectionCardsProps) {
   return (
     <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
@@ -53,13 +53,13 @@ export function SectionCards({
       </Card>
       <Card>
         <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-          <CardTitle className='text-sm font-medium'>Lotações</CardTitle>
-          <Building2 className='h-4 w-4 text-muted-foreground' />
+          <CardTitle className='text-sm font-medium'>Equipes</CardTitle>
+          <Users className='h-4 w-4 text-muted-foreground' />
         </CardHeader>
         <CardContent>
-          <div className='text-2xl font-bold'>{lotacoesCount}</div>
+          <div className='text-2xl font-bold'>{equipesCount}</div>
           <CardDescription className='text-xs text-muted-foreground'>
-            Forças representadas
+            Equipes representadas
           </CardDescription>
         </CardContent>
       </Card>

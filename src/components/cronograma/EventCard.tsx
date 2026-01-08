@@ -46,14 +46,14 @@ export default function EventCard({ evento }: Props) {
                 {evento.participantes}
               </span>
             </div>
-            {/* {evento.resultado && (
-              <div className='flex items-center gap-2 text-verde-olinsesp font-semibold'>
-                <Trophy className='h-4 w-4 flex-shrink-0' />
-                <span className='text-sm sm:text-base'>
-                  🏆 {evento.resultado}
+            {evento.detalhes && (
+              <div className='flex items-center gap-2 text-gray-600'>
+                <span className='font-semibold text-xs sm:text-sm bg-azul-olinsesp/10 text-azul-olinsesp px-2 py-1 rounded'>
+                  Detalhes:
                 </span>
+                <span className='text-xs sm:text-sm'>{evento.detalhes}</span>
               </div>
-            )} */}
+            )}
           </div>
 
           <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 pt-2 border-t border-gray-200'>

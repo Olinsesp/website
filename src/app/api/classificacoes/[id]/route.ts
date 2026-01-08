@@ -117,7 +117,7 @@ export async function PUT(
       where: { id },
       data: {
         ...validatedData,
-        detalhes: finalDetalhes, 
+        detalhes: finalDetalhes,
         ...(validatedData.posicao && { pontuacao: newPontuacao }),
       },
       include: {

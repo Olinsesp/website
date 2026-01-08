@@ -14,7 +14,7 @@ export interface Classificacao {
   nome?: string;
   atleta?: string;
   sexo?: string;
-  inscricao?: Inscricao; 
+  inscricao?: Inscricao;
   detalhes?: Record<string, any>;
   dynamicFields?: Record<string, any>;
 }

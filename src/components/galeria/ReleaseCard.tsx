@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileTextIcon, Share2 } from 'lucide-react';
+import { FileTextIcon } from 'lucide-react';
 import { Release } from '@/types/midia';
 
 export default function ReleaseCard({ release }: { release: Release }) {
@@ -14,9 +14,6 @@ export default function ReleaseCard({ release }: { release: Release }) {
             <h4 className='text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-gray-800 hover:text-azul-olinsesp cursor-pointer transition-colors'>
               {release.titulo}
             </h4>
-            <p className='text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 leading-relaxed'>
-              {release.url}
-            </p>
             <div className='flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500'>
               <span>
                 Publicado em:{' '}
@@ -41,13 +38,6 @@ export default function ReleaseCard({ release }: { release: Release }) {
                 <FileTextIcon className='h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2' />
                 Ler Mais
               </a>
-            </Button>
-            <Button
-              variant='ghost'
-              size='sm'
-              className='h-8 w-8 sm:h-10 sm:w-10 p-0 hover:bg-gray-100'
-            >
-              <Share2 className='h-3 w-3 sm:h-4 sm:w-4' />
             </Button>
           </div>
         </div>

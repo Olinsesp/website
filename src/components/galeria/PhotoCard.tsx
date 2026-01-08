@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Eye, Share2 } from 'lucide-react';
+import { Download, Eye } from 'lucide-react';
 import Image, { StaticImageData } from 'next/image';
 import { Foto } from '@/types/midia';
 
@@ -49,20 +49,34 @@ export default function PhotoCard({ foto, onPreview }: Props) {
         <div className='flex justify-between items-center text-xs sm:text-sm text-gray-500'>
           <span>{new Date(foto.createdAt).toLocaleDateString('pt-BR')}</span>
           <div className='flex gap-1 sm:gap-2'>
-            <Button
-              variant='ghost'
-              size='sm'
-              className='h-6 w-6 sm:h-8 sm:w-8 p-0 hover:bg-gray-100'
+            <button
+              onClick={async (e) => {
+                e.preventDefault();
+                try {
+                  const urlStr =
+                    typeof foto.url === 'string' ? foto.url : foto.url.src;
+                  const response = await fetch(urlStr);
+                  const blob = await response.blob();
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = foto.titulo
+                    ? `${foto.titulo}.jpg`
+                    : 'imagem.jpg';
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                  window.URL.revokeObjectURL(url);
+                } catch {
+                  alert('Erro ao baixar imagem.');
+                }
+              }}
+              className='h-6 w-6 sm:h-8 sm:w-8 p-0 flex items-center justify-center hover:bg-gray-100 rounded-full'
+              title='Baixar imagem'
+              type='button'
             >
               <Download className='h-3 w-3 sm:h-4 sm:w-4' />
-            </Button>
-            <Button
-              variant='ghost'
-              size='sm'
-              className='h-6 w-6 sm:h-8 sm:w-8 p-0 hover:bg-gray-100'
-            >
-              <Share2 className='h-3 w-3 sm:h-4 sm:w-4' />
-            </Button>
+            </button>
           </div>
         </div>
       </CardContent>

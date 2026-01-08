@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import {
   Trophy,
   Users,
-  Target,
   Calendar,
   MapPin,
   Award,
@@ -259,17 +258,6 @@ export default function Modalidades() {
                         ))}
                       </ul>
                     </div>
-                  </div>
-
-                  {/* Botões de Ação */}
-                  <div className='flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200'>
-                    <Button
-                      variant='outline'
-                      className='border-2 border-azul-olinsesp text-azul-olinsesp hover:bg-azul-olinsesp/10 hover:border-azul-olinsesp transition-colors px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base'
-                    >
-                      <Target className='h-4 w-4 sm:h-5 sm:w-5 mr-2' />
-                      Ver Detalhes
-                    </Button>
                   </div>
                 </CardContent>
               </Card>

@@ -3,7 +3,7 @@ import autoTable from 'jspdf-autotable';
 
 type PdfRow = {
   nome: string;
-  lotacao: string;
+  equipe: string;
   modalidades: string;
   email: string;
   telefone: string;
@@ -16,7 +16,7 @@ type ClassificacaoRow = {
   atleta?: string;
   modalidade: string;
   categoria: string;
-  lotacao: string;
+  equipe: string;
   pontuacao: number;
   tempo?: string;
   distancia?: string;
@@ -50,10 +50,10 @@ export function generatePDF(
 
     const tableData = (data as ClassificacaoRow[]).map((row) => [
       row.posicao.toString(),
-      row.atleta || row.lotacao,
+      row.atleta || row.equipe,
       row.modalidade,
       row.categoria,
-      row.lotacao,
+      row.equipe,
       row.pontuacao.toString(),
       row.tempo || '-',
       row.distancia || '-',
@@ -66,7 +66,7 @@ export function generatePDF(
           isEquipe ? 'Equipe' : 'Atleta',
           'Modalidade',
           'Categoria',
-          'Lotação',
+          'Equipe',
           'Pontos',
           'Tempo',
         ],
@@ -98,13 +98,13 @@ export function generatePDF(
 
     const tableData = sorted.map((row) => [
       row.nome,
-      row.lotacao,
+      row.equipe,
       row.status ?? '-',
       row.email,
     ]);
 
     autoTable(doc, {
-      head: [['Nome', 'Lotação', 'Status', 'Email']],
+      head: [['Nome', 'Equipe', 'Status', 'Email']],
       body: tableData,
       startY: Math.max(y, 30),
       styles: { fontSize: 12 },
@@ -117,7 +117,7 @@ export function generatePDF(
     const tableData = data.map((row) => [
       row.modalidade,
       row.atleta,
-      row.lotacao,
+      row.equipe,
       row.camiseta,
       row.telefone,
       row.sexo_modalidade,
@@ -131,7 +131,7 @@ export function generatePDF(
         [
           'Modalidade',
           'Atleta',
-          'Lotação',
+          'Equipe',
           'Camiseta',
           'Telefone',
           'Sexo (Mod.)',
@@ -162,7 +162,7 @@ export function generatePDF(
 
     const tableData = sorted.map((row) => [
       row.nome,
-      row.lotacao,
+      row.equipe,
       row.modalidades,
       row.email,
       row.telefone,
@@ -174,7 +174,7 @@ export function generatePDF(
       head: [
         [
           'Nome',
-          'Lotação',
+          'Equipe',
           'Modalidades',
           'Email',
           'Telefone',

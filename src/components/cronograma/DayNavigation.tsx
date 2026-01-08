@@ -34,10 +34,12 @@ export default function DayNavigation({
       </Button>
 
       <div className='text-center order-first sm:order-none'>
-        <h3 className='text-xl sm:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
+        <h3 className='text-2xl sm:text-3xl font-extrabold text-azul-olinsesp mb-1 sm:mb-2 tracking-tight drop-shadow'>
           {title}
         </h3>
-        <p className='text-sm sm:text-base text-gray-600 font-medium'>{date}</p>
+        <p className='text-base sm:text-lg text-verde-olinsesp font-bold bg-verde-olinsesp/10 px-3 py-1 rounded inline-block'>
+          {date}
+        </p>
       </div>
 
       <Button
