@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -27,30 +27,23 @@ import QueryStateHandler from '../ui/query-state-handler';
 import { Classificacao } from '@/types/classificacao';
 import { Modalidade } from '@/types/modalidade';
 import { Inscricao } from '@/types/inscricao';
+import { Equipe } from '@/types/equipe';
 import { DataTable } from '@/app/Dashboard/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-const orgaos = [
-  'PMDF',
-  'CBMDF',
-  'PCDF',
-  'PRF',
-  'SSPDF',
-  'DETRANDF',
-  'PF',
-  'PPDF',
-  'PPF',
-  'PLDF',
-  'PLF',
-  'SEJUS',
-];
+async function fetchEquipes(): Promise<Equipe[]> {
+  const res = await fetch('/api/equipes');
+  if (!res.ok) throw new Error('Erro ao carregar equipes');
+  const data = await res.json();
+  return data.dados || data;
+}
 
 const classificacaoSchema = z.object({
   modalidadeId: z.string().min(1, 'Modalidade é obrigatória'),
   posicao: z.coerce.number().min(1, 'Posição é obrigatória'),
   inscricaoId: z.string().optional(),
-  lotacao: z.string().optional(),
+  equipe: z.string().optional(),
   tempo: z.string().optional(),
   distancia: z.string().optional(),
   observacoes: z.string().optional(),
@@ -124,7 +117,41 @@ export default function ClassificacoesForm() {
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [atletaInputValue, setAtletaInputValue] = useState('');
+  const [atletaShowOptions, setAtletaShowOptions] = useState(false);
+  const atletaInputRef = useRef<HTMLInputElement>(null);
 
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    control,
+    watch,
+    formState: { errors },
+  } = useForm<ClassificacaoFormData>({
+    resolver: zodResolver(classificacaoSchema) as any,
+    defaultValues: { dynamicFields: {} },
+  });
+
+  const watchedInscricaoId = watch('inscricaoId');
+  const watchedModalidadeId = watch('modalidadeId');
+  const { data: inscricoes = [] } = useQuery<Inscricao[], Error>({
+    queryKey: ['inscricoes', watchedModalidadeId],
+    queryFn: () => fetchInscricoesByModalidade(watchedModalidadeId),
+    enabled: !!watchedModalidadeId,
+  });
+  useEffect(() => {
+    const selectedInscricao = inscricoes?.find(
+      (i) => i.id === watchedInscricaoId,
+    );
+    if (selectedInscricao && atletaInputValue !== selectedInscricao.nome) {
+      setAtletaInputValue(selectedInscricao.nome);
+    }
+    if (!selectedInscricao && atletaInputValue !== '') {
+      setAtletaInputValue('');
+    }
+  }, [watchedInscricaoId, inscricoes, atletaInputValue]);
   const {
     data: classificacoes = [],
     isLoading: isLoadingClassificacoes,
@@ -175,6 +202,16 @@ export default function ClassificacoesForm() {
     });
   }, [modalidadesRaw]);
 
+  const {
+    data: equipes = [],
+    isLoading: isLoadingEquipes,
+    isError: isErrorEquipes,
+    error: errorEquipes,
+  } = useQuery<Equipe[], Error>({
+    queryKey: ['equipes'],
+    queryFn: fetchEquipes,
+  });
+
   const [modalidadeTypeFilter, setModalidadeTypeFilter] =
     useState<string>('all');
 
@@ -189,32 +226,6 @@ export default function ClassificacoesForm() {
     return Array.from(categories);
   }, [modalidades]);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    control,
-    watch,
-    formState: { errors },
-  } = useForm<ClassificacaoFormData>({
-    resolver: zodResolver(classificacaoSchema) as any,
-    defaultValues: { dynamicFields: {} },
-  });
-
-  const watchedModalidadeId = watch('modalidadeId');
-
-  const watchedDynamicFields = useMemo(
-    () => watch('dynamicFields') || {},
-    [watch],
-  );
-
-  const { data: inscricoes = [] } = useQuery<Inscricao[], Error>({
-    queryKey: ['inscricoes', watchedModalidadeId],
-    queryFn: () => fetchInscricoesByModalidade(watchedModalidadeId),
-    enabled: !!watchedModalidadeId,
-  });
-
   const filteredModalidades = useMemo(() => {
     return modalidades.filter((modalidade) => {
       if (modalidadeTypeFilter === 'all') return true;
@@ -228,142 +239,37 @@ export default function ClassificacoesForm() {
     [modalidades, watchedModalidadeId],
   );
 
-  const dynamicFields = useMemo(() => {
-    if (!selectedModalidade) return null;
-    const nodes: React.ReactNode[] = [];
-    const { divisoes, modalidadesSexo, faixaEtaria } =
-      selectedModalidade as any;
+  const selectedInscricao = useMemo(
+    () => inscricoes.find((i) => i.id === watchedInscricaoId),
+    [inscricoes, watchedInscricaoId],
+  );
 
-    if (modalidadesSexo?.length) {
-      nodes.push(
-        <SelectField
-          key='sexo'
-          name={'dynamicFields.sexo'}
-          control={control}
-          label='Sexo'
-          options={modalidadesSexo.map((s: string) => ({ value: s }))}
-          placeholder='Selecione o sexo'
-        />,
-      );
+  const inscricaoDetalhes = useMemo(() => {
+    if (!selectedInscricao || !selectedInscricao.modalidades?.[0]?.detalhes) {
+      return null;
     }
+    const detalhesRaw = selectedInscricao.modalidades[0].detalhes;
 
-    if (faixaEtaria?.length) {
-      nodes.push(
-        <SelectField
-          key='faixaEtaria'
-          name={'dynamicFields.faixaEtaria'}
-          control={control}
-          label='Faixa Etária'
-          options={faixaEtaria.map((f: string) => ({ value: f }))}
-          placeholder='Selecione a faixa etária'
-        />,
-      );
-    }
-
-    if (divisoes) {
-      const isStringArray =
-        Array.isArray(divisoes) && divisoes.every((d) => typeof d === 'string');
-      if (isStringArray) {
-        nodes.push(
-          <SelectField
-            key='divisao-string'
-            name={'dynamicFields.divisao'}
-            control={control}
-            label='Divisão'
-            options={(divisoes as string[]).map((d: string) => ({ value: d }))}
-            placeholder='Selecione a divisão'
-          />,
-        );
-      } else {
-        const divs = divisoes as any[];
-        const hasNomes = divs.every((d) => !!d.nome);
-
-        nodes.push(
-          <SelectField
-            key='divisao-obj'
-            name={'dynamicFields.divisao'}
-            control={control}
-            label={hasNomes ? 'Divisão' : 'Tipo'}
-            options={(divs || []).map((d) => ({
-              value: hasNomes ? d.nome : d.tipo,
-              label: hasNomes ? d.nome : d.tipo,
-            }))}
-            placeholder='Selecione a divisão'
-          />,
-        );
-
-        const selectedDiv = watchedDynamicFields?.divisao
-          ? divs.find(
-              (d) =>
-                d.nome === watchedDynamicFields.divisao ||
-                d.tipo === watchedDynamicFields.divisao,
-            )
-          : null;
-
-        if (selectedDiv) {
-          if (selectedDiv.pesos) {
-            let pesos: string[] = [];
-            const sexo = (watchedDynamicFields?.sexo || '').toLowerCase();
-            if (Array.isArray(selectedDiv.pesos)) {
-              pesos = selectedDiv.pesos;
-            } else if (sexo && selectedDiv.pesos[sexo]) {
-              pesos = selectedDiv.pesos[sexo];
-            } else {
-              if (selectedDiv.pesos.masculino)
-                pesos.push(...(selectedDiv.pesos.masculino || []));
-              if (selectedDiv.pesos.feminino)
-                pesos.push(...(selectedDiv.pesos.feminino || []));
-            }
-            if (pesos.length) {
-              nodes.push(
-                <SelectField
-                  key='peso'
-                  name={'dynamicFields.peso'}
-                  control={control}
-                  label='Peso'
-                  options={pesos.map((p: string) => ({ value: p }))}
-                  placeholder='Selecione o peso'
-                />,
-              );
-            }
-          }
-
-          if (selectedDiv.provas) {
-            nodes.push(
-              <SelectField
-                key='prova'
-                name={'dynamicFields.prova'}
-                control={control}
-                label='Prova'
-                options={(selectedDiv.provas || []).map((p: string) => ({
-                  value: p,
-                }))}
-                placeholder='Selecione a prova'
-              />,
-            );
-          }
-
-          if (selectedDiv.categorias) {
-            nodes.push(
-              <SelectField
-                key='faixa'
-                name={'dynamicFields.faixaEtaria'}
-                control={control}
-                label='Faixa Etária'
-                options={(selectedDiv.categorias || []).map((c: any) => ({
-                  value: `${c.sexo} - ${c.faixaEtaria}`,
-                  label: `${c.sexo} - ${c.faixaEtaria}`,
-                }))}
-                placeholder='Selecione a faixa etária'
-              />,
-            );
-          }
-        }
+    if (typeof detalhesRaw === 'string') {
+      try {
+        return JSON.parse(detalhesRaw);
+      } catch {
+        return detalhesRaw;
       }
     }
 
-    return nodes.length ? nodes : null;
-  }, [selectedModalidade, control, watchedDynamicFields]);
+    return detalhesRaw;
+  }, [selectedInscricao]);
+
+  const detalhesCampos = useMemo(() => {
+    if (!inscricaoDetalhes) return [];
+
+    return Object.keys(inscricaoDetalhes).map((key) => ({
+      key,
+      value: inscricaoDetalhes[key],
+      label: String(inscricaoDetalhes[key]),
+    }));
+  }, [inscricaoDetalhes]);
 
   const mutation = useMutation<
     Response,
@@ -372,7 +278,11 @@ export default function ClassificacoesForm() {
   >({
     mutationFn: async ({ data, id }) => {
       const modalidade = modalidades.find((m) => m.id === data.modalidadeId);
-      const payload = { ...data, modalidade: modalidade?.nome };
+      const { ...rest } = data;
+      const payload = {
+        ...rest,
+        modalidade: modalidade?.nome,
+      };
       const url = id ? `/api/classificacoes/${id}` : '/api/classificacoes';
       const method = id ? 'PUT' : 'POST';
       const response = await fetch(url, {
@@ -424,9 +334,14 @@ export default function ClassificacoesForm() {
       cell: ({ row }) => `${row.original.posicao}º`,
     },
     {
-      accessorKey: 'lotacao',
-      header: 'Lotação',
-      cell: ({ row }) => row.original.lotacao || 'N/A',
+      accessorKey: 'equipe',
+      header: 'Equipe',
+      cell: ({ row }) => {
+        const equipeId = row.original.equipe;
+        if (!equipeId) return 'N/A';
+        const equipeObj = equipes.find((e) => e.id === equipeId);
+        return equipeObj ? equipeObj.nome : equipeId;
+      },
     },
     {
       id: 'actions',
@@ -455,20 +370,36 @@ export default function ClassificacoesForm() {
     },
   ];
 
-  const onSubmit = (data: ClassificacaoFormData) =>
-    mutation.mutate({ data, id: editingId });
+  const onSubmit = (data: ClassificacaoFormData) => {
+    const { dynamicFields, ...rest } = data;
+    mutation.mutate({
+      data: { ...rest, detalhes: dynamicFields } as any,
+      id: editingId,
+    });
+  };
 
   function handleEdit(classificacao: Classificacao) {
     setEditingId(classificacao.id);
-    reset();
-    setValue('modalidadeId', classificacao.modalidadeId);
-    setValue('posicao', classificacao.posicao);
-    setValue('inscricaoId', classificacao.inscricaoId || '');
-    setValue('lotacao', classificacao.lotacao || '');
-    setValue('tempo', classificacao.tempo || '');
-    setValue('distancia', classificacao.distancia || '');
-    setValue('observacoes', classificacao.observacoes || '');
-    setValue('atleta', classificacao.atleta || '');
+    const detalhes =
+      classificacao.detalhes || classificacao.dynamicFields || {};
+    let equipeId = '';
+    if (classificacao.equipe) {
+      const equipeObj = equipes.find(
+        (e) => e.id === classificacao.equipe || e.nome === classificacao.equipe,
+      );
+      equipeId = equipeObj ? equipeObj.id : classificacao.equipe;
+    }
+    reset({
+      modalidadeId: classificacao.modalidadeId,
+      posicao: classificacao.posicao,
+      inscricaoId: classificacao.inscricaoId || '',
+      equipe: equipeId,
+      tempo: classificacao.tempo || '',
+      distancia: classificacao.distancia || '',
+      observacoes: classificacao.observacoes || '',
+      atleta: classificacao.atleta || '',
+      dynamicFields: detalhes,
+    });
     setIsDialogOpen(true);
   }
 
@@ -484,7 +415,17 @@ export default function ClassificacoesForm() {
   }
 
   function handleAddNew() {
-    reset();
+    reset({
+      modalidadeId: '',
+      posicao: undefined,
+      inscricaoId: '',
+      equipe: '',
+      tempo: '',
+      distancia: '',
+      observacoes: '',
+      atleta: '',
+      dynamicFields: {},
+    });
     setEditingId(null);
     setIsDialogOpen(true);
   }
@@ -499,9 +440,11 @@ export default function ClassificacoesForm() {
 
   return (
     <QueryStateHandler
-      isLoading={isLoadingClassificacoes || isLoadingModalidades}
-      isError={isErrorClassificacoes || isErrorModalidades}
-      error={errorClassificacoes || errorModalidades}
+      isLoading={
+        isLoadingClassificacoes || isLoadingModalidades || isLoadingEquipes
+      }
+      isError={isErrorClassificacoes || isErrorModalidades || isErrorEquipes}
+      error={errorClassificacoes || errorModalidades || errorEquipes}
       loadingMessage='Carregando classificações...'
     >
       <div className='space-y-6'>
@@ -591,41 +534,99 @@ export default function ClassificacoesForm() {
                   )}
                 </div>
 
-                {dynamicFields}
-
                 {tipoProva === 'Individual' && (
-                  <div className='space-y-2'>
+                  <div className='space-y-2 relative'>
                     <Label>Atleta Inscrito</Label>
                     <Controller
                       name='inscricaoId'
                       control={control}
-                      render={({ field }) => (
-                        <Select
-                          onValueChange={(value) => {
-                            field.onChange(value);
-                            const selectedInscricao = inscricoes.find(
-                              (i) => i.id === value,
-                            );
-                            if (selectedInscricao) {
-                              setValue('atleta', selectedInscricao.nome);
-                            }
-                          }}
-                          value={field.value}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder='Selecione o atleta' />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {inscricoes.map((i) => (
-                              <SelectItem key={i.id} value={i.id}>
-                                {i.nome}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
+                      render={({ field }) => {
+                        const filtered = atletaInputValue
+                          ? inscricoes.filter((i) =>
+                              i.nome
+                                .toLowerCase()
+                                .includes(atletaInputValue.toLowerCase()),
+                            )
+                          : inscricoes;
+                        return (
+                          <div className='relative'>
+                            <Input
+                              ref={atletaInputRef}
+                              placeholder='Digite o nome do atleta...'
+                              value={atletaInputValue}
+                              onChange={(e) => {
+                                setAtletaInputValue(e.target.value);
+                                setAtletaShowOptions(true);
+                                field.onChange('');
+                              }}
+                              onFocus={() => setAtletaShowOptions(true)}
+                              autoComplete='off'
+                            />
+                            {atletaShowOptions && filtered.length > 0 && (
+                              <ul className='absolute z-10 bg-white border border-gray-200 rounded w-full max-h-48 overflow-auto shadow-lg mt-1'>
+                                {filtered.map((i) => (
+                                  <li
+                                    key={i.id}
+                                    className='px-3 py-2 cursor-pointer hover:bg-gray-100'
+                                    onMouseDown={() => {
+                                      setAtletaInputValue(i.nome);
+                                      setAtletaShowOptions(false);
+                                      field.onChange(i.id);
+                                      setValue('atleta', i.nome);
+                                    }}
+                                  >
+                                    {i.nome}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        );
+                      }}
                     />
                   </div>
+                )}
+
+                {tipoProva === 'Individual' && detalhesCampos.length > 0 && (
+                  <>
+                    {detalhesCampos.map((detalhe) => (
+                      <div key={detalhe.key} className='space-y-2'>
+                        <Label htmlFor={detalhe.key}>
+                          {detalhe.key.charAt(0).toUpperCase() +
+                            detalhe.key.slice(1)}
+                        </Label>
+                        <Controller
+                          name={`dynamicFields.${detalhe.key}`}
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value || ''}
+                            >
+                              <SelectTrigger>
+                                <SelectValue
+                                  placeholder={`Selecione ${detalhe.key}`}
+                                />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Array.isArray(detalhe.value) ? (
+                                  detalhe.value.map((item, idx) => (
+                                    <SelectItem key={idx} value={String(item)}>
+                                      {String(item)}
+                                    </SelectItem>
+                                  ))
+                                ) : (
+                                  <SelectItem value={detalhe.label}>
+                                    {detalhe.label}
+                                  </SelectItem>
+                                )}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
+                      </div>
+                    ))}
+                  </>
                 )}
 
                 <div className='space-y-2'>
@@ -639,15 +640,17 @@ export default function ClassificacoesForm() {
                 </div>
 
                 <SelectField
-                  name='lotacao'
+                  name='equipe'
                   control={control}
-                  label={tipoProva === 'Coletiva' ? 'Equipe' : 'Lotação'}
-                  options={orgaos.map((o) => ({ value: o, label: o }))}
-                  placeholder={
-                    tipoProva === 'Coletiva'
-                      ? 'Selecione a equipe'
-                      : 'Selecione a lotação'
-                  }
+                  label='Equipe'
+                  options={Array.from(
+                    new Map(
+                      equipes
+                        .filter((e) => e.nome !== 'ADMIN')
+                        .map((e) => [e.nome, { value: e.id, label: e.nome }]),
+                    ).values(),
+                  )}
+                  placeholder='Selecione a equipe'
                 />
 
                 <div className='space-y-2'>

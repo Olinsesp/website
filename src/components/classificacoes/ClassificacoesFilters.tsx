@@ -14,26 +14,26 @@ import React from 'react';
 type Props = {
   modalidade: string | null;
   categoria: string | null;
-  lotacao: string | null;
+  equipe: string | null;
   modalidades: string[];
   categorias: string[];
-  lotacoes: string[];
+  equipes: string[];
   onChangeModalidade: (value: string | null) => void;
   onChangeCategoria: (value: string | null) => void;
-  onChangeLotacao: (value: string | null) => void;
+  onChangeEquipe: (value: string | null) => void;
   className?: string;
 };
 
 export function ClassificacoesFilters({
   modalidade,
   categoria,
-  lotacao,
+  equipe,
   modalidades,
   categorias,
-  lotacoes,
+  equipes,
   onChangeModalidade,
   onChangeCategoria,
-  onChangeLotacao,
+  onChangeEquipe,
   className,
 }: Props) {
   return (
@@ -100,20 +100,20 @@ export function ClassificacoesFilters({
 
           <div className='space-y-2'>
             <label className='text-xs sm:text-sm font-medium text-gray-700'>
-              Lotação
+              Equipe
             </label>
             <Select
-              value={lotacao ?? 'todos'}
+              value={equipe ?? 'todos'}
               onValueChange={(val) =>
-                onChangeLotacao(val === 'todos' ? null : val)
+                onChangeEquipe(val === 'todos' ? null : val)
               }
             >
               <SelectTrigger className='w-full border-2 border-gray-200 bg-white hover:border-azul-olinsesp transition-colors text-sm'>
-                <SelectValue placeholder='Todas as lotações' />
+                <SelectValue placeholder='Todas as equipes' />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='todos'>Todas as lotações</SelectItem>
-                {lotacoes.map((a) => (
+                <SelectItem value='todos'>Todas as equipes</SelectItem>
+                {equipes.map((a) => (
                   <SelectItem key={a} value={a}>
                     {a}
                   </SelectItem>

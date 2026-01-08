@@ -25,11 +25,12 @@ const classificacaoUpdateSchema = z.object({
     .min(1, 'A posição deve ser maior que 0.')
     .optional(),
   inscricaoId: z.string().optional(),
-  lotacao: z.string().optional(),
+  equipe: z.string().optional(),
   tempo: z.string().optional(),
   distancia: z.string().optional(),
   observacoes: z.string().optional(),
   atleta: z.string().optional(),
+  detalhes: z.record(z.string(), z.any()).optional(),
 });
 
 export async function GET(
@@ -59,12 +60,13 @@ export async function GET(
       modalidadeId: classificacao.modalidadeId,
       posicao: classificacao.posicao,
       inscricaoId: classificacao.inscricaoId,
-      lotacao: classificacao.lotacao,
+      equipe: classificacao.equipe,
       tempo: classificacao.tempo,
       distancia: classificacao.distancia,
       observacoes: classificacao.observacoes,
       atleta: classificacao.atleta,
       pontuacao: classificacao.pontuacao,
+      detalhes: classificacao.detalhes,
     });
   } catch (error) {
     console.error('Erro ao buscar classificação:', error);
@@ -91,10 +93,31 @@ export async function PUT(
       newPontuacao = pointsMap[validatedData.posicao] ?? 0;
     }
 
+    let finalDetalhes = validatedData.detalhes || {};
+
+    if (validatedData.inscricaoId && validatedData.modalidadeId) {
+      const inscricaoModalidade = await prisma.inscricaoModalidade.findUnique({
+        where: {
+          inscricaoId_modalidadeId: {
+            inscricaoId: validatedData.inscricaoId,
+            modalidadeId: validatedData.modalidadeId,
+          },
+        },
+      });
+
+      if (inscricaoModalidade?.detalhes) {
+        finalDetalhes = {
+          ...(inscricaoModalidade.detalhes as object),
+          ...finalDetalhes,
+        };
+      }
+    }
+
     const classificacaoAtualizada = await prisma.classificacao.update({
       where: { id },
       data: {
         ...validatedData,
+        detalhes: finalDetalhes, 
         ...(validatedData.posicao && { pontuacao: newPontuacao }),
       },
       include: {
@@ -108,12 +131,13 @@ export async function PUT(
       modalidadeId: classificacaoAtualizada.modalidadeId,
       posicao: classificacaoAtualizada.posicao,
       inscricaoId: classificacaoAtualizada.inscricaoId,
-      lotacao: classificacaoAtualizada.lotacao,
+      equipe: classificacaoAtualizada.equipe,
       tempo: classificacaoAtualizada.tempo,
       distancia: classificacaoAtualizada.distancia,
       observacoes: classificacaoAtualizada.observacoes,
       atleta: classificacaoAtualizada.atleta,
       pontuacao: classificacaoAtualizada.pontuacao,
+      detalhes: classificacaoAtualizada.detalhes,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

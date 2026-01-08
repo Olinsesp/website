@@ -9,16 +9,16 @@ export interface ClassificacoesResponse {
     totalClassificacoes: number;
     totalCampeoes: number;
     totalModalidades: number;
-    totalLotacoes: number;
+    totalEquipes: number;
     modalidades: string[];
     categorias: string[];
-    lotacoes: string[];
+    equipes: string[];
   };
   quadroMedalhas?: MedalRow[];
   filtros?: {
     modalidades: string[];
     categorias: string[];
-    lotacoes: string[];
+    equipes: string[];
   };
 }
 

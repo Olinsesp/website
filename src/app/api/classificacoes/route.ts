@@ -7,11 +7,12 @@ const classificacaoSchema = z.object({
   modalidadeId: z.string().min(1, 'O ID da modalidade é obrigatório.'),
   posicao: z.number().min(1, 'A posição deve ser maior que 0.'),
   inscricaoId: z.string().optional(),
-  lotacao: z.string().optional(),
+  equipe: z.string().optional(),
   tempo: z.string().optional(),
   distancia: z.string().optional(),
   observacoes: z.string().optional(),
   atleta: z.string().optional(),
+  detalhes: z.record(z.string(), z.any()).optional(),
 });
 
 const pontuacaoMapa: Record<number, number> = {
@@ -36,13 +37,24 @@ async function enrichClassificacao(classificacao: any) {
     : null;
 
   let atletaNome = classificacao.atleta;
-  let lotacaoEnriquecida = classificacao.lotacao;
+  let equipeEnriquecida = null;
+
+  if (
+    classificacao.inscricao &&
+    classificacao.inscricao.equipeRel &&
+    classificacao.inscricao.equipeRel.nome
+  ) {
+    equipeEnriquecida = classificacao.inscricao.equipeRel.nome;
+  } else if (classificacao.inscricao && classificacao.inscricao.equipe) {
+    equipeEnriquecida = classificacao.inscricao.equipe;
+  } else if (classificacao.equipe) {
+    equipeEnriquecida = classificacao.equipe;
+  } else if (classificacao.inscricao && classificacao.inscricao.lotacao) {
+    equipeEnriquecida = classificacao.inscricao.lotacao;
+  }
 
   if (!atletaNome && classificacao.inscricaoId && classificacao.inscricao) {
     atletaNome = classificacao.inscricao.nome;
-    lotacaoEnriquecida = classificacao.inscricao.lotacao;
-  } else if (!atletaNome && classificacao.lotacao) {
-    atletaNome = classificacao.lotacao;
   }
 
   let sexo = '';
@@ -59,14 +71,15 @@ async function enrichClassificacao(classificacao: any) {
     modalidadeId: classificacao.modalidadeId,
     posicao: classificacao.posicao,
     inscricaoId: classificacao.inscricaoId,
-    lotacao: lotacaoEnriquecida || classificacao.lotacao,
+    equipe: equipeEnriquecida || '-',
     pontuacao: classificacao.pontuacao,
     tempo: classificacao.tempo,
     distancia: classificacao.distancia,
     observacoes: classificacao.observacoes,
-    atleta: atletaNome || 'Atleta/Equipe Desconhecido',
+    atleta: atletaNome || '-',
     modalidade: modalidade?.nome || 'Modalidade Desconhecida',
     sexo: sexo || 'N/A',
+    detalhes: classificacao.detalhes,
   };
 }
 
@@ -74,7 +87,7 @@ function calcularQuadroMedalhas(classificacoesEnriquecidas: any[]) {
   const mapa = new Map<
     string,
     {
-      lotacao: string;
+      equipe: string;
       ouro: number;
       prata: number;
       bronze: number;
@@ -83,10 +96,10 @@ function calcularQuadroMedalhas(classificacoesEnriquecidas: any[]) {
   >();
 
   for (const c of classificacoesEnriquecidas) {
-    if (c.posicao > 3 || !c.lotacao) continue;
+    if (c.posicao > 3 || !c.equipe) continue;
 
-    const atual = mapa.get(c.lotacao) || {
-      lotacao: c.lotacao,
+    const atual = mapa.get(c.equipe) || {
+      equipe: c.equipe,
       ouro: 0,
       prata: 0,
       bronze: 0,
@@ -97,7 +110,7 @@ function calcularQuadroMedalhas(classificacoesEnriquecidas: any[]) {
     if (c.posicao === 2) atual.prata += 1;
     if (c.posicao === 3) atual.bronze += 1;
     atual.total = atual.ouro + atual.prata + atual.bronze;
-    mapa.set(c.lotacao, atual);
+    mapa.set(c.equipe, atual);
   }
 
   return Array.from(mapa.values()).sort((a, b) => {
@@ -112,8 +125,8 @@ function calcularEstatisticas(classificacoesEnriquecidas: any[]) {
   const modalidadesUnicas = new Set(
     classificacoesEnriquecidas.map((c) => c.modalidade).filter(Boolean),
   );
-  const lotacoesUnicas = new Set(
-    classificacoesEnriquecidas.map((c) => c.lotacao).filter(Boolean),
+  const equipesUnicas = new Set(
+    classificacoesEnriquecidas.map((c) => c.equipe).filter(Boolean),
   );
 
   return {
@@ -121,9 +134,9 @@ function calcularEstatisticas(classificacoesEnriquecidas: any[]) {
     totalCampeoes: classificacoesEnriquecidas.filter((c) => c.posicao === 1)
       .length,
     totalModalidades: modalidadesUnicas.size,
-    totalLotacoes: lotacoesUnicas.size,
+    totalEquipes: equipesUnicas.size,
     modalidades: Array.from(modalidadesUnicas) as string[],
-    lotacoes: Array.from(lotacoesUnicas) as string[],
+    equipes: Array.from(equipesUnicas) as string[],
   };
 }
 
@@ -136,7 +149,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const tipo = searchParams.get('tipo');
     const modalidade = searchParams.get('modalidade');
-    const lotacao = searchParams.get('lotacao');
+    const equipe = searchParams.get('equipe');
     const incluirMedalhas = searchParams.get('medalhas') === 'true';
     const incluirEstatisticas = searchParams.get('estatisticas') !== 'false';
     const incluirFiltros = searchParams.get('filtros') === 'true';
@@ -146,15 +159,15 @@ export async function GET(request: NextRequest) {
     if (equipeRole === 'PONTOFOCAL' && equipeOrgao) {
       where.OR = [
         { inscricao: { orgaoOrigem: equipeOrgao } },
-        { lotacao: equipeOrgao },
+        { equipe: equipeOrgao },
       ];
     }
     const queryFilters: Prisma.ClassificacaoWhereInput = {};
     if (modalidade) {
       queryFilters.modalidade = { nome: modalidade };
     }
-    if (lotacao) {
-      where = { ...where, lotacao: lotacao };
+    if (equipe) {
+      where = { ...where, equipe: equipe };
     }
     if (tipo === 'atletas') {
       queryFilters.inscricaoId = { not: null };
@@ -216,7 +229,7 @@ export async function GET(request: NextRequest) {
         const estatisticas = calcularEstatisticas(todasEnriquecidas);
         response.filtros = {
           modalidades: estatisticas.modalidades,
-          lotacoes: estatisticas.lotacoes,
+          equipes: estatisticas.equipes,
         };
       }
     }
@@ -235,19 +248,16 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const validatedData = classificacaoSchema.parse(body);
-    const pontuacaoCalculada = pontuacaoMapa[validatedData.posicao] ?? 0;
+    const { detalhes, ...restOfValidatedData } = validatedData;
+    const pontuacaoCalculada = pontuacaoMapa[restOfValidatedData.posicao] ?? 0;
+
+    const finalDetalhes = detalhes || {};
 
     const novaClassificacao = await prisma.classificacao.create({
       data: {
-        modalidadeId: validatedData.modalidadeId,
-        posicao: validatedData.posicao,
-        inscricaoId: validatedData.inscricaoId || null,
-        lotacao: validatedData.lotacao || null,
+        ...restOfValidatedData,
+        detalhes: finalDetalhes,
         pontuacao: pontuacaoCalculada,
-        tempo: validatedData.tempo || null,
-        distancia: validatedData.distancia || null,
-        observacoes: validatedData.observacoes || null,
-        atleta: validatedData.atleta || null,
       },
       include: {
         modalidade: true,

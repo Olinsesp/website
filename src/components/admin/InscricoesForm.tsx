@@ -58,6 +58,23 @@ interface FlattenedInscricaoData {
   divisao: string;
 }
 
+const LOTACOES_ORGAOS = [
+  'PMDF',
+  'CBMDF',
+  'PCDF',
+  'PRF',
+  'SSPDF',
+  'DETRANDF',
+  'PF',
+  'PPDF',
+  'PPF',
+  'PLDF',
+  'PLSF',
+  'PLCD',
+  'SEJUS',
+  'outro',
+];
+
 const modalidadeSelectionSchema = z.object({
   modalidadeId: z.string(),
   detalhes: z.record(z.string(), z.array(z.string())).optional(),
@@ -789,20 +806,11 @@ export default function InscricoesForm() {
                       <SelectValue placeholder='Selecione a lotação' />
                     </SelectTrigger>
                     <SelectContent>
-                      <>
-                        <SelectItem value='PMDF'>PMDF</SelectItem>
-                        <SelectItem value='CBMDF'>CBMDF</SelectItem>
-                        <SelectItem value='PCDF'>PCDF</SelectItem>
-                        <SelectItem value='PRF'>PRF</SelectItem>
-                        <SelectItem value='SSPDF'>SSPDF</SelectItem>
-                        <SelectItem value='DETRANDF'>DETRANDF</SelectItem>
-                        <SelectItem value='PF'>PF</SelectItem>
-                        <SelectItem value='PPDF'>PPDF</SelectItem>
-                        <SelectItem value='PPF'>PPF</SelectItem>
-                        <SelectItem value='PLDF'>PLDF</SelectItem>
-                        <SelectItem value='PLF'>PLF</SelectItem>
-                        <SelectItem value='SEJUS'>SEJUS</SelectItem>
-                      </>
+                      {LOTACOES_ORGAOS.map((l) => (
+                        <SelectItem key={l} value={l}>
+                          {l}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   {errors.lotacao && (
@@ -824,20 +832,11 @@ export default function InscricoesForm() {
                       <SelectValue placeholder='Selecione o órgão de origem' />
                     </SelectTrigger>
                     <SelectContent>
-                      <>
-                        <SelectItem value='PMDF'>PMDF</SelectItem>
-                        <SelectItem value='CBMDF'>CBMDF</SelectItem>
-                        <SelectItem value='PCDF'>PCDF</SelectItem>
-                        <SelectItem value='PRF'>PRF</SelectItem>
-                        <SelectItem value='SSPDF'>SSPDF</SelectItem>
-                        <SelectItem value='DETRANDF'>DETRANDF</SelectItem>
-                        <SelectItem value='PF'>PF</SelectItem>
-                        <SelectItem value='PPDF'>PPDF</SelectItem>
-                        <SelectItem value='PPF'>PPF</SelectItem>
-                        <SelectItem value='PLDF'>PLDF</SelectItem>
-                        <SelectItem value='PLF'>PLF</SelectItem>
-                        <SelectItem value='SEJUS'>SEJUS</SelectItem>
-                      </>
+                      {LOTACOES_ORGAOS.map((l) => (
+                        <SelectItem key={l} value={l}>
+                          {l}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   {errors.orgaoOrigem && (
@@ -861,7 +860,13 @@ export default function InscricoesForm() {
                     </SelectTrigger>
                     <SelectContent>
                       {equipeRole === 'ADMIN'
-                        ? equipes.map((equipe) => (
+                        ? Array.from(
+                            new Map(
+                              equipes
+                                .filter((e) => e.nome !== 'ADMIN')
+                                .map((e) => [e.nome, e]),
+                            ).values(),
+                          ).map((equipe) => (
                             <SelectItem key={equipe.id} value={equipe.id}>
                               {equipe.nome}
                             </SelectItem>

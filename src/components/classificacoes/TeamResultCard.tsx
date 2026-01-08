@@ -25,7 +25,7 @@ export default function TeamResultCard({ classificacao }: Props) {
             </div>
             <div className='flex-1'>
               <h4 className='font-semibold text-xl mb-3 text-gray-800'>
-                {classificacao.lotacao}
+                {classificacao.equipe || '-'}
               </h4>
               <div className='space-y-2'>
                 <div className='flex items-center gap-2 text-gray-600'>
@@ -35,6 +35,7 @@ export default function TeamResultCard({ classificacao }: Props) {
                   </span>
                   <span className='text-gray-400'>•</span>
                 </div>
+                {renderDetalhes(classificacao.detalhes)}
               </div>
             </div>
           </div>
@@ -69,3 +70,47 @@ export default function TeamResultCard({ classificacao }: Props) {
     </Card>
   );
 }
+
+const renderDetalhes = (detalhes: Record<string, any> | undefined) => {
+  if (!detalhes || Object.keys(detalhes).length === 0) {
+    return null;
+  }
+
+  const labels: Record<string, string> = {
+    genero: 'Gênero',
+    faixasEtarias: 'Faixa Etária',
+    graduacoes: 'Graduação',
+    categoriasPeso: 'Divisão de Peso',
+    provas: 'Prova',
+    categoria: 'Categoria',
+  };
+
+  return (
+    <div className='mt-3 rounded-lg bg-purple-50/60 border border-purple-100 px-3 py-2 shadow-sm'>
+      <div className='font-semibold text-purple-900 text-xs sm:text-sm mb-2 flex items-center gap-2'>
+        <span className='inline-block w-2 h-2 bg-purple-400 rounded-full'></span>
+        Detalhes da Prova
+      </div>
+      <div className='flex flex-col gap-1'>
+        {Object.entries(detalhes).map(([key, value]) => {
+          if (value) {
+            const label = labels[key] || key;
+            const displayValue = Array.isArray(value)
+              ? value.join(', ')
+              : value;
+            return (
+              <div
+                key={key}
+                className='flex items-center gap-2 text-purple-900/90 text-xs sm:text-sm'
+              >
+                <span className='font-medium whitespace-nowrap'>{label}:</span>
+                <span className='truncate'>{displayValue}</span>
+              </div>
+            );
+          }
+          return null;
+        })}
+      </div>
+    </div>
+  );
+};

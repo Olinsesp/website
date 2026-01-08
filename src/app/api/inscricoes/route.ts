@@ -104,6 +104,7 @@ export async function POST(req: Request) {
     const novaInscricao = await prisma.$transaction(async (tx) => {
       const inscricao = await tx.inscricao.create({
         data: {
+          equipe: equipe.nome,
           ...dadosInscricao,
           dataNascimento: new Date(dadosInscricao.dataNascimento),
           modalidades: {

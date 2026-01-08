@@ -22,6 +22,12 @@ export async function GET(
           },
         },
       },
+      include: {
+        modalidades: {
+          where: { modalidadeId: modalidadeId },
+          select: { detalhes: true },
+        },
+      },
       orderBy: { nome: 'asc' },
     });
 

@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
       where: whereClause,
       include: {
         modalidades: { include: { modalidade: true } },
-        equipe: true,
+        equipeRel: true,
       },
     });
 
@@ -55,15 +55,18 @@ export async function GET(request: NextRequest) {
 
     const equipesMap = new Map<string, number>();
     inscricoes.forEach((i) => {
-      if (i.equipe) {
-        equipesMap.set(i.equipe.nome, (equipesMap.get(i.equipe.nome) || 0) + 1);
+      if (i.equipeRel) {
+        equipesMap.set(
+          i.equipeRel.nome,
+          (equipesMap.get(i.equipeRel.nome) || 0) + 1,
+        );
       }
     });
     const uniqueEquipes = Array.from(equipesMap.keys());
 
     const inscricoesData = inscricoes.map((i) => ({
       ...i,
-      equipeName: i.equipe?.nome,
+      equipeName: i.equipeRel?.nome,
       modalidades: i.modalidades.map((m) => ({
         modalidadeId: m.modalidadeId,
         nome: m.modalidade.nome,

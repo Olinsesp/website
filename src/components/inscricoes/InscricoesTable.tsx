@@ -30,6 +30,23 @@ import * as z from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+const LOTACOES_ORGAOS = [
+  'PMDF',
+  'CBMDF',
+  'PCDF',
+  'PRF',
+  'SSPDF',
+  'DETRANDF',
+  'PF',
+  'PPDF',
+  'PPF',
+  'PLDF',
+  'PLSF',
+  'PLCD',
+  'SEJUS',
+  'outro',
+];
+
 const modalidadeSelectionSchema = z.object({
   modalidadeId: z.string(),
   sexo: z.string().optional(),
@@ -305,11 +322,11 @@ export default function InscricoesTable({
                     <SelectValue placeholder='Selecione a lotação' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='PCDF'>PCDF</SelectItem>
-                    <SelectItem value='PMDF'>PMDF</SelectItem>
-                    <SelectItem value='CBMDF'>CBMDF</SelectItem>
-                    <SelectItem value='PF'>PF</SelectItem>
-                    <SelectItem value='PRF'>PRF</SelectItem>
+                    {LOTACOES_ORGAOS.map((l) => (
+                      <SelectItem key={l} value={l}>
+                        {l}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 {errors.lotacao && (
@@ -328,11 +345,11 @@ export default function InscricoesTable({
                     <SelectValue placeholder='Selecione o órgão de origem' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='PCDF'>PCDF</SelectItem>
-                    <SelectItem value='PMDF'>PMDF</SelectItem>
-                    <SelectItem value='CBMDF'>CBMDF</SelectItem>
-                    <SelectItem value='PF'>PF</SelectItem>
-                    <SelectItem value='PRF'>PRF</SelectItem>
+                    {LOTACOES_ORGAOS.map((l) => (
+                      <SelectItem key={l} value={l}>
+                        {l}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 {errors.orgaoOrigem && (

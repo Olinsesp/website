@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Card,
@@ -25,6 +25,7 @@ import MedalTable from '@/components/classificacoes/MedalTable';
 import PointsTable from '@/components/classificacoes/PointsTable';
 import AthleteResultCard from '@/components/classificacoes/AthleteResultCard';
 import TeamResultCard from '@/components/classificacoes/TeamResultCard';
+import TeamTotalPointsTable from '@/components/classificacoes/TeamTotalPointsTable';
 import { ClassificacoesResponse } from '@/types/api';
 import QueryStateHandler from '@/components/ui/query-state-handler';
 
@@ -32,13 +33,13 @@ const fetchClassificacoes = async (
   tipo?: 'atletas' | 'equipes',
   modalidade?: string | null,
   categoria?: string | null,
-  lotacao?: string | null,
+  equipe?: string | null,
 ): Promise<ClassificacoesResponse> => {
   const params = new URLSearchParams();
   if (tipo) params.append('tipo', tipo);
   if (modalidade) params.append('modalidade', modalidade);
   if (categoria) params.append('categoria', categoria);
-  if (lotacao) params.append('lotacao', lotacao);
+  if (equipe) params.append('equipe', equipe);
   params.append('estatisticas', 'true');
   params.append('medalhas', 'true');
   params.append('filtros', 'true');
@@ -51,7 +52,7 @@ const fetchClassificacoes = async (
 export default function Classificacoes() {
   const [modalidade, setModalidade] = useState<string | null>(null);
   const [categoria, setCategoria] = useState<string | null>(null);
-  const [lotacao, setLotacao] = useState<string | null>(null);
+  const [equipe, setEquipe] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'atletas' | 'equipes'>('atletas');
 
   const {
@@ -70,9 +71,9 @@ export default function Classificacoes() {
     isError: isErrorFiltrados,
     error: errorFiltrados,
   } = useQuery<ClassificacoesResponse>({
-    queryKey: ['classificacoes', activeTab, modalidade, categoria, lotacao],
+    queryKey: ['classificacoes', activeTab, modalidade, categoria, equipe],
     queryFn: () =>
-      fetchClassificacoes(activeTab, modalidade, categoria, lotacao),
+      fetchClassificacoes(activeTab, modalidade, categoria, equipe),
     enabled: !!dadosCompletos,
   });
 
@@ -88,7 +89,25 @@ export default function Classificacoes() {
 
   const modalidades = filtros?.modalidades || [];
   const categorias = filtros?.categorias || [];
-  const lotacoes = filtros?.lotacoes || [];
+  const equipes = filtros?.equipes || [];
+
+  const pontosPorEquipe = useMemo(() => {
+    const equipePointsMap = new Map<string, number>();
+
+    dadosCompletos?.dados?.forEach((classificacao) => {
+      const equipeNome = classificacao.equipe;
+      if (equipeNome && typeof classificacao.pontuacao === 'number') {
+        equipePointsMap.set(
+          equipeNome,
+          (equipePointsMap.get(equipeNome) || 0) + classificacao.pontuacao,
+        );
+      }
+    });
+
+    return Array.from(equipePointsMap.entries())
+      .map(([equipe, pontuacao]) => ({ equipe, pontuacao }))
+      .sort((a, b) => b.pontuacao - a.pontuacao);
+  }, [dadosCompletos?.dados]);
 
   const handleTabChange = (value: string) => {
     if (value === 'atletas' || value === 'equipes') {
@@ -172,17 +191,20 @@ export default function Classificacoes() {
                   <TrendingUp className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white' />
                 </div>
                 <h3 className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2'>
-                  {estatisticas?.totalLotacoes || 0}
+                  {estatisticas?.totalEquipes || 0}
                 </h3>
                 <p className='text-xs sm:text-sm lg:text-base text-gray-600'>
-                  Forças
+                  Equipes
                 </p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Quadro de Medalhas */}
-          <MedalTable rows={quadroMedalhas} />
+          {/* Quadro de Medalhas e Pontuação Geral por Equipe */}
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12'>
+            <MedalTable rows={quadroMedalhas} />
+            <TeamTotalPointsTable pointsPerTeam={pontosPorEquipe} />
+          </div>
           <PointsTable />
 
           {/* Filtros e Botão de Exportar PDF */}
@@ -190,14 +212,25 @@ export default function Classificacoes() {
             <ClassificacoesFilters
               modalidade={modalidade}
               categoria={categoria}
-              lotacao={lotacao}
+              equipe={equipe}
               modalidades={modalidades}
               categorias={categorias}
-              lotacoes={lotacoes}
+              equipes={equipes}
               onChangeModalidade={setModalidade}
               onChangeCategoria={setCategoria}
-              onChangeLotacao={setLotacao}
+              onChangeEquipe={setEquipe}
             />
+            <Button
+              onClick={() => {
+                setModalidade(null);
+                setCategoria(null);
+                setEquipe(null);
+              }}
+              variant='outline'
+              className='border-2 border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base'
+            >
+              Limpar Filtros
+            </Button>
             <Button
               onClick={() =>
                 generatePDF(classificacoes, `classificacoes-${activeTab}`)
