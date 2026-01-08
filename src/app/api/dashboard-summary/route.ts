@@ -11,7 +11,10 @@ export async function GET(request: NextRequest) {
 
     if (orgaoDeOrigem !== null) {
       whereClause = {
-        orgaoOrigem: orgaoDeOrigem,
+        orgaoOrigem: {
+          equals: orgaoDeOrigem,
+          mode: 'insensitive',
+        },
       };
     }
 
@@ -19,6 +22,7 @@ export async function GET(request: NextRequest) {
       where: whereClause,
       include: {
         modalidades: { include: { modalidade: true } },
+        equipe: true,
       },
     });
 
@@ -49,15 +53,21 @@ export async function GET(request: NextRequest) {
     const uniqueLotacoes = Array.from(lotacoesMap.keys());
     const uniqueModalidades = Array.from(modalidadesMap.keys());
 
+    const equipesMap = new Map<string, number>();
+    inscricoes.forEach((i) => {
+      if (i.equipe) {
+        equipesMap.set(i.equipe.nome, (equipesMap.get(i.equipe.nome) || 0) + 1);
+      }
+    });
+    const uniqueEquipes = Array.from(equipesMap.keys());
+
     const inscricoesData = inscricoes.map((i) => ({
       ...i,
+      equipeName: i.equipe?.nome,
       modalidades: i.modalidades.map((m) => ({
         modalidadeId: m.modalidadeId,
         nome: m.modalidade.nome,
-        sexo: m.sexo,
-        divisao: m.divisao,
-        categoria: m.categoria,
-        faixaEtaria: m.faixaEtaria,
+        detalhes: m.detalhes,
       })),
     }));
 
@@ -67,6 +77,7 @@ export async function GET(request: NextRequest) {
       lotacoesCount,
       uniqueLotacoes,
       uniqueModalidades,
+      uniqueEquipes,
       inscricoes: inscricoesData,
     });
   } catch (error) {

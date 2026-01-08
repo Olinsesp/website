@@ -136,7 +136,7 @@ export default function ClassificacoesForm() {
   });
 
   const {
-    data: modalidades = [],
+    data: modalidadesRaw = [],
     isLoading: isLoadingModalidades,
     isError: isErrorModalidades,
     error: errorModalidades,
@@ -145,13 +145,46 @@ export default function ClassificacoesForm() {
     queryFn: fetchModalidades,
   });
 
+  const modalidades = useMemo(() => {
+    return modalidadesRaw.map((mod) => {
+      const vagas = (mod.vagasPorEquipe as any[]) || [];
+      const allSexos = [...new Set(vagas.map((v) => v.genero).filter(Boolean))];
+      const allCategorias = [
+        ...new Set(
+          vagas
+            .flatMap((v) => v.categoria || v.graduacoes || v.provas || [])
+            .filter(Boolean),
+        ),
+      ];
+      const allFaixasEtarias = [
+        ...new Set(vagas.flatMap((v) => v.faixasEtarias || []).filter(Boolean)),
+      ];
+      const allDivisoes = [
+        ...new Set(
+          vagas.flatMap((v) => v.categoriasPeso || []).filter(Boolean),
+        ),
+      ];
+
+      return {
+        ...mod,
+        modalidadesSexo: allSexos,
+        categoria: allCategorias,
+        faixaEtaria: allFaixasEtarias,
+        divisoes: allDivisoes,
+      };
+    });
+  }, [modalidadesRaw]);
+
   const [modalidadeTypeFilter, setModalidadeTypeFilter] =
     useState<string>('all');
 
   const uniqueCategories = useMemo(() => {
     const categories = new Set<string>();
     modalidades.forEach((m) => {
-      m.categoria.forEach((c) => categories.add(c));
+      const vagas = (m.vagasPorEquipe as any[]) || [];
+      vagas.forEach((v) => {
+        if (v.tipo) categories.add(v.tipo);
+      });
     });
     return Array.from(categories);
   }, [modalidades]);
@@ -185,7 +218,8 @@ export default function ClassificacoesForm() {
   const filteredModalidades = useMemo(() => {
     return modalidades.filter((modalidade) => {
       if (modalidadeTypeFilter === 'all') return true;
-      return modalidade.categoria.includes(modalidadeTypeFilter);
+      const vagas = (modalidade.vagasPorEquipe as any[]) || [];
+      return vagas.some((v) => v.tipo === modalidadeTypeFilter);
     });
   }, [modalidades, modalidadeTypeFilter]);
 
@@ -197,7 +231,8 @@ export default function ClassificacoesForm() {
   const dynamicFields = useMemo(() => {
     if (!selectedModalidade) return null;
     const nodes: React.ReactNode[] = [];
-    const { divisoes, modalidadesSexo, faixaEtaria } = selectedModalidade;
+    const { divisoes, modalidadesSexo, faixaEtaria } =
+      selectedModalidade as any;
 
     if (modalidadesSexo?.length) {
       nodes.push(
@@ -206,7 +241,7 @@ export default function ClassificacoesForm() {
           name={'dynamicFields.sexo'}
           control={control}
           label='Sexo'
-          options={modalidadesSexo.map((s) => ({ value: s }))}
+          options={modalidadesSexo.map((s: string) => ({ value: s }))}
           placeholder='Selecione o sexo'
         />,
       );
@@ -219,7 +254,7 @@ export default function ClassificacoesForm() {
           name={'dynamicFields.faixaEtaria'}
           control={control}
           label='Faixa Etária'
-          options={faixaEtaria.map((f) => ({ value: f }))}
+          options={faixaEtaria.map((f: string) => ({ value: f }))}
           placeholder='Selecione a faixa etária'
         />,
       );
@@ -235,7 +270,7 @@ export default function ClassificacoesForm() {
             name={'dynamicFields.divisao'}
             control={control}
             label='Divisão'
-            options={(divisoes as string[]).map((d) => ({ value: d }))}
+            options={(divisoes as string[]).map((d: string) => ({ value: d }))}
             placeholder='Selecione a divisão'
           />,
         );
@@ -456,7 +491,8 @@ export default function ClassificacoesForm() {
 
   const tipoProva = useMemo(() => {
     if (!selectedModalidade) return '';
-    return selectedModalidade.categoria.includes('Individual')
+    const vagas = (selectedModalidade.vagasPorEquipe as any[]) || [];
+    return vagas.some((v) => v.tipo === 'individual')
       ? 'Individual'
       : 'Coletiva';
   }, [selectedModalidade]);

@@ -24,16 +24,13 @@ model Modalidade {
   nome                String
   descricao           String
   maxParticipantes    Int
+  vagasPorEquipe      Json?
   participantesAtuais Int                   @default(0)
   regras              String[]              @default([])
   premios             String[]              @default([])
   status              String                @default("inscricoes-abertas")
-  modalidadesSexo     String[]              @default([])
-  faixaEtaria         String[]              @default(["Adulto"])
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
-  divisoes            String[]
-  categoria           String[]              @default([])
   classificacoes      Classificacao[]
   eventos             Evento[]
   inscricoes          InscricaoModalidade[]
@@ -67,10 +64,7 @@ model InscricaoModalidade {
   inscricaoId  String
   modalidadeId String
   createdAt    DateTime   @default(now())
-  sexo         String?
-  categoria    String[]
-  divisao      String[]
-  faixaEtaria  String[]
+  detalhes     Json?
   inscricao    Inscricao  @relation(fields: [inscricaoId], references: [id], onDelete: Cascade)
   modalidade   Modalidade @relation(fields: [modalidadeId], references: [id], onDelete: Cascade)
 

@@ -29,8 +29,9 @@ async function main() {
     'PPDF',
     'PPF',
     'PLDF',
-    'PLF',
+    'PLSF-PLCD',
     'SEJUS',
+    'ADMIN',
   ];
 
   const usuariosData = await Promise.all(
@@ -38,7 +39,7 @@ async function main() {
       nome: `${o}`,
       username: o,
       password: await bcrypt.hash(o, 10),
-      role: o === 'SSPDF' ? EquipeRole.ADMIN : EquipeRole.PONTOFOCAL,
+      role: o === 'ADMIN' ? EquipeRole.ADMIN : EquipeRole.PONTOFOCAL,
     })),
   );
 
@@ -50,315 +51,455 @@ async function main() {
 
   // 2. CRIAR MODALIDADES
   console.log('Criando modalidades...');
+
   const modalidadesData = [
     // XADREZ
     {
       nome: 'Xadrez',
       descricao: 'Competição individual de xadrez.',
-      categoria: ['Individual'],
+      vagasPorEquipe: [
+        {
+          genero: 'Misto',
+          tipo: 'equipe',
+          totalAtletas: 4,
+        },
+      ],
+
       maxParticipantes: 100,
       regras: ['Sistema suíço', 'Partidas rápidas'],
       premios: ['Medalhas', 'Troféu'],
-      modalidadesSexo: ['Misto'],
-      divisoes: [],
     },
     // FUTSAL
     {
       nome: 'Futebol de Salão',
       descricao: 'Disputado em equipes, formato tradicional de futsal.',
-      categoria: ['Coletivo'],
+      vagasPorEquipe: [
+        {
+          genero: 'Masculino',
+          tipo: 'equipe',
+          totalAtletas: 14,
+        },
+        {
+          genero: 'Feminino',
+          tipo: 'equipe',
+          totalAtletas: 14,
+        },
+      ],
+
       maxParticipantes: 120,
       regras: ['Partidas de 40 minutos', '5 jogadores em quadra'],
       premios: ['Medalhas', 'Troféu'],
-      modalidadesSexo: ['Masculino', 'Feminino'],
-      divisoes: [],
     },
     // FUTEBOL DE CAMPO
     {
       nome: 'Futebol de Campo',
       descricao: 'Competição de futebol em campo oficial.',
-      categoria: ['Coletivo'],
+      vagasPorEquipe: [
+        {
+          genero: 'Masculino',
+          categoria: 'Livre',
+          tipo: 'equipe',
+          totalAtletas: 25,
+        },
+        {
+          genero: 'Masculino',
+          categoria: 'Master 35+',
+          tipo: 'equipe',
+          totalAtletas: 25,
+        },
+      ],
+
       maxParticipantes: 200,
       regras: ['Onze jogadores', 'Dois tempos de 45 min'],
       premios: ['Medalhas', 'Troféu'],
-      modalidadesSexo: ['Masculino'],
-      faixaEtaria: ['40+', 'Adulto'],
-      divisoes: [],
     },
     // JIU-JITSU
     {
       nome: 'Jiu-Jitsu',
       descricao: 'Competição individual de Jiu-Jitsu.',
-      categoria: ['Individual'],
+      vagasPorEquipe: [
+        {
+          genero: 'Masculino',
+          tipo: 'individual',
+          graduacoes: ['Branca', 'Azul/Roxa', 'Marrom/Preta'],
+          faixasEtarias: ['18-29', '30-39', '40-49', '50+'],
+          categoriasPeso: [
+            'Até 66kg',
+            'Até 73kg',
+            'Até 81kg',
+            'Até 90kg',
+            'Até 100kg',
+            '+100kg',
+          ],
+          totalAtletas: 144,
+        },
+        {
+          genero: 'Feminino',
+          tipo: 'individual',
+          graduacoes: ['Branca', 'Azul/Roxa', 'Marrom/Preta'],
+          faixasEtarias: ['18-29', '30-39', '40+'],
+          categoriasPeso: [
+            'Até 66kg',
+            'Até 73kg',
+            'Até 81kg',
+            'Até 90kg',
+            'Até 100kg',
+            '+100kg',
+          ],
+          totalAtletas: 90,
+        },
+      ],
       maxParticipantes: 300,
       regras: ['Regulamento CBJJ'],
       premios: ['Medalhas'],
-      modalidadesSexo: ['Masculino', 'Feminino'],
-      faixaEtaria: [
-        '18-29',
-        '30-39',
-        '40-49',
-        '50+',
-        '18-29 Fem',
-        '30-39 Fem',
-        '40+ Fem',
-      ],
-      divisoes: [
-        'Faixa Branca – Masculino – Até 66 kg',
-        'Faixa Branca – Masculino – Até 73 kg',
-        'Faixa Branca – Masculino – Até 81 kg',
-        'Faixa Branca – Masculino – Até 90 kg',
-        'Faixa Branca – Masculino – Até 100 kg',
-        'Faixa Branca – Masculino – +100 kg',
-        'Faixa Branca – Feminino – Até 57 kg',
-        'Faixa Branca – Feminino – Até 63 kg',
-        'Faixa Branca – Feminino – Até 70 kg',
-        'Faixa Branca – Feminino – +70 kg',
-        'Faixa Azul e Faixa Roxa – Masculino – Até 66 kg',
-        'Faixa Azul e Faixa Roxa – Masculino – Até 73 kg',
-        'Faixa Azul e Faixa Roxa – Masculino – Até 81 kg',
-        'Faixa Azul e Faixa Roxa – Masculino – Até 90 kg',
-        'Faixa Azul e Faixa Roxa – Masculino – Até 100 kg',
-        'Faixa Azul e Faixa Roxa – Masculino – +100 kg',
-        'Faixa Azul e Faixa Roxa – Feminino – Até 57 kg',
-        'Faixa Azul e Faixa Roxa – Feminino – Até 63 kg',
-        'Faixa Azul e Faixa Roxa – Feminino – Até 70 kg',
-        'Faixa Azul e Faixa Roxa – Feminino – +70 kg',
-        'Faixa Marrom e Faixa Preta – Masculino – Até 66 kg',
-        'Faixa Marrom e Faixa Preta – Masculino – Até 73 kg',
-        'Faixa Marrom e Faixa Preta – Masculino – Até 81 kg',
-        'Faixa Marrom e Faixa Preta – Masculino – Até 90 kg',
-        'Faixa Marrom e Faixa Preta – Masculino – Até 100 kg',
-        'Faixa Marrom e Faixa Preta – Masculino – +100 kg',
-        'Faixa Marrom e Faixa Preta – Feminino – Até 57 kg',
-        'Faixa Marrom e Faixa Preta – Feminino – Até 63 kg',
-        'Faixa Marrom e Faixa Preta – Feminino – Até 70 kg',
-        'Faixa Marrom e Faixa Preta – Feminino – +70 kg',
-      ],
     },
     // JUDÔ
     {
       nome: 'Judô',
       descricao: 'Competição individual de Judô.',
-      categoria: ['Individual'],
+      vagasPorEquipe: [
+        {
+          genero: 'Masculino',
+          tipo: 'individual',
+          faixasEtarias: ['18-29', '30-39', '40-49', '50+'],
+          categoriasPeso: [
+            'Até 66kg',
+            'Até 73kg',
+            'Até 81kg',
+            'Até 90kg',
+            'Até 100kg',
+            '+100kg',
+          ],
+          totalAtletas: 48,
+        },
+        {
+          genero: 'Feminino',
+          tipo: 'individual',
+          faixasEtarias: ['18-29', '30-39', '40+'],
+          categoriasPeso: [
+            'Até 52kg',
+            'Até 57kg',
+            'Até 63kg',
+            'Até 70kg',
+            '+70kg',
+          ],
+          totalAtletas: 30,
+        },
+      ],
       maxParticipantes: 200,
       regras: ['Regras oficiais da FIJ'],
       premios: ['Medalhas'],
-      modalidadesSexo: ['Masculino', 'Feminino'],
-      faixaEtaria: [
-        '18-29',
-        '30-39',
-        '40-49',
-        '50+',
-        '18-29 Fem',
-        '30-39 Fem',
-        '40+ Fem',
-      ],
-      divisoes: [
-        'Faixa Branca – Masculino – Até 66 kg',
-        'Faixa Branca – Masculino – Até 73 kg',
-        'Faixa Branca – Masculino – Até 81 kg',
-        'Faixa Branca – Masculino – Até 90 kg',
-        'Faixa Branca – Masculino – Até 100 kg',
-        'Faixa Branca – Masculino – +100 kg',
-        'Faixa Branca – Feminino – Até 57 kg',
-        'Faixa Branca – Feminino – Até 63 kg',
-        'Faixa Branca – Feminino – Até 70 kg',
-        'Faixa Branca – Feminino – +70 kg',
-        'Faixa Azul e Faixa Roxa – Masculino – Até 66 kg',
-        'Faixa Azul e Faixa Roxa – Masculino – Até 73 kg',
-        'Faixa Azul e Faixa Roxa – Masculino – Até 81 kg',
-        'Faixa Azul e Faixa Roxa – Masculino – Até 90 kg',
-        'Faixa Azul e Faixa Roxa – Masculino – Até 100 kg',
-        'Faixa Azul e Faixa Roxa – Masculino – +100 kg',
-        'Faixa Azul e Faixa Roxa – Feminino – Até 57 kg',
-        'Faixa Azul e Faixa Roxa – Feminino – Até 63 kg',
-        'Faixa Azul e Faixa Roxa – Feminino – Até 70 kg',
-        'Faixa Azul e Faixa Roxa – Feminino – +70 kg',
-        'Faixa Marrom e Faixa Preta – Masculino – Até 66 kg',
-        'Faixa Marrom e Faixa Preta – Masculino – Até 73 kg',
-        'Faixa Marrom e Faixa Preta – Masculino – Até 81 kg',
-        'Faixa Marrom e Faixa Preta – Masculino – Até 90 kg',
-        'Faixa Marrom e Faixa Preta – Masculino – Até 100 kg',
-        'Faixa Marrom e Faixa Preta – Masculino – +100 kg',
-        'Faixa Marrom e Faixa Preta – Feminino – Até 57 kg',
-        'Faixa Marrom e Faixa Preta – Feminino – Até 63 kg',
-        'Faixa Marrom e Faixa Preta – Feminino – Até 70 kg',
-        'Faixa Marrom e Faixa Preta – Feminino – +70 kg',
-      ],
     },
     // NATAÇÃO
     {
       nome: 'Natação',
       descricao: 'Provas individuais e revezamentos.',
-      categoria: ['Individual', 'Revezamento'],
+      vagasPorEquipe: [
+        {
+          genero: 'Masculino',
+          tipo: 'individual',
+          faixasEtarias: ['18-29', '30-39', '40-49', '50-59'],
+          provas: [
+            '50m Livre',
+            '50m Borboleta',
+            '50m Peito',
+            '50m Costas',
+            '100m Livre',
+            '400m Livre',
+            '800m Livre',
+          ],
+          totalAtletas: 74,
+        },
+        {
+          genero: 'Feminino',
+          tipo: 'individual',
+          faixasEtarias: ['18-29', '30-39', '40-49', '50-59'],
+          provas: [
+            '50m Livre',
+            '50m Borboleta',
+            '50m Peito',
+            '50m Costas',
+            '100m Livre',
+            '400m Livre',
+            '800m Livre',
+          ],
+          totalAtletas: 74,
+        },
+        {
+          genero: 'Misto',
+          tipo: 'revezamento',
+          provas: ['4x50m Medley', '4x50m Livre'],
+          faixasEtarias: ['18-29', '30-39', '40-49'],
+          totalAtletas: 48,
+        },
+      ],
+
       maxParticipantes: 250,
       regras: ['Regras da FINA'],
       premios: ['Medalhas'],
-      modalidadesSexo: ['Masculino', 'Feminino'],
-      faixaEtaria: ['Masculino 45+', 'Feminino 40+', 'Adulto'],
-      divisoes: [
-        '50m Livre',
-        '50m Borboleta',
-        '50m Peito',
-        '50m Costas',
-        '400m Livre',
-        '4x50m Medley',
-        '4x50m Livre',
-      ],
     },
     // VÔLEI DE QUADRA
     {
       nome: 'Vôlei de Quadra',
       descricao: 'Disputado em equipes de 6 atletas.',
-      categoria: ['Coletivo'],
+      vagasPorEquipe: [
+        {
+          genero: 'Masculino',
+          tipo: 'equipe',
+          totalAtletas: 12,
+        },
+        {
+          genero: 'Feminino',
+          tipo: 'equipe',
+          totalAtletas: 12,
+        },
+      ],
+
       maxParticipantes: 120,
       regras: ['Melhor de 5 sets'],
       premios: ['Medalhas', 'Troféu'],
-      modalidadesSexo: ['Masculino', 'Feminino'],
-      divisoes: [],
     },
     // VÔLEI DE PRAIA
     {
       nome: 'Vôlei de Praia',
       descricao: 'Disputado em duplas.',
-      categoria: ['Duplas'],
+      vagasPorEquipe: [
+        {
+          genero: 'Masculino',
+          tipo: 'dupla',
+          totalAtletas: 4,
+        },
+        {
+          genero: 'Feminino',
+          tipo: 'dupla',
+          totalAtletas: 4,
+        },
+      ],
+
       maxParticipantes: 80,
       regras: ['Melhor de 3 sets'],
       premios: ['Medalhas', 'Troféu'],
-      modalidadesSexo: ['Masculino', 'Feminino'],
-      divisoes: [],
     },
     // DOMINÓ
     {
       nome: 'Dominó',
       descricao: 'Competição em duplas.',
-      categoria: ['Duplas'],
+      vagasPorEquipe: [
+        {
+          genero: 'Misto',
+          tipo: 'dupla',
+          totalAtletas: 4,
+        },
+      ],
+
       maxParticipantes: 60,
       regras: ['Melhor de 3 partidas'],
       premios: ['Medalhas'],
-      modalidadesSexo: ['Misto'],
-      divisoes: [],
     },
     // TÊNIS DE MESA
     {
       nome: 'Tênis de Mesa',
       descricao: 'Competição individual.',
-      categoria: ['Individual'],
+      vagasPorEquipe: [
+        { genero: 'Masculino', tipo: 'individual', totalAtletas: 2 },
+        { genero: 'Feminino', tipo: 'individual', totalAtletas: 2 },
+      ],
+
       maxParticipantes: 80,
       regras: ['Melhor de 5 sets'],
       premios: ['Medalhas'],
-      modalidadesSexo: ['Masculino', 'Feminino'],
-      divisoes: [],
     },
     // TRIATHLON
     {
       nome: 'Triathlon',
       descricao: 'Prova combinada de corrida, ciclismo e natação.',
-      categoria: ['Individual'],
+      vagasPorEquipe: [
+        {
+          genero: 'Masculino',
+          tipo: 'individual',
+          faixasEtarias: ['18-29', '30-34', '35-39', '40-44', '45-49', '50+'],
+          totalAtletas: 18,
+        },
+        {
+          genero: 'Feminino',
+          tipo: 'individual',
+          faixasEtarias: ['18-29', '30-34', '35-39', '40-44', '45-49', '50+'],
+          totalAtletas: 18,
+        },
+      ],
+
       maxParticipantes: 120,
       regras: ['Prova completa'],
       premios: ['Medalhas', 'Troféu'],
-      modalidadesSexo: ['Masculino', 'Feminino'],
-      faixaEtaria: ['Adulto', 'Master Masculino 45+', 'Master Feminino 40+'],
-      divisoes: [],
     },
     // CABO DE GUERRA
     {
       nome: 'Cabo de Guerra',
       descricao: 'Competição em equipes de força.',
-      categoria: ['Coletivo'],
+      vagasPorEquipe: [
+        {
+          genero: 'Masculino',
+          tipo: 'equipe',
+          totalAtletas: 10,
+        },
+        {
+          genero: 'Feminino',
+          tipo: 'equipe',
+          totalAtletas: 10,
+        },
+      ],
+
       maxParticipantes: 80,
       regras: ['Equipes de 6 atletas'],
       premios: ['Medalhas'],
-      modalidadesSexo: ['Masculino', 'Feminino'],
-      divisoes: [],
     },
     // ATLETISMO
     {
       nome: 'Atletismo',
       descricao: 'Provas de pista em diferentes distâncias.',
-      categoria: ['Individual'],
+      vagasPorEquipe: [
+        {
+          genero: 'Masculino',
+          tipo: 'individual',
+          faixasEtarias: ['18-29', '30-39', '40-49', '50-59'],
+          provas: ['100m', '200m', '400m', '800m', '1500m', '5000m', '10km'],
+          totalAtletas: 56,
+        },
+        {
+          genero: 'Feminino',
+          tipo: 'individual',
+          faixasEtarias: ['18-29', '30-39', '40-49', '50-59'],
+          provas: ['100m', '200m', '400m', '800m', '1500m', '5000m', '10km'],
+          totalAtletas: 56,
+        },
+        {
+          genero: 'Misto',
+          tipo: 'revezamento',
+          provas: ['4x100m'],
+          faixasEtarias: ['18-29', '30-39', '40-49'],
+          totalAtletas: 12,
+        },
+      ],
+
       maxParticipantes: 200,
       regras: ['Regras da World Athletics'],
       premios: ['Medalhas'],
-      modalidadesSexo: ['Masculino', 'Feminino'],
-      faixaEtaria: ['Masculino 45+', 'Feminino 40+', 'Adulto'],
-      divisoes: ['100m', '200m', '400m', '800m', '1500m', '5000m', '10 km'],
     },
     // BASQUETEBOL
     {
       nome: 'Basquetebol',
       descricao: 'Disputado em equipes de 5 atletas.',
-      categoria: ['Coletivo'],
+      vagasPorEquipe: [
+        {
+          genero: 'Masculino',
+          tipo: 'equipe',
+          totalAtletas: 12,
+        },
+        {
+          genero: 'Feminino',
+          tipo: 'equipe',
+          totalAtletas: 12,
+        },
+      ],
+
       maxParticipantes: 120,
       regras: ['Partidas de 4 tempos'],
       premios: ['Medalhas', 'Troféu'],
-      modalidadesSexo: ['Masculino', 'Feminino'],
-      divisoes: [],
     },
     // BEACH TÊNIS
     {
       nome: 'Beach Tênis',
       descricao: 'Disputado em duplas na areia.',
-      categoria: ['Duplas'],
+      vagasPorEquipe: [
+        {
+          genero: 'Masculino',
+          tipo: 'dupla',
+          totalAtletas: 4,
+        },
+        {
+          genero: 'Feminino',
+          tipo: 'dupla',
+          totalAtletas: 4,
+        },
+        {
+          genero: 'Misto',
+          tipo: 'dupla',
+          totalAtletas: 4,
+        },
+      ],
+
       maxParticipantes: 80,
       regras: ['Melhor de 3 sets'],
       premios: ['Medalhas'],
-      modalidadesSexo: ['Masculino', 'Feminino'],
-      divisoes: [],
     },
     // FUTEVÔLEI
     {
       nome: 'Futevôlei',
       descricao: 'Competição em duplas na areia.',
-      categoria: ['Duplas'],
+      vagasPorEquipe: [
+        {
+          genero: 'Masculino',
+          tipo: 'dupla',
+          totalAtletas: 4,
+        },
+        {
+          genero: 'Feminino',
+          tipo: 'dupla',
+          totalAtletas: 4,
+        },
+      ],
       maxParticipantes: 60,
       regras: ['Melhor de 3 sets'],
       premios: ['Medalhas'],
-      modalidadesSexo: ['Masculino', 'Feminino'],
-      divisoes: [],
     },
     // CALISTENIA
     {
       nome: 'Calistenia',
       descricao: 'Provas de força e resistência.',
-      categoria: ['Individual'],
+      vagasPorEquipe: [
+        { genero: 'Masculino', tipo: 'individual', totalAtletas: 5 },
+        { genero: 'Feminino', tipo: 'individual', totalAtletas: 5 },
+      ],
       maxParticipantes: 60,
       regras: ['Regras específicas por aparelho'],
       premios: ['Medalhas'],
-      modalidadesSexo: ['Masculino', 'Feminino'],
-      divisoes: [],
     },
     // TRUCO
     {
       nome: 'Truco',
       descricao: 'Competição em duplas.',
-      categoria: ['Duplas'],
+      vagasPorEquipe: [
+        {
+          genero: 'Misto',
+          tipo: 'equipe',
+          totalAtletas: 4,
+        },
+      ],
       maxParticipantes: 40,
       regras: ['Melhor de 3 partidas'],
       premios: ['Medalhas'],
-      modalidadesSexo: ['Misto'],
-      divisoes: [],
     },
     // CORRIDA DE ORIENTAÇÃO
     {
       nome: 'Corrida de Orientação',
       descricao: 'Prova de navegação em terreno aberto.',
-      categoria: ['Individual'],
+      vagasPorEquipe: [
+        {
+          genero: 'Masculino',
+          faixasEtarias: ['40', '40-59', '60+'],
+          tipo: 'individual',
+          totalAtletas: 30,
+        },
+        {
+          genero: 'Feminino',
+          faixasEtarias: ['40', '40-59', '60+'],
+          tipo: 'individual',
+          totalAtletas: 30,
+        },
+      ],
       maxParticipantes: 150,
       regras: ['Prova Sprint e Floresta'],
       premios: ['Medalhas'],
-      modalidadesSexo: ['Misto'],
-      faixaEtaria: [
-        'Mulheres até 40',
-        'Homens até 40',
-        'Mulheres 40-59',
-        'Homens 40-59',
-        'Mulheres 60+',
-        'Homens 60+',
-      ],
-      divisoes: ['Sprint', 'Floresta'],
     },
   ];
 

@@ -4,10 +4,7 @@ import { prisma } from '@/lib/prisma';
 
 const modalidadeSelectionSchema = z.object({
   modalidadeId: z.string(),
-  sexo: z.string().optional(),
-  divisao: z.array(z.string()).optional(),
-  categoria: z.array(z.string()).optional(),
-  faixaEtaria: z.array(z.string()).optional(),
+  detalhes: z.record(z.string(), z.any()).optional(),
 });
 
 const inscricaoUpdateSchema = z.object({
@@ -66,10 +63,7 @@ export async function GET(
       modalidades: inscricao.modalidades.map((im) => ({
         modalidadeId: im.modalidade.id,
         nome: im.modalidade.nome,
-        sexo: im.sexo,
-        divisao: im.divisao,
-        categoria: im.categoria,
-        faixaEtaria: im.faixaEtaria,
+        detalhes: im.detalhes,
       })),
       status: inscricao.status,
       createdAt: inscricao.createdAt.toISOString(),
@@ -116,7 +110,6 @@ export async function PUT(
       modalidadesSelections?.map((m) => m.modalidadeId) || [];
 
     const inscricaoAtualizada = await prisma.$transaction(async (tx) => {
-      // Decrement from old modalities
       if (oldModalidadeIds.length > 0) {
         await tx.modalidade.updateMany({
           where: { id: { in: oldModalidadeIds } },
@@ -124,7 +117,6 @@ export async function PUT(
         });
       }
 
-      // Update inscription and its modalities
       const updateData: any = { ...dadosAtualizacao };
 
       if (modalidadesSelections) {
@@ -135,10 +127,7 @@ export async function PUT(
         updateData.modalidades = {
           create: modalidadesSelections.map((mod) => ({
             modalidadeId: mod.modalidadeId,
-            sexo: mod.sexo,
-            divisao: mod.divisao,
-            categoria: mod.categoria,
-            faixaEtaria: mod.faixaEtaria,
+            detalhes: mod.detalhes,
           })),
         };
       }
@@ -155,7 +144,6 @@ export async function PUT(
         },
       });
 
-      // Increment for new modalities
       if (newModalidadeIds.length > 0) {
         await tx.modalidade.updateMany({
           where: { id: { in: newModalidadeIds } },
@@ -181,10 +169,7 @@ export async function PUT(
       modalidades: inscricaoAtualizada.modalidades.map((im) => ({
         modalidadeId: im.modalidade.id,
         nome: im.modalidade.nome,
-        sexo: im.sexo,
-        divisao: im.divisao,
-        categoria: im.categoria,
-        faixaEtaria: im.faixaEtaria,
+        detalhes: im.detalhes,
       })),
       status: inscricaoAtualizada.status,
       createdAt: inscricaoAtualizada.createdAt.toISOString(),

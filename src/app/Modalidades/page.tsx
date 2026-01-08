@@ -143,7 +143,7 @@ export default function Modalidades() {
                       {/* Ícone da Categoria */}
                       <div
                         className={`h-16 w-16 sm:h-20 sm:w-20 bg-linear-to-br ${getCategoryGradient(
-                          modalidade.categoria[0],
+                          (modalidade.vagasPorEquipe as any)?.[0]?.tipo,
                         )} rounded-2xl flex items-center justify-center shrink-0`}
                       >
                         <CategoryIcon categoria={modalidade.nome} />

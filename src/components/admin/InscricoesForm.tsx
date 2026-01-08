@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -45,12 +45,22 @@ interface Equipe {
   nome: string;
 }
 
+interface FlattenedInscricaoData {
+  modalidade: string;
+  atleta: string;
+  lotacao: string;
+  camiseta: string;
+  telefone: string;
+  tipo: string;
+  sexo_modalidade: string;
+  categoria: string;
+  faixaEtaria: string;
+  divisao: string;
+}
+
 const modalidadeSelectionSchema = z.object({
   modalidadeId: z.string(),
-  sexo: z.string().optional(),
-  divisao: z.array(z.string()).optional(),
-  categoria: z.array(z.string()).optional(),
-  faixaEtaria: z.array(z.string()).optional(),
+  detalhes: z.record(z.string(), z.array(z.string())).optional(),
 });
 
 const inscricaoSchema = z.object({
@@ -267,6 +277,115 @@ export default function InscricoesForm() {
   });
 
   const onSubmit = (data: InscricaoFormData) => {
+    const { equipeId, modalidades: selectedModalidades } = data;
+    if (!equipeId) {
+      toast.error('Nenhuma equipe selecionada.');
+      return;
+    }
+    const equipe = equipes.find((e) => e.id === equipeId);
+
+    for (const selectedMod of selectedModalidades) {
+      const modalidade = modalidadesData.find(
+        (m) => m.id === selectedMod.modalidadeId,
+      );
+      if (
+        !modalidade ||
+        !modalidade.vagasPorEquipe ||
+        (modalidade.vagasPorEquipe as any[]).length === 0
+      ) {
+        continue;
+      }
+
+      const detalhesForm = selectedMod.detalhes || {};
+      const formGenero = detalhesForm.sexo?.[0];
+      const formTipo = detalhesForm.tipo?.[0];
+      const formCategoria = detalhesForm.categoria?.[0];
+
+      const vagaConfig = (modalidade.vagasPorEquipe as any[]).find((v) => {
+        let isMatch = true;
+        if (v.genero && v.genero !== 'Misto' && v.genero !== formGenero) {
+          isMatch = false;
+        }
+        if (v.tipo && v.tipo !== formTipo) {
+          isMatch = false;
+        }
+
+        const vagaCategorias = [
+          v.categoria,
+          ...(v.graduacoes || []),
+          ...(v.provas || []),
+        ].filter(Boolean);
+        if (vagaCategorias.length > 0) {
+          if (!formCategoria || !vagaCategorias.includes(formCategoria)) {
+            isMatch = false;
+          }
+        }
+        return isMatch;
+      });
+
+      if (vagaConfig && vagaConfig.totalAtletas) {
+        const limite = vagaConfig.totalAtletas;
+
+        let count = 0;
+        const inscricoesDaEquipe = inscricoes.filter(
+          (i) => i.equipeId === equipeId,
+        );
+
+        for (const inscricao of inscricoesDaEquipe) {
+          if (inscricao.id === editingId) {
+            continue;
+          }
+
+          const modInscrito = inscricao.modalidades.find(
+            (m) => m.modalidadeId === selectedMod.modalidadeId,
+          );
+          if (modInscrito) {
+            const detalhesInscrito = (modInscrito.detalhes as any) || {};
+            const inscritoGenero = detalhesInscrito.sexo?.[0];
+            const inscritoTipo = detalhesInscrito.tipo?.[0];
+            const inscritoCategoria = detalhesInscrito.categoria?.[0];
+
+            let isInVaga = true;
+            if (
+              vagaConfig.genero &&
+              vagaConfig.genero !== 'Misto' &&
+              vagaConfig.genero !== inscritoGenero
+            )
+              isInVaga = false;
+            if (vagaConfig.tipo && vagaConfig.tipo !== inscritoTipo)
+              isInVaga = false;
+
+            const vagaCategorias = [
+              vagaConfig.categoria,
+              ...(vagaConfig.graduacoes || []),
+              ...(vagaConfig.provas || []),
+            ].filter(Boolean);
+            if (vagaCategorias.length > 0) {
+              if (
+                !inscritoCategoria ||
+                !vagaCategorias.includes(inscritoCategoria)
+              ) {
+                isInVaga = false;
+              }
+            }
+
+            if (isInVaga) {
+              count++;
+            }
+          }
+        }
+
+        if (count >= limite) {
+          let msg = `A equipe "${equipe?.nome}" atingiu o limite de ${limite} atletas para "${modalidade.nome}"`;
+          if (formGenero) msg += ` (${formGenero})`;
+          if (formCategoria) msg += ` - ${formCategoria}`;
+          msg += `.`;
+          toast.error(msg);
+          return;
+        }
+      }
+    }
+
     mutation.mutate({ data, id: editingId });
   };
 
@@ -288,7 +407,11 @@ export default function InscricoesForm() {
     setValue('orgaoOrigem', inscricao.orgaoOrigem);
     setValue('equipeId', inscricao.equipeId || '');
     setValue('sexo', inscricao.sexo);
-    setValue('modalidades', inscricao.modalidades || []);
+    const modalidadesForForm = (inscricao.modalidades || []).map((m: any) => ({
+      modalidadeId: m.modalidadeId,
+      detalhes: m.detalhes || {},
+    }));
+    setValue('modalidades', modalidadesForForm);
     setValue('status', inscricao.status);
 
     setIsDialogOpen(true);
@@ -324,50 +447,71 @@ export default function InscricoesForm() {
     setIsDialogOpen(true);
   };
 
-  const toggleModalidade = (modalidadeId: string, checked: boolean) => {
-    const current = watchedModalidades || [];
+  const handleDetalhesChange = useCallback(
+    (
+      modalidadeId: string,
+      detalheType: string,
+      value: string,
+      checked: boolean,
+      isMultiSelect: boolean,
+    ) => {
+      const current = watchedModalidades || [];
+      const updated = current.map((m) => {
+        if (m.modalidadeId === modalidadeId) {
+          const detalhes = m.detalhes || {};
+          const currentSelection = detalhes[detalheType] || [];
 
-    const updated = checked
-      ? [...current, { modalidadeId }]
-      : current.filter((m) => m.modalidadeId !== modalidadeId);
+          let newSelection: string[];
+          if (isMultiSelect) {
+            newSelection = checked
+              ? [...currentSelection, value]
+              : currentSelection.filter((v) => v !== value);
+          } else {
+            newSelection = checked ? [value] : [];
+          }
 
-    setValue('modalidades', updated, { shouldValidate: true });
-  };
+          return {
+            ...m,
+            detalhes: { ...detalhes, [detalheType]: newSelection },
+          };
+        }
+        return m;
+      });
+      setValue('modalidades', updated, { shouldValidate: true });
+    },
+    [watchedModalidades, setValue],
+  );
 
-  const handleModalidadeOptionChange = (
-    modalidadeId: string,
-    optionType: 'sexo',
-    value: string,
-  ) => {
-    const current = watchedModalidades || [];
-    const updated = current.map((m) => {
-      if (m.modalidadeId === modalidadeId) {
-        return { ...m, [optionType]: value };
+  const toggleModalidade = useCallback(
+    (modalidadeId: string, checked: boolean) => {
+      const current = watchedModalidades || [];
+      let updated: typeof current;
+
+      if (checked) {
+        const modalidadeToAdd = modalidadesData.find(
+          (m) => m.id === modalidadeId,
+        );
+        if (modalidadeToAdd) {
+          const vagas = (modalidadeToAdd.vagasPorEquipe as any[]) || [];
+          const allTipos = [
+            ...new Set(vagas.map((v) => v.tipo).filter(Boolean)),
+          ];
+
+          const newDetalhes: Record<string, string[]> = {};
+          if (allTipos.length === 1) {
+            newDetalhes.tipo = [allTipos[0]];
+          }
+          updated = [...current, { modalidadeId, detalhes: newDetalhes }];
+        } else {
+          updated = current;
+        }
+      } else {
+        updated = current.filter((m) => m.modalidadeId !== modalidadeId);
       }
-      return m;
-    });
-    setValue('modalidades', updated, { shouldValidate: true });
-  };
-
-  const handleModalidadeMultiOptionChange = (
-    modalidadeId: string,
-    optionType: 'divisao' | 'categoria' | 'faixaEtaria',
-    value: string,
-    checked: boolean,
-  ) => {
-    const current = watchedModalidades || [];
-    const updated = current.map((m) => {
-      if (m.modalidadeId === modalidadeId) {
-        const currentOptions = m[optionType] || [];
-        const newOptions = checked
-          ? [...currentOptions, value]
-          : currentOptions.filter((option) => option !== value);
-        return { ...m, [optionType]: newOptions };
-      }
-      return m;
-    });
-    setValue('modalidades', updated, { shouldValidate: true });
-  };
+      setValue('modalidades', updated, { shouldValidate: true });
+    },
+    [watchedModalidades, modalidadesData, setValue],
+  );
 
   const handleGenerateModalidadePDF = () => {
     if (!filteredInscricoes || filteredInscricoes.length === 0) {
@@ -383,17 +527,31 @@ export default function InscricoesForm() {
             )
           : inscricao.modalidades;
 
-        return modalidadesToProcess.map((modalidade) => ({
-          modalidade: modalidade.nome,
-          atleta: inscricao.nome,
-          lotacao: inscricao.lotacao,
-          camiseta: inscricao.camiseta,
-          telefone: inscricao.telefone,
-          sexo_modalidade: modalidade.sexo || '-',
-          categoria: modalidade.categoria?.join(', ') || '-',
-          faixaEtaria: modalidade.faixaEtaria?.join(', ') || '-',
-          divisao: modalidade.divisao?.join(', ') || '-',
-        }));
+        return modalidadesToProcess
+          .map((inscricaoModalidade) => {
+            const fullModalidade = modalidadesData.find(
+              (m) => m.id === inscricaoModalidade.modalidadeId,
+            );
+
+            if (!fullModalidade) {
+              return null;
+            }
+
+            const detalhes = (inscricaoModalidade.detalhes as any) || {};
+            return {
+              modalidade: fullModalidade.nome,
+              atleta: inscricao.nome,
+              lotacao: inscricao.lotacao,
+              camiseta: inscricao.camiseta,
+              telefone: inscricao.telefone,
+              tipo: detalhes.tipo?.join(', ') || '-',
+              sexo_modalidade: detalhes.sexo?.join(', ') || '-',
+              categoria: detalhes.categoria?.join(', ') || '-',
+              faixaEtaria: detalhes.faixaEtaria?.join(', ') || '-',
+              divisao: detalhes.divisao?.join(', ') || '-',
+            };
+          })
+          .filter((item): item is FlattenedInscricaoData => item !== null);
       })
       .sort((a, b) => {
         const modCompare = (a.modalidade || '').localeCompare(
@@ -739,8 +897,42 @@ export default function InscricoesForm() {
                         const selectedModalidade = watchedModalidades?.find(
                           (m) => m.modalidadeId === modalidade.id,
                         );
-
                         const isSelected = !!selectedModalidade;
+
+                        const vagas =
+                          (modalidade.vagasPorEquipe as any[]) || [];
+                        const allTipos = [
+                          ...new Set(vagas.map((v) => v.tipo).filter(Boolean)),
+                        ];
+                        const allSexos = [
+                          ...new Set(
+                            vagas.map((v) => v.genero).filter(Boolean),
+                          ),
+                        ];
+                        const allCategorias = [
+                          ...new Set(
+                            vagas
+                              .flatMap(
+                                (v) =>
+                                  v.categoria || v.graduacoes || v.provas || [],
+                              )
+                              .filter(Boolean),
+                          ),
+                        ];
+                        const allFaixasEtarias = [
+                          ...new Set(
+                            vagas
+                              .flatMap((v) => v.faixasEtarias || [])
+                              .filter(Boolean),
+                          ),
+                        ];
+                        const allDivisoes = [
+                          ...new Set(
+                            vagas
+                              .flatMap((v) => v.categoriasPeso || [])
+                              .filter(Boolean),
+                          ),
+                        ];
 
                         return (
                           <AccordionItem
@@ -768,7 +960,6 @@ export default function InscricoesForm() {
                                   {modalidade.nome}
                                 </Label>
                               </div>
-
                               {isSelected && (
                                 <AccordionTrigger className='ml-4'>
                                   Opções
@@ -778,147 +969,195 @@ export default function InscricoesForm() {
 
                             {isSelected && (
                               <AccordionContent className='pb-4 space-y-4 pl-2'>
-                                {/* SEXO */}
-                                {modalidade.modalidadesSexo &&
-                                  modalidade.modalidadesSexo.length > 0 && (
-                                    <div className='space-y-1'>
-                                      <Label>Sexo</Label>
-                                      <Select
-                                        value={selectedModalidade?.sexo}
-                                        onValueChange={(value) =>
-                                          handleModalidadeOptionChange(
-                                            modalidade.id,
-                                            'sexo',
-                                            value,
-                                          )
-                                        }
-                                      >
-                                        <SelectTrigger>
-                                          <SelectValue placeholder='Selecione o sexo' />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          {modalidade.modalidadesSexo.map(
-                                            (sexo) => (
-                                              <SelectItem
-                                                key={sexo}
-                                                value={sexo}
-                                              >
-                                                {sexo}
-                                              </SelectItem>
-                                            ),
-                                          )}
-                                        </SelectContent>
-                                      </Select>
+                                {/* TIPO */}
+                                {allTipos.length > 0 && (
+                                  <div className='space-y-2'>
+                                    <Label>Tipo</Label>
+                                    <div className='space-y-2'>
+                                      {allTipos.map((tipo) => (
+                                        <div
+                                          key={tipo}
+                                          className='flex items-center space-x-2'
+                                        >
+                                          <Checkbox
+                                            id={`${modalidade.id}-${tipo}`}
+                                            checked={
+                                              selectedModalidade.detalhes?.tipo?.includes(
+                                                tipo,
+                                              ) || false
+                                            }
+                                            onCheckedChange={(checked) =>
+                                              handleDetalhesChange(
+                                                modalidade.id,
+                                                'tipo',
+                                                tipo,
+                                                checked === true,
+                                                true,
+                                              )
+                                            }
+                                          />
+                                          <Label
+                                            htmlFor={`${modalidade.id}-${tipo}`}
+                                          >
+                                            {tipo}
+                                          </Label>
+                                        </div>
+                                      ))}
                                     </div>
-                                  )}
+                                  </div>
+                                )}
+
+                                {/* SEXO */}
+                                {allSexos.length > 0 && (
+                                  <div className='space-y-1'>
+                                    <Label>Sexo</Label>
+                                    <div className='space-y-2'>
+                                      {allSexos.map((sexo) => (
+                                        <div
+                                          key={sexo}
+                                          className='flex items-center space-x-2'
+                                        >
+                                          <Checkbox
+                                            id={`${modalidade.id}-sexo-${sexo}`}
+                                            checked={
+                                              selectedModalidade.detalhes?.sexo?.includes(
+                                                sexo,
+                                              ) || false
+                                            }
+                                            onCheckedChange={(checked) =>
+                                              handleDetalhesChange(
+                                                modalidade.id,
+                                                'sexo',
+                                                sexo,
+                                                checked === true,
+                                                true,
+                                              )
+                                            }
+                                          />
+                                          <Label
+                                            htmlFor={`${modalidade.id}-sexo-${sexo}`}
+                                          >
+                                            {sexo}
+                                          </Label>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
 
                                 {/* CATEGORIA */}
-                                {modalidade.categoria &&
-                                  modalidade.categoria.length > 0 && (
+                                {allCategorias.length > 0 && (
+                                  <div className='space-y-2'>
+                                    <Label>Categoria</Label>
                                     <div className='space-y-2'>
-                                      <Label>Categoria</Label>
-                                      <div className='space-y-2'>
-                                        {modalidade.categoria.map((cat) => (
-                                          <div
-                                            key={cat}
-                                            className='flex items-center space-x-2'
-                                          >
-                                            <Checkbox
-                                              id={`${modalidade.id}-${cat}`}
-                                              checked={selectedModalidade?.categoria?.includes(
+                                      {allCategorias.map((cat) => (
+                                        <div
+                                          key={cat}
+                                          className='flex items-center space-x-2'
+                                        >
+                                          <Checkbox
+                                            id={`${modalidade.id}-${cat}`}
+                                            checked={
+                                              selectedModalidade.detalhes?.categoria?.includes(
                                                 cat,
-                                              )}
-                                              onCheckedChange={(checked) =>
-                                                handleModalidadeMultiOptionChange(
-                                                  modalidade.id,
-                                                  'categoria',
-                                                  cat,
-                                                  checked === true,
-                                                )
-                                              }
-                                            />
-                                            <Label
-                                              htmlFor={`${modalidade.id}-${cat}`}
-                                            >
-                                              {cat}
-                                            </Label>
-                                          </div>
-                                        ))}
-                                      </div>
+                                              ) || false
+                                            }
+                                            onCheckedChange={(checked) =>
+                                              handleDetalhesChange(
+                                                modalidade.id,
+                                                'categoria',
+                                                cat,
+                                                checked === true,
+                                                true,
+                                              )
+                                            }
+                                          />
+                                          <Label
+                                            htmlFor={`${modalidade.id}-${cat}`}
+                                          >
+                                            {cat}
+                                          </Label>
+                                        </div>
+                                      ))}
                                     </div>
-                                  )}
+                                  </div>
+                                )}
 
                                 {/* FAIXA ETÁRIA */}
-                                {modalidade.faixaEtaria &&
-                                  modalidade.faixaEtaria.length > 0 && (
+                                {allFaixasEtarias.length > 0 && (
+                                  <div className='space-y-2'>
+                                    <Label>Faixa Etária</Label>
                                     <div className='space-y-2'>
-                                      <Label>Faixa Etária</Label>
-                                      <div className='space-y-2'>
-                                        {modalidade.faixaEtaria.map((faixa) => (
-                                          <div
-                                            key={faixa}
-                                            className='flex items-center space-x-2'
-                                          >
-                                            <Checkbox
-                                              id={`${modalidade.id}-${faixa}`}
-                                              checked={selectedModalidade?.faixaEtaria?.includes(
+                                      {allFaixasEtarias.map((faixa) => (
+                                        <div
+                                          key={faixa}
+                                          className='flex items-center space-x-2'
+                                        >
+                                          <Checkbox
+                                            id={`${modalidade.id}-${faixa}`}
+                                            checked={
+                                              selectedModalidade.detalhes?.faixaEtaria?.includes(
                                                 faixa,
-                                              )}
-                                              onCheckedChange={(checked) =>
-                                                handleModalidadeMultiOptionChange(
-                                                  modalidade.id,
-                                                  'faixaEtaria',
-                                                  faixa,
-                                                  checked === true,
-                                                )
-                                              }
-                                            />
-                                            <Label
-                                              htmlFor={`${modalidade.id}-${faixa}`}
-                                            >
-                                              {faixa}
-                                            </Label>
-                                          </div>
-                                        ))}
-                                      </div>
+                                              ) || false
+                                            }
+                                            onCheckedChange={(checked) =>
+                                              handleDetalhesChange(
+                                                modalidade.id,
+                                                'faixaEtaria',
+                                                faixa,
+                                                checked === true,
+                                                true,
+                                              )
+                                            }
+                                          />
+                                          <Label
+                                            htmlFor={`${modalidade.id}-${faixa}`}
+                                          >
+                                            {faixa}
+                                          </Label>
+                                        </div>
+                                      ))}
                                     </div>
-                                  )}
+                                  </div>
+                                )}
 
                                 {/* DIVISÃO */}
-                                {modalidade.divisoes &&
-                                  modalidade.divisoes.length > 0 && (
+                                {allDivisoes.length > 0 && (
+                                  <div className='space-y-2'>
+                                    <Label>Divisão</Label>
                                     <div className='space-y-2'>
-                                      <Label>Divisão</Label>
-                                      <div className='space-y-2'>
-                                        {modalidade.divisoes.map((div) => (
-                                          <div
-                                            key={div}
-                                            className='flex items-center space-x-2'
-                                          >
-                                            <Checkbox
-                                              id={`${modalidade.id}-${div}`}
-                                              checked={selectedModalidade?.divisao?.includes(
+                                      {allDivisoes.map((div) => (
+                                        <div
+                                          key={div}
+                                          className='flex items-center space-x-2'
+                                        >
+                                          <Checkbox
+                                            id={`${modalidade.id}-${div}`}
+                                            checked={
+                                              selectedModalidade.detalhes?.divisao?.includes(
                                                 div,
-                                              )}
-                                              onCheckedChange={(checked) =>
-                                                handleModalidadeMultiOptionChange(
-                                                  modalidade.id,
-                                                  'divisao',
-                                                  div,
-                                                  checked === true,
-                                                )
-                                              }
-                                            />
-                                            <Label
-                                              htmlFor={`${modalidade.id}-${div}`}
-                                            >
-                                              {div}
-                                            </Label>
-                                          </div>
-                                        ))}
-                                      </div>
+                                              ) || false
+                                            }
+                                            onCheckedChange={(checked) =>
+                                              handleDetalhesChange(
+                                                modalidade.id,
+                                                'divisao',
+                                                div,
+                                                checked === true,
+                                                true,
+                                              )
+                                            }
+                                          />
+                                          <Label
+                                            htmlFor={`${modalidade.id}-${div}`}
+                                          >
+                                            {div}
+                                          </Label>
+                                        </div>
+                                      ))}
                                     </div>
-                                  )}
+                                  </div>
+                                )}
                               </AccordionContent>
                             )}
                           </AccordionItem>

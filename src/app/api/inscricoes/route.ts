@@ -6,10 +6,7 @@ import { sendMassEmail } from '@/lib/email-utils';
 
 const modalidadeSelectionSchema = z.object({
   modalidadeId: z.string(),
-  sexo: z.string().optional(),
-  divisao: z.array(z.string()).optional(),
-  categoria: z.array(z.string()).optional(),
-  faixaEtaria: z.array(z.string()).optional(),
+  detalhes: z.record(z.string(), z.any()).optional(),
 });
 
 const inscricaoSchema = z.object({
@@ -72,10 +69,7 @@ export async function GET(request: NextRequest) {
         modalidades: i.modalidades.map((m) => ({
           modalidadeId: m.modalidadeId,
           nome: m.modalidade.nome,
-          sexo: m.sexo,
-          divisao: m.divisao,
-          categoria: m.categoria,
-          faixaEtaria: m.faixaEtaria,
+          detalhes: m.detalhes,
         })),
       })),
     );
@@ -107,42 +101,20 @@ export async function POST(req: Request) {
       );
     }
 
-    const modalidadeIds = modalidadesSelections.map((m) => m.modalidadeId);
-    const existingModalidades = await prisma.modalidade.findMany({
-      where: {
-        id: {
-          in: modalidadeIds,
-        },
-      },
-    });
-
     const novaInscricao = await prisma.$transaction(async (tx) => {
       const inscricao = await tx.inscricao.create({
         data: {
           ...dadosInscricao,
           dataNascimento: new Date(dadosInscricao.dataNascimento),
           modalidades: {
-            create: modalidadesSelections.map((m) => {
-              const modalidade = existingModalidades.find(
-                (em) => em.id === m.modalidadeId,
-              );
-              if (!modalidade) {
-                throw new Error(
-                  `Modalidade with ID ${m.modalidadeId} not found.`,
-                );
-              }
-              return {
-                modalidade: {
-                  connect: {
-                    id: modalidade.id,
-                  },
+            create: modalidadesSelections.map((m) => ({
+              modalidade: {
+                connect: {
+                  id: m.modalidadeId,
                 },
-                sexo: m.sexo,
-                divisao: m.divisao,
-                categoria: m.categoria,
-                faixaEtaria: m.faixaEtaria,
-              };
-            }),
+              },
+              detalhes: m.detalhes || {},
+            })),
           },
         },
         include: {
@@ -176,12 +148,19 @@ export async function POST(req: Request) {
 
       const modalidadesHTML = inscricaoModalidadesDetalhes
         .map((im) => {
-          const optionsHTML = `
-                ${im.sexo ? `<p><strong>Sexo:</strong> ${im.sexo}</p>` : ''}
-                ${im.divisao && im.divisao.length > 0 ? `<p><strong>Divisão:</strong> ${im.divisao.join(', ')}</p>` : ''}
-                ${im.categoria && im.categoria.length > 0 ? `<p><strong>Categoria:</strong> ${im.categoria.join(', ')}</p>` : ''}
-                ${im.faixaEtaria && im.faixaEtaria.length > 0 ? `<p><strong>Faixa Etária:</strong> ${im.faixaEtaria.join(', ')}</p>` : ''}
-              `;
+          const detalhes = (im.detalhes as any) || {};
+          const optionsHTML = Object.entries(detalhes)
+            .map(([key, value]) => {
+              if (Array.isArray(value) && value.length > 0) {
+                const capitalizedKey =
+                  key.charAt(0).toUpperCase() + key.slice(1);
+                return `<p><strong>${capitalizedKey}:</strong> ${value.join(
+                  ', ',
+                )}</p>`;
+              }
+              return '';
+            })
+            .join('');
 
           return `
                 <div style="margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
@@ -214,10 +193,7 @@ export async function POST(req: Request) {
       modalidades: novaInscricao.modalidades.map((m) => ({
         modalidadeId: m.modalidadeId,
         nome: m.modalidade.nome,
-        sexo: m.sexo,
-        divisao: m.divisao,
-        categoria: m.categoria,
-        faixaEtaria: m.faixaEtaria,
+        detalhes: m.detalhes,
       })),
     };
     return NextResponse.json(resposta, { status: 201 });

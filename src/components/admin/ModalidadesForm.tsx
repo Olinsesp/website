@@ -25,39 +25,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { Trash2, Edit, Plus, Save } from 'lucide-react';
+
+import { Trash2, Edit, Plus, Save, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
+
 import QueryStateHandler from '../ui/query-state-handler';
 import { DataTable } from '@/app/Dashboard/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-const divisaoSchema = z.object({
-  nome: z.string().min(1, 'Nome da divisão é obrigatório'),
-});
-
-const sexoSchema = z.object({
-  nome: z.string().min(1, 'Nome do sexo é obrigatório'),
-});
-
-const faixaEtariaSchema = z.object({
-  nome: z.string().min(1, 'Nome da faixa etária é obrigatório'),
-});
-
-const categoriaSchema = z.object({
-  nome: z.string().min(1, 'Nome da categoria é obrigatório'),
-});
-
 const modalidadeSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório'),
   descricao: z.string().min(1, 'Descrição é obrigatória'),
-  categoria: z.array(categoriaSchema).optional(),
   maxParticipantes: z
     .number()
     .min(1, 'Máximo de participantes deve ser maior que 0'),
@@ -67,9 +46,7 @@ const modalidadeSchema = z.object({
     'em-andamento',
     'finalizada',
   ]),
-  modalidadesSexo: z.array(sexoSchema).optional(),
-  faixaEtaria: z.array(faixaEtariaSchema).optional(),
-  divisoes: z.array(divisaoSchema).optional(),
+  vagasPorEquipe: z.array(z.record(z.string(), z.any())),
 });
 
 type ModalidadeFormData = z.infer<typeof modalidadeSchema>;
@@ -89,6 +66,13 @@ export default function ModalidadesForm() {
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [addedFields, setAddedFields] = useState<string[]>([]);
+  const [newFieldNames, setNewFieldNames] = useState<Record<number, string>>(
+    {},
+  );
+  const [expandedVagas, setExpandedVagas] = useState<Record<number, boolean>>(
+    {},
+  );
 
   const {
     data: modalidades = [],
@@ -105,6 +89,7 @@ export default function ModalidadesForm() {
     handleSubmit,
     reset,
     setValue,
+    getValues,
     control,
     formState: { errors },
   } = useForm<ModalidadeFormData>({
@@ -112,49 +97,19 @@ export default function ModalidadesForm() {
     defaultValues: {
       nome: '',
       descricao: '',
-      categoria: [],
       maxParticipantes: 0,
       status: 'inscricoes-abertas',
-      modalidadesSexo: [],
-      faixaEtaria: [],
-      divisoes: [],
+      vagasPorEquipe: [],
     },
   });
 
   const {
-    fields: divisoesFields,
-    append: appendDivisao,
-    remove: removeDivisao,
+    fields: vagasPorEquipeFields,
+    append: appendVaga,
+    remove: removeVaga,
   } = useFieldArray({
-    control,
-    name: 'divisoes',
-  });
-
-  const {
-    fields: modalidadesSexoFields,
-    append: appendModalidadeSexo,
-    remove: removeModalidadeSexo,
-  } = useFieldArray({
-    control,
-    name: 'modalidadesSexo',
-  });
-
-  const {
-    fields: faixaEtariaFields,
-    append: appendFaixaEtaria,
-    remove: removeFaixaEtaria,
-  } = useFieldArray({
-    control,
-    name: 'faixaEtaria',
-  });
-
-  const {
-    fields: categoriasFields,
-    append: appendCategoria,
-    remove: removeCategoria,
-  } = useFieldArray({
-    control,
-    name: 'categoria',
+    control: control as any,
+    name: 'vagasPorEquipe',
   });
 
   const mutation = useMutation<
@@ -224,15 +179,51 @@ export default function ModalidadesForm() {
   });
 
   const onSubmit = (data: ModalidadeFormData) => {
-    const formattedData = {
-      ...data,
-      categoria: data.categoria?.map((c) => c.nome),
-      modalidadesSexo: data.modalidadesSexo?.map((s) => s.nome),
-      faixaEtaria: data.faixaEtaria?.map((f) => f.nome),
-      divisoes: data.divisoes?.map((d) => d.nome),
-    };
+    const { vagasPorEquipe, ...rest } = data;
+    const formattedData: any = { ...rest };
+
+    if (vagasPorEquipe) {
+      formattedData.vagasPorEquipe = vagasPorEquipe.map((vaga) => {
+        const newVaga: any = { ...vaga };
+        if (newVaga.graduacoes && typeof newVaga.graduacoes === 'string')
+          newVaga.graduacoes = newVaga.graduacoes
+            .split(',')
+            .map((s: string) => s.trim());
+        if (newVaga.faixasEtarias && typeof newVaga.faixasEtarias === 'string')
+          newVaga.faixasEtarias = newVaga.faixasEtarias
+            .split(',')
+            .map((s: string) => s.trim());
+        if (
+          newVaga.categoriasPeso &&
+          typeof newVaga.categoriasPeso === 'string'
+        )
+          newVaga.categoriasPeso = newVaga.categoriasPeso
+            .split(',')
+            .map((s: string) => s.trim());
+        if (newVaga.provas && typeof newVaga.provas === 'string')
+          newVaga.provas = newVaga.provas
+            .split(',')
+            .map((s: string) => s.trim());
+
+        Object.keys(newVaga).forEach((key) => {
+          if (
+            newVaga[key] === '' ||
+            newVaga[key] === null ||
+            newVaga[key] === undefined ||
+            Number.isNaN(newVaga[key]) ||
+            (Array.isArray(newVaga[key]) && newVaga[key].length === 0)
+          ) {
+            delete newVaga[key];
+          }
+        });
+        return newVaga;
+      });
+    } else {
+      formattedData.vagasPorEquipe = null;
+    }
+
     mutation.mutate({
-      data: formattedData as ModalidadeFormData,
+      data: formattedData,
       id: editingId,
     });
   };
@@ -241,27 +232,29 @@ export default function ModalidadesForm() {
     setEditingId(modalidade.id);
     setValue('nome', modalidade.nome);
     setValue('descricao', modalidade.descricao);
-    setValue(
-      'categoria',
-      modalidade.categoria?.map((c) => ({ nome: c })) || [],
-    );
-
     setValue('maxParticipantes', modalidade.maxParticipantes);
     setValue(
       'status',
-      modalidade.status === 'inscricoes-encerradas'
+      (modalidade.status as any) === 'inscricoes-encerradas'
         ? 'inscricoes-fechadas'
-        : (modalidade.status as any),
+        : modalidade.status,
     );
-    setValue(
-      'modalidadesSexo',
-      modalidade.modalidadesSexo?.map((s) => ({ nome: s })) || [],
-    );
-    setValue(
-      'faixaEtaria',
-      modalidade.faixaEtaria?.map((f) => ({ nome: f })) || [],
-    );
-    setValue('divisoes', modalidade.divisoes?.map((d) => ({ nome: d })) || []);
+
+    const vagas = modalidade.vagasPorEquipe
+      ? (modalidade.vagasPorEquipe as any[]).map((vaga) => {
+          const newVaga = { ...vaga };
+          if (newVaga.graduacoes)
+            newVaga.graduacoes = newVaga.graduacoes.join(', ');
+          if (newVaga.faixasEtarias)
+            newVaga.faixasEtarias = newVaga.faixasEtarias.join(', ');
+          if (newVaga.categoriasPeso)
+            newVaga.categoriasPeso = newVaga.categoriasPeso.join(', ');
+          if (newVaga.provas) newVaga.provas = newVaga.provas.join(', ');
+          return newVaga;
+        })
+      : [];
+
+    setValue('vagasPorEquipe', vagas);
     setIsDialogOpen(true);
   };
 
@@ -304,162 +297,39 @@ export default function ModalidadesForm() {
     );
   };
 
+  const getExistingFields = (vaga: any): string[] => {
+    const allFields = [
+      'genero',
+      'tipo',
+      'categoria',
+      'equipes',
+      'atletasPorEquipe',
+      'totalAtletas',
+      'graduacoes',
+      'faixasEtarias',
+      'pesosPorCategoria',
+      'vagasPorPeso',
+      'categoriasPeso',
+      'vagasPorCategoria',
+      'vagasPorFaixa',
+      'provas',
+      'prova',
+    ];
+    return allFields.filter((field) => {
+      const value = vaga[field];
+      return (
+        value !== null &&
+        value !== undefined &&
+        value !== '' &&
+        (!Array.isArray(value) || value.length > 0)
+      );
+    });
+  };
+
   const columns: ColumnDef<Modalidade>[] = [
     {
       accessorKey: 'nome',
       header: 'Nome',
-    },
-    {
-      accessorKey: 'categoria',
-      header: 'Categoria',
-      cell: ({ row }) => {
-        const categorias = row.original.categoria;
-        if (!categorias || categorias.length === 0) return <span>N/A</span>;
-
-        const displayedCategorias = categorias.slice(0, 2);
-        const remainingCategoriasCount =
-          categorias.length - displayedCategorias.length;
-
-        return (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className='flex flex-wrap gap-1 cursor-pointer'>
-                  {displayedCategorias.map((categoria) => (
-                    <Badge key={categoria} variant='secondary'>
-                      {categoria}
-                    </Badge>
-                  ))}
-                  {remainingCategoriasCount > 0 && (
-                    <Badge variant='secondary'>
-                      +{remainingCategoriasCount}
-                    </Badge>
-                  )}
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <div className='flex flex-col gap-1'>
-                  {categorias.map((categoria) => (
-                    <span key={categoria}>{categoria}</span>
-                  ))}
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        );
-      },
-    },
-    {
-      accessorKey: 'modalidadesSexo',
-      header: 'Sexo',
-      cell: ({ row }) => {
-        const sexos = row.original.modalidadesSexo;
-        if (!sexos || sexos.length === 0) return <span>N/A</span>;
-
-        const displayedSexos = sexos.slice(0, 2);
-        const remainingSexosCount = sexos.length - displayedSexos.length;
-
-        return (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className='flex flex-wrap gap-1 cursor-pointer'>
-                  {displayedSexos.map((sexo) => (
-                    <Badge key={sexo} variant='secondary'>
-                      {sexo}
-                    </Badge>
-                  ))}
-                  {remainingSexosCount > 0 && (
-                    <Badge variant='secondary'>+{remainingSexosCount}</Badge>
-                  )}
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <div className='flex flex-col gap-1'>
-                  {sexos.map((sexo) => (
-                    <span key={sexo}>{sexo}</span>
-                  ))}
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        );
-      },
-    },
-    {
-      accessorKey: 'faixaEtaria',
-      header: 'Faixa Etária',
-      cell: ({ row }) => {
-        const faixas = row.original.faixaEtaria;
-        if (!faixas || faixas.length === 0) return <span>N/A</span>;
-
-        const displayedFaixas = faixas.slice(0, 2);
-        const remainingFaixasCount = faixas.length - displayedFaixas.length;
-
-        return (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className='flex flex-wrap gap-1 cursor-pointer'>
-                  {displayedFaixas.map((faixa) => (
-                    <Badge key={faixa} variant='secondary'>
-                      {faixa}
-                    </Badge>
-                  ))}
-                  {remainingFaixasCount > 0 && (
-                    <Badge variant='secondary'>+{remainingFaixasCount}</Badge>
-                  )}
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <div className='flex flex-col gap-1'>
-                  {faixas.map((faixa) => (
-                    <span key={faixa}>{faixa}</span>
-                  ))}
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        );
-      },
-    },
-    {
-      accessorKey: 'divisoes',
-      header: 'Divisões',
-      cell: ({ row }) => {
-        const divisoes = row.original.divisoes;
-        if (!divisoes || divisoes.length === 0) return <span>N/A</span>;
-
-        const displayedDivisoes = divisoes.slice(0, 2);
-        const remainingDivisoesCount =
-          divisoes.length - displayedDivisoes.length;
-
-        return (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className='flex flex-wrap gap-1 cursor-pointer'>
-                  {displayedDivisoes.map((divisao) => (
-                    <Badge key={divisao} variant='outline'>
-                      {divisao}
-                    </Badge>
-                  ))}
-                  {remainingDivisoesCount > 0 && (
-                    <Badge variant='outline'>+{remainingDivisoesCount}</Badge>
-                  )}
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <div className='flex flex-col gap-1'>
-                  {divisoes.map((divisao) => (
-                    <span key={divisao}>{divisao}</span>
-                  ))}
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        );
-      },
     },
     {
       accessorKey: 'participantes',
@@ -555,45 +425,6 @@ export default function ModalidadesForm() {
                 </div>
 
                 <div className='space-y-2'>
-                  <Label>Categoria *</Label>
-                  {categoriasFields.map((field, index) => (
-                    <div
-                      key={field.id}
-                      className='flex items-center gap-2 p-2 border rounded-lg'
-                    >
-                      <div className='grid grid-cols-1 gap-2 flex-1'>
-                        <Input
-                          {...register(`categoria.${index}.nome`)}
-                          placeholder='Ex: Individual, Coletivo, Duplas'
-                        />
-                      </div>
-                      <Button
-                        type='button'
-                        variant='destructive'
-                        size='sm'
-                        onClick={() => removeCategoria(index)}
-                      >
-                        <Trash2 className='h-4 w-4' />
-                      </Button>
-                    </div>
-                  ))}
-                  <Button
-                    type='button'
-                    variant='outline'
-                    size='sm'
-                    onClick={() => appendCategoria({ nome: '' })}
-                  >
-                    <Plus className='h-4 w-4 mr-2' />
-                    Adicionar Categoria
-                  </Button>
-                  {errors.categoria && (
-                    <p className='text-sm text-vermelho-olinsesp'>
-                      {errors.categoria.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className='space-y-2'>
                   <Label htmlFor='maxParticipantes'>
                     Máximo de Participantes *
                   </Label>
@@ -610,7 +441,7 @@ export default function ModalidadesForm() {
                   )}
                 </div>
 
-                <div className='space-y-2'>
+                <div className='space-y-2 md:col-span-2'>
                   <Label htmlFor='status'>Status *</Label>
                   <Select
                     onValueChange={(value) => setValue('status', value as any)}
@@ -653,104 +484,253 @@ export default function ModalidadesForm() {
               </div>
 
               <div className='space-y-4'>
-                <Label>Sexo da Modalidade</Label>
-                {modalidadesSexoFields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className='flex items-center gap-2 p-2 border rounded-lg'
-                  >
-                    <div className='grid grid-cols-1 gap-2 flex-1'>
-                      <Input
-                        {...register(`modalidadesSexo.${index}.nome`)}
-                        placeholder='Ex: Masculino, Feminino, Misto'
-                      />
-                    </div>
-                    <Button
-                      type='button'
-                      variant='destructive'
-                      size='sm'
-                      onClick={() => removeModalidadeSexo(index)}
-                    >
-                      <Trash2 className='h-4 w-4' />
-                    </Button>
-                  </div>
-                ))}
-                <Button
-                  type='button'
-                  variant='outline'
-                  size='sm'
-                  onClick={() => appendModalidadeSexo({ nome: '' })}
-                >
-                  <Plus className='h-4 w-4 mr-2' />
-                  Adicionar Sexo
-                </Button>
-              </div>
+                <Label>Vagas por Equipe</Label>
+                <div className='space-y-3'>
+                  {vagasPorEquipeFields.map((field, index) => {
+                    const existingFields = getExistingFields(field as any);
 
-              <div className='space-y-4'>
-                <Label>Faixa Etária</Label>
-                {faixaEtariaFields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className='flex items-center gap-2 p-2 border rounded-lg'
-                  >
-                    <div className='grid grid-cols-1 gap-2 flex-1'>
-                      <Input
-                        {...register(`faixaEtaria.${index}.nome`)}
-                        placeholder='Ex: Sub-10, Adulto, Livre'
-                      />
-                    </div>
-                    <Button
-                      type='button'
-                      variant='destructive'
-                      size='sm'
-                      onClick={() => removeFaixaEtaria(index)}
-                    >
-                      <Trash2 className='h-4 w-4' />
-                    </Button>
-                  </div>
-                ))}
-                <Button
-                  type='button'
-                  variant='outline'
-                  size='sm'
-                  onClick={() => appendFaixaEtaria({ nome: '' })}
-                >
-                  <Plus className='h-4 w-4 mr-2' />
-                  Adicionar Faixa Etária
-                </Button>
-              </div>
+                    const fieldConfig: Record<
+                      string,
+                      { label: string; type?: string; placeholder: string }
+                    > = {
+                      genero: { label: 'Gênero', placeholder: 'Gênero' },
+                      tipo: { label: 'Tipo', placeholder: 'Tipo' },
+                      categoria: {
+                        label: 'Categoria',
+                        placeholder: 'Categoria',
+                      },
+                      equipes: {
+                        label: 'Equipes',
+                        type: 'number',
+                        placeholder: 'Ex: 4',
+                      },
+                      atletasPorEquipe: {
+                        label: 'Atletas / Equipe',
+                        type: 'number',
+                        placeholder: 'Ex: 5',
+                      },
+                      totalAtletas: {
+                        label: 'Total de Atletas',
+                        type: 'number',
+                        placeholder: 'Ex: 20',
+                      },
+                      graduacoes: {
+                        label: 'Graduações',
+                        placeholder: 'Graduações (vírgula-separadas)',
+                      },
+                      faixasEtarias: {
+                        label: 'Faixas Etárias',
+                        placeholder: 'Faixas Etárias (vírgula-separadas)',
+                      },
+                      pesosPorCategoria: {
+                        label: 'Pesos por Categoria',
+                        type: 'number',
+                        placeholder: '',
+                      },
+                      vagasPorPeso: {
+                        label: 'Vagas por Peso',
+                        type: 'number',
+                        placeholder: '',
+                      },
+                      categoriasPeso: {
+                        label: 'Categorias de Peso',
+                        placeholder: 'Categorias (vírgula-separadas)',
+                      },
+                      vagasPorCategoria: {
+                        label: 'Vagas por Categoria',
+                        type: 'number',
+                        placeholder: '',
+                      },
+                      vagasPorFaixa: {
+                        label: 'Vagas por Faixa',
+                        type: 'number',
+                        placeholder: '',
+                      },
+                      provas: {
+                        label: 'Provas',
+                        placeholder: 'Provas (vírgula-separadas)',
+                      },
+                      prova: {
+                        label: 'Prova',
+                        placeholder: 'Prova (opcional)',
+                      },
+                    };
 
-              <div className='space-y-4'>
-                <Label>Divisões (Opcional)</Label>
-                {divisoesFields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className='flex items-center gap-2 p-2 border rounded-lg'
-                  >
-                    <div className='grid grid-cols-1 gap-2 flex-1'>
-                      <Input
-                        {...register(`divisoes.${index}.nome`)}
-                        placeholder='Nome da divisão (Ex: Sub-20)'
-                      />
-                    </div>
-                    <Button
-                      type='button'
-                      variant='destructive'
-                      size='sm'
-                      onClick={() => removeDivisao(index)}
-                    >
-                      <Trash2 className='h-4 w-4' />
-                    </Button>
-                  </div>
-                ))}
+                    return (
+                      <div
+                        key={field.id}
+                        className='border rounded-lg p-4 bg-muted/30 space-y-3'
+                      >
+                        <div className='flex items-center justify-between mb-3'>
+                          <h4 className='font-medium text-sm'>
+                            Vaga #{index + 1}
+                          </h4>
+                          <div className='flex items-center gap-2'>
+                            <Button
+                              type='button'
+                              variant='ghost'
+                              size='sm'
+                              onClick={() =>
+                                setExpandedVagas((prev) => ({
+                                  ...prev,
+                                  [index]: !prev[index],
+                                }))
+                              }
+                              aria-label='Expandir/Colapsar'
+                            >
+                              <ChevronDown
+                                className={`h-4 w-4 transition-transform ${expandedVagas[index] ? 'rotate-180' : ''}`}
+                              />
+                            </Button>
+                            <Button
+                              type='button'
+                              variant='destructive'
+                              size='sm'
+                              onClick={() => removeVaga(index)}
+                            >
+                              <Trash2 className='h-4 w-4' />
+                            </Button>
+                          </div>
+                        </div>
+
+                        {expandedVagas[index] ? (
+                          <>
+                            <div className='space-y-3'>
+                              {existingFields.length === 0 ? (
+                                <p className='text-xs text-muted-foreground italic'>
+                                  Sem campos preenchidos
+                                </p>
+                              ) : (
+                                existingFields.map((fieldName) => (
+                                  <div
+                                    key={fieldName}
+                                    className='flex items-end gap-2'
+                                  >
+                                    <div className='flex-1'>
+                                      <Label className='text-xs'>
+                                        {fieldConfig[fieldName]?.label}
+                                      </Label>
+                                      <Input
+                                        type={
+                                          fieldConfig[fieldName]?.type || 'text'
+                                        }
+                                        min={
+                                          fieldConfig[fieldName]?.type ===
+                                          'number'
+                                            ? 0
+                                            : undefined
+                                        }
+                                        placeholder={
+                                          fieldConfig[fieldName]?.placeholder
+                                        }
+                                        {...register(
+                                          `vagasPorEquipe.${index}.${fieldName}`,
+                                        )}
+                                      />
+                                    </div>
+                                    <Button
+                                      type='button'
+                                      variant='ghost'
+                                      size='sm'
+                                      onClick={() => {
+                                        const arr =
+                                          (getValues(
+                                            'vagasPorEquipe',
+                                          ) as any[]) || [];
+                                        const newArr = arr.map((v, i) =>
+                                          i === index ? { ...(v || {}) } : v,
+                                        );
+                                        if (
+                                          newArr[index] &&
+                                          Object.prototype.hasOwnProperty.call(
+                                            newArr[index],
+                                            fieldName,
+                                          )
+                                        ) {
+                                          delete newArr[index][fieldName];
+                                          setValue('vagasPorEquipe', newArr);
+                                          setAddedFields((prev) =>
+                                            prev.filter((f) => f !== fieldName),
+                                          );
+                                          toast.success('Campo removido');
+                                        }
+                                      }}
+                                      title='Remover campo'
+                                    >
+                                      <Trash2 className='h-4 w-4' />
+                                    </Button>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+
+                            {Object.keys(fieldConfig).filter(
+                              (f) => !existingFields.includes(f),
+                            ).length > 0 && (
+                              <div className='border-t pt-3'>
+                                <div className='flex gap-2'>
+                                  <Input
+                                    placeholder='+ Adicionar campo'
+                                    value={newFieldNames[index] || ''}
+                                    onChange={(e) =>
+                                      setNewFieldNames({
+                                        ...newFieldNames,
+                                        [index]: e.target.value,
+                                      })
+                                    }
+                                  />
+                                  <Button
+                                    type='button'
+                                    onClick={() => {
+                                      const raw = (
+                                        newFieldNames[index] || ''
+                                      ).trim();
+                                      if (!raw) {
+                                        toast.error('Informe o nome do campo');
+                                        return;
+                                      }
+                                      const fieldName = raw;
+                                      if (
+                                        existingFields.includes(fieldName) ||
+                                        addedFields.includes(fieldName)
+                                      ) {
+                                        toast.error('Campo já adicionado');
+                                        return;
+                                      }
+                                      setValue(
+                                        `vagasPorEquipe.${index}.${fieldName}`,
+                                        '',
+                                      );
+                                      setAddedFields([
+                                        ...addedFields,
+                                        fieldName,
+                                      ]);
+                                      setNewFieldNames({
+                                        ...newFieldNames,
+                                        [index]: '',
+                                      });
+                                    }}
+                                  >
+                                    Adicionar
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+                          </>
+                        ) : null}
+                      </div>
+                    );
+                  })}
+                </div>
+
                 <Button
                   type='button'
                   variant='outline'
-                  size='sm'
-                  onClick={() => appendDivisao({ nome: '' })}
+                  onClick={() => appendVaga({})}
+                  className='w-full'
                 >
                   <Plus className='h-4 w-4 mr-2' />
-                  Adicionar Divisão
+                  Adicionar Vaga
                 </Button>
               </div>
 

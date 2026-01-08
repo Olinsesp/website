@@ -20,6 +20,7 @@ import {
   Pie,
   Cell,
   LabelList,
+  Legend,
 } from 'recharts';
 import { generatePDF } from '@/lib/pdf-utils';
 import { Download, Filter } from 'lucide-react';
@@ -46,6 +47,7 @@ interface DashboardSummary {
   lotacoesCount: { name: string; quantidade: number }[];
   uniqueLotacoes: string[];
   uniqueModalidades: string[];
+  uniqueEquipes: string[];
   inscricoes: Inscricao[];
 }
 
@@ -64,26 +66,11 @@ async function fetchDashboardSummary(
 }
 
 export default function Dashboard() {
-  const [lotacao, setLotacao] = useState<string | null>(null);
+  const [equipe, setEquipe] = useState<string | null>(null);
   const [modalidade, setModalidade] = useState<string | null>(null);
   const [equipeRole, setequipeRole] = useState<string | null>(null);
   const [userOrgao, setUserOrgao] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
-
-  const lotacaoColors: Record<string, string> = {
-    PMDF: '#0a3351ff',
-    CBMDF: '#ff7f0e',
-    PCDF: '#0f450fff',
-    PRF: '#d62728',
-    SSPDF: '#28b3f3ff',
-    DETRANDF: '#b2df8a',
-    PF: '#33a02c',
-    PPDF: '#fb9a99',
-    PPF: '#e31a1c',
-    PLDF: '#fdbf6f',
-    PLF: '#ff7f00',
-    SEJUS: '#cab2d6',
-  };
 
   useEffect(() => {
     const fetchequipeRole = async () => {
@@ -92,7 +79,7 @@ export default function Dashboard() {
         if (!verifyRes.ok) throw new Error('Falha ao verificar usuário');
         const verifyData = await verifyRes.json();
         setequipeRole(verifyData.role);
-        setUserOrgao(verifyData.orgaoDeOrigem);
+        setUserOrgao(verifyData.equipeNome);
 
         if (verifyData.role === 'PONTOFOCAL') {
           setActiveTab('dashboard');
@@ -129,23 +116,34 @@ export default function Dashboard() {
     }
   };
 
-  const filteredLotacoesCount = useMemo(() => {
+  const equipesCount = useMemo(() => {
     if (!summaryData) return [];
-    return summaryData.lotacoesCount.filter((item) =>
-      lotacao ? item.name === lotacao : true,
-    );
-  }, [summaryData, lotacao]);
+    const count: Record<string, number> = {};
+    summaryData.inscricoes.forEach((i: any) => {
+      if (i.equipeName) {
+        if (count[i.equipeName]) {
+          count[i.equipeName]++;
+        } else {
+          count[i.equipeName] = 1;
+        }
+      }
+    });
+    return Object.entries(count).map(([name, value]) => ({
+      name,
+      value,
+    }));
+  }, [summaryData]);
 
   const inscritosFiltrados = useMemo(() => {
     if (!summaryData) return [];
-    return summaryData.inscricoes.filter((i) => {
-      const lotacaoMatch = lotacao ? i.lotacao === lotacao : true;
+    return summaryData.inscricoes.filter((i: any) => {
+      const equipeMatch = equipe ? i.equipeName === equipe : true;
       const modalidadeMatch = modalidade
-        ? i.modalidades.some((m) => m.nome === modalidade)
+        ? i.modalidades.some((m: any) => m.nome === modalidade)
         : true;
-      return lotacaoMatch && modalidadeMatch;
+      return equipeMatch && modalidadeMatch;
     });
-  }, [summaryData, lotacao, modalidade]);
+  }, [summaryData, equipe, modalidade]);
 
   const modalidadesCount = useMemo(() => {
     if (!summaryData) return [];
@@ -203,31 +201,33 @@ export default function Dashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className='flex flex-col lg:flex-row items-start lg:items-end gap-4 w-full'>
-                    <div className='space-y-2'>
-                      <label className='text-sm font-medium'>
-                        Filtrar por Lotação
-                      </label>
-                      <Select
-                        value={lotacao ?? 'todos'}
-                        onValueChange={(val) =>
-                          setLotacao(val === 'todos' ? null : val)
-                        }
-                      >
-                        <SelectTrigger className='w-full lg:w-48'>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value='todos'>
-                            Todas as Lotações
-                          </SelectItem>
-                          {summaryData?.uniqueLotacoes.map((l) => (
-                            <SelectItem key={l} value={l}>
-                              {l}
+                    {equipeRole === 'ADMIN' && (
+                      <div className='space-y-2'>
+                        <label className='text-sm font-medium'>
+                          Filtrar por Equipe
+                        </label>
+                        <Select
+                          value={equipe ?? 'todos'}
+                          onValueChange={(val) =>
+                            setEquipe(val === 'todos' ? null : val)
+                          }
+                        >
+                          <SelectTrigger className='w-full lg:w-48'>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value='todos'>
+                              Todas as Equipes
                             </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                            {(summaryData?.uniqueEquipes || []).map((e) => (
+                              <SelectItem key={e} value={e}>
+                                {e}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
 
                     <div className='space-y-2'>
                       <label className='text-sm font-medium'>
@@ -284,32 +284,31 @@ export default function Dashboard() {
 
               {/* Gráficos */}
               <div className='grid gap-4 md:grid-cols-2'>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Inscritos por Lotação</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width='100%' height={300}>
-                      <BarChart data={filteredLotacoesCount}>
-                        <XAxis dataKey='name' />
-                        <YAxis />
-                        <Tooltip />
-                        <Bar dataKey='quantidade' radius={[4, 4, 0, 0]}>
-                          {filteredLotacoesCount.map((entry) => (
-                            <Cell
-                              key={entry.name}
-                              fill={
-                                lotacaoColors[entry.name] ||
-                                lotacaoColors['OUTROS']
-                              }
-                            />
-                          ))}
-                          <LabelList dataKey='quantidade' position='top' />
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </Card>
+                {equipeRole === 'ADMIN' && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Inscritos por Equipe</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ResponsiveContainer width='100%' height={300}>
+                        <BarChart data={equipesCount}>
+                          <XAxis dataKey='name' />
+                          <YAxis />
+                          <Tooltip />
+                          <Bar dataKey='value' radius={[4, 4, 0, 0]}>
+                            {equipesCount.map((entry, index) => (
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={`hsl(${index * 60}, 70%, 50%)`}
+                              />
+                            ))}
+                            <LabelList dataKey='value' position='top' />
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                )}
 
                 <Card>
                   <CardHeader>
@@ -330,6 +329,7 @@ export default function Dashboard() {
                           ))}
                         </Pie>
                         <Tooltip />
+                        <Legend />
                       </PieChart>
                     </ResponsiveContainer>
                   </CardContent>
